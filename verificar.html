@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta name="robots" content="noindex">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Verificar carteirinha — IDPB Jave Sabaoth</title>
+<meta name="description" content="Verificação de carteirinha de membro.">
+<meta name="theme-color" content="#F0C749">
+<meta property="og:title" content="Verificar carteirinha — IDPB Jave Sabaoth">
+<meta property="og:description" content="Verificação de carteirinha de membro.">
+<meta property="og:image" content="assets/img/icons/icon-512.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="assets/img/icons/favicon-48.png" type="image/png">
+<link rel="apple-touch-icon" href="assets/img/icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-pagina="verificar" data-sem-rodape="1">
+<main id="conteudo"><section class="secao"><div class="container estreito" id="res" style="text-align:center"><span class="carregando"></span></div></section></main>
+<script type="module" src="js/core/layout.js"></script>
+<script type="module">
+  import { getDb } from "./js/core/firebase.js";
+  import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+  import { esc, fmtData } from "./js/core/ui.js";
+  import { icon } from "./js/core/icons.js";
+  const el = document.getElementById("res");
+  const token = new URLSearchParams(location.search).get("c") || "";
+  const falha = (t) => el.innerHTML = `<div class="alerta erro" style="text-align:left">${icon("alerta")}<div><h2 style="font-size:1.2rem">Carteirinha não verificada</h2><p>${t}</p></div></div>`;
+  if (!/^[A-Za-z0-9]{16,40}$/.test(token)) falha("Código inválido.");
+  else try {
+    const s = await getDoc(doc(await getDb(), "cards", token));
+    if (!s.exists()) falha("Esta carteirinha não existe ou foi cancelada.");
+    else {
+      const c = s.data(); const ativo = c.status === "ativo";
+      el.innerHTML = `<div class="card" style="text-align:left"><div class="linha"><img src="assets/img/logo-idpb.jpg" alt="" width="56" height="56" style="border-radius:10px"><div><b>IDPB Jave Sabaoth</b><br><span class="muted pequeno">Verificação de membro</span></div></div><hr class="sep">
+        <p class="selo ${ativo ? "verde" : "perigo"}">${icon(ativo ? "check" : "alerta")}${ativo ? "Membro ativo" : "Carteirinha inativa"}</p>
+        <h1 style="font-size:1.6rem;margin-top:12px">${esc(c.nome)}</h1>
+        <p class="muted">${esc(c.cargo || "Membro")} · Nº ${esc(c.numero || "—")}${c.membroDesde ? " · Membro desde " + esc(fmtData(c.membroDesde)) : ""}</p>
+        <p class="pequeno">Consulta em ${esc(new Date().toLocaleString("pt-BR"))}</p></div>`;
+    }
+  } catch (e) { falha("Não foi possível consultar agora. Verifique a internet."); }
+</script>
+</body>
+</html>

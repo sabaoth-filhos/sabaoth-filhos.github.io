@@ -40,6 +40,16 @@ let _db = null;
 export async function getDb() {
   if (_db) return _db;
   const user = await authPronto;
+  // Se a limpeza do cache falhou no "Sair" (ex.: outra aba aberta), conclui agora.
+  let pendenteLimpar = false;
+  try { pendenteLimpar = localStorage.getItem("idpb_limpar_cache") === "1"; } catch {}
+  if (!user && pendenteLimpar) {
+    const { clearIndexedDbPersistence } = await import("https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js");
+    _db = initializeFirestore(app, { localCache: memoryLocalCache(), ignoreUndefinedProperties: true });
+    try { await clearIndexedDbPersistence(_db); localStorage.removeItem("idpb_limpar_cache"); } catch {}
+    if (usandoEmulador) connectFirestoreEmulator(_db, "127.0.0.1", 8080);
+    return _db;
+  }
   _db = initializeFirestore(app, {
     localCache: user
       ? persistentLocalCache({ tabManager: persistentMultipleTabManager() })

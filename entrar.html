@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Entrar — Área do membro · IDPB Jave Sabaoth</title>
+<meta name="description" content="Entre na área do membro da IDPB Jave Sabaoth.">
+<meta name="theme-color" content="#F0C749">
+<meta property="og:title" content="Entrar — Área do membro · IDPB Jave Sabaoth">
+<meta property="og:description" content="Entre na área do membro da IDPB Jave Sabaoth.">
+<meta property="og:image" content="assets/img/icons/icon-512.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="assets/img/icons/favicon-48.png" type="image/png">
+<link rel="apple-touch-icon" href="assets/img/icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-pagina="entrar" data-sem-rodape="1">
+<main id="conteudo">
+  <section class="secao" style="padding-top:28px"><div class="container" style="max-width:480px">
+    <div style="text-align:center;margin-bottom:20px">
+      <img src="assets/img/logo-idpb.jpg" alt="Logo da IDPB" width="96" height="95" style="width:96px;margin:0 auto 12px;border-radius:16px">
+      <h1 style="font-size:1.9rem">Área do membro</h1>
+      <p class="muted">Entre para ver sua carteirinha, escalas, Bíblia com anotações e muito mais.</p>
+    </div>
+
+    <div id="msg" role="alert" aria-live="assertive" class="pilha"></div>
+
+    <!-- Conclusão do link mágico aberto em outro aparelho -->
+    <form id="confirmar-email" class="card form oculto" novalidate>
+      <h2 style="font-size:1.2rem">Confirme seu e-mail</h2>
+      <p class="muted">Você abriu o link em um aparelho diferente. Digite o mesmo e-mail para concluir a entrada.</p>
+      <div class="campo"><label for="email-confirma">E-mail</label><input id="email-confirma" type="email" autocomplete="email" required></div>
+      <button class="btn bloco" type="submit">Concluir entrada</button>
+    </form>
+
+    <div id="metodos" class="pilha">
+      <label class="check"><input type="checkbox" id="consentimento"><span>Li e aceito a <a href="privacidade.html" target="_blank">política de privacidade</a> e autorizo o uso dos meus dados pela igreja.</span></label>
+
+      <button class="btn btn-google bloco" id="btn-google" type="button">
+        <svg viewBox="0 0 48 48" aria-hidden="true" width="22" height="22"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>
+        Entrar com Google</button>
+
+      <details class="card" id="det-link" open>
+        <summary style="cursor:pointer;font-weight:700;list-style:none" class="linha"><i data-icon="convite"></i>Receber link de acesso por e-mail <span class="selo verde">sem senha</span></summary>
+        <form id="form-link" class="form" style="margin-top:14px" novalidate>
+          <div class="campo"><label for="email-link">Seu e-mail</label><input id="email-link" type="email" autocomplete="email" inputmode="email" required placeholder="voce@exemplo.com"></div>
+          <button class="btn bloco" type="submit"><i data-icon="convite"></i>Enviar link de acesso</button>
+        </form>
+      </details>
+
+      <details class="card" id="det-senha">
+        <summary style="cursor:pointer;font-weight:700;list-style:none" class="linha"><i data-icon="escudo"></i>Entrar com e-mail e senha</summary>
+        <div class="tabs" style="margin-top:14px" role="tablist">
+          <button class="chip" role="tab" aria-pressed="true" data-modo="entrar">Entrar</button>
+          <button class="chip" role="tab" aria-pressed="false" data-modo="criar">Criar conta</button>
+          <button class="chip" role="tab" aria-pressed="false" data-modo="esqueci">Esqueci minha senha</button>
+        </div>
+        <form id="form-senha" class="form" style="margin-top:14px" novalidate>
+          <div class="campo oculto" id="c-nome"><label for="nome">Nome completo</label><input id="nome" type="text" autocomplete="name" maxlength="100"></div>
+          <div class="campo"><label for="email-senha">E-mail</label><input id="email-senha" type="email" autocomplete="email" inputmode="email" required></div>
+          <div class="campo" id="c-senha"><label for="senha">Senha</label><input id="senha" type="password" autocomplete="current-password" minlength="6" required></div>
+          <button class="btn bloco" type="submit" id="btn-senha">Entrar</button>
+        </form>
+      </details>
+      <p class="pequeno" style="text-align:center">Primeiro acesso? Use qualquer uma das opções. Seu cadastro será analisado pela liderança.<br>Usando o mesmo e-mail, você sempre cai na mesma conta.</p>
+    </div>
+  </div></section>
+</main>
+<script type="module" src="js/core/layout.js"></script>
+<script type="module" src="js/paginas/entrar.js"></script>
+</body>
+</html>
