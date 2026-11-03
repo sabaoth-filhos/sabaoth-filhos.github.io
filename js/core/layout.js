@@ -10,6 +10,39 @@ const pagina = document.body.dataset.pagina || "";
 const logado = (() => { try { return localStorage.getItem("idpb_logado") === "1"; } catch { return false; } })();
 const areaMembro = document.body.dataset.area === "membro" || document.body.dataset.area === "admin";
 
+// Nome do membro guardado no aparelho (para as iniciais do avatar, sem carregar o Firebase).
+const membroLocal = (() => {
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith("idpb_membro_")) return JSON.parse(localStorage.getItem(k) || "null");
+    }
+  } catch {}
+  return null;
+})();
+const iniciais = (n) => {
+  const p = String(n || "").replace(/\(.*?\)/g, "").trim().split(/\s+/).filter(Boolean);
+  if (!p.length) return "";
+  return (p[0][0] + (p.length > 1 ? p[p.length - 1][0] : "")).toUpperCase();
+};
+
+function menuConta() {
+  if ((!logado && !areaMembro) || pagina === "entrar") return "";
+  const ini = iniciais(membroLocal?.nome);
+  const primeiro = String(membroLocal?.nome || "").trim().split(/\s+/)[0] || "Minha conta";
+  return `<div class="conta-menu">
+    <button class="btn-icone avatar-btn" id="btn-conta" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-conta" aria-label="Menu da conta" title="Minha conta">${ini ? `<span aria-hidden="true">${esc(ini)}</span>` : icon("pessoa")}</button>
+    <div class="conta-pop" id="menu-conta" role="menu" hidden>
+      <p class="conta-nome">${esc(primeiro)}</p>
+      <a role="menuitem" href="${rota("membro/index.html")}">${icon("painel")}Minha área</a>
+      <a role="menuitem" href="${rota("membro/perfil.html")}">${icon("pessoa")}Meu perfil</a>
+      <a role="menuitem" href="${rota("membro/carteirinha.html")}">${icon("cartao")}Carteirinha</a>
+      <hr>
+      <button role="menuitem" type="button" id="btn-sair">${icon("sair")}Sair da conta</button>
+    </div>
+  </div>`;
+}
+
 const MENU = [
   { id: "inicio", nome: "Início", href: "index.html", ic: "casa" },
   { id: "assistir", nome: "Assistir", href: "assistir.html", ic: "assistir" },
@@ -42,7 +75,7 @@ function header() {
     </ul></nav>
     <div class="header-acoes">
       <button class="btn-icone" id="btn-tema" aria-label="Alternar modo claro/escuro">${icon(escuroAgora() ? "sol" : "lua")}</button>
-      ${areaMembro ? `<button class="btn-icone" id="btn-sair" aria-label="Sair da conta" title="Sair">${icon("sair")}</button>` : ""}
+      ${menuConta()}
     </div>
   </div>`;
   return h;
@@ -115,6 +148,25 @@ function montar() {
     bt.innerHTML = icon(novo === "dark" ? "sol" : "lua");
     document.dispatchEvent(new CustomEvent("tema-alterado", { detail: novo }));
   });
+  const bc = document.getElementById("btn-conta"), pop = document.getElementById("menu-conta");
+  if (bc && pop) {
+    const abrir = (sim) => {
+      pop.hidden = !sim; bc.setAttribute("aria-expanded", String(sim));
+      if (sim) pop.querySelector("a,button")?.focus();
+    };
+    bc.addEventListener("click", (e) => { e.stopPropagation(); abrir(pop.hidden); });
+    document.addEventListener("click", (e) => { if (!pop.hidden && !pop.contains(e.target)) abrir(false); });
+    document.addEventListener("keydown", (e) => {
+      if (pop.hidden) return;
+      if (e.key === "Escape") { abrir(false); bc.focus(); }
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        const itens = [...pop.querySelectorAll("a,button")];
+        const i = itens.indexOf(document.activeElement);
+        itens[(i + (e.key === "ArrowDown" ? 1 : -1) + itens.length) % itens.length].focus();
+        e.preventDefault();
+      }
+    });
+  }
   document.getElementById("btn-sair")?.addEventListener("click", async () => {
     const { sairComSeguranca } = await import("./sessao.js");
     sairComSeguranca();
