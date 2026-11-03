@@ -56,7 +56,13 @@ export async function exigirMembro({ papel = null, permitirPerfilIncompleto = fa
   catch (e) {
     // Sem internet e sem cache: tenta seguir com o mínimo para não travar as anotações offline.
     membro = JSON.parse(localStorage.getItem("idpb_membro_" + user.uid) || "null");
-    if (!membro) { telaBloqueio("Sem conexão", "Não foi possível carregar seus dados. Verifique a internet e tente de novo."); return new Promise(() => {}); }
+    if (!membro) {
+      console.error("Falha ao carregar members/" + user.uid + ":", e);
+      if (e?.code === "permission-denied") telaBloqueio("Acesso bloqueado pelo servidor", "O banco de dados recusou o acesso. Provável causa: as regras de segurança (firestore.rules) ainda não foram publicadas no Console do Firebase. Avise o administrador do site.");
+      else if (e?.code === "not-found" || e?.code === "failed-precondition") telaBloqueio("Banco de dados indisponível", "O banco de dados do site não foi encontrado ou não está configurado. Avise o administrador do site.");
+      else telaBloqueio("Sem conexão", "Não foi possível carregar seus dados. Verifique a internet e tente de novo.");
+      return new Promise(() => {});
+    }
   }
   _membro = membro;
   try { localStorage.setItem("idpb_membro_" + user.uid, JSON.stringify({ id: membro.id, nome: membro.nome, status: membro.status, papeis: membro.papeis, perfilCompleto: membro.perfilCompleto })); } catch {}
