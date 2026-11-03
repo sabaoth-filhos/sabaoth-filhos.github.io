@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Assistir — Mensagens da IDPB Jave Sabaoth</title>
+<meta name="description" content="Mensagens organizadas por série, com busca e vídeos do YouTube.">
+<meta name="theme-color" content="#F0C749">
+<meta property="og:title" content="Assistir — Mensagens da IDPB Jave Sabaoth">
+<meta property="og:description" content="Mensagens organizadas por série, com busca e vídeos do YouTube.">
+<meta property="og:image" content="assets/img/icons/icon-512.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="assets/img/icons/favicon-48.png" type="image/png">
+<link rel="apple-touch-icon" href="assets/img/icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-pagina="assistir">
+<main id="conteudo">
+  <section class="page-head"><div class="container">
+    <p class="eyebrow">Mensagens</p>
+    <h1>Assistir</h1>
+    <p>Pregações organizadas por série. Assista, compartilhe e leve a Palavra para a semana.</p>
+    <div class="campo" style="max-width:560px;margin-top:8px">
+      <label class="sr-only" for="busca">Buscar mensagens</label>
+      <input id="busca" type="search" placeholder="Buscar por título, pregador ou referência…" autocomplete="off">
+    </div>
+  </div></section>
+  <section class="secao" style="padding-top:12px"><div class="container">
+    <div id="em-destaque"></div>
+    <h2 style="margin-top:32px">Séries</h2>
+    <div class="tabs" id="filtro-series" role="tablist" aria-label="Filtrar por série"></div>
+    <div class="grid grid-3" id="lista-mensagens" style="margin-top:16px"></div>
+  </div></section>
+</main>
+<script type="module" src="js/core/layout.js"></script>
+<script type="module" src="js/paginas/assistir.js"></script>
+</body>
+</html>

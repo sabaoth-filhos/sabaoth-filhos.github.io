@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Precisa de oração? — IDPB Jave Sabaoth</title>
+<meta name="description" content="Envie seu pedido de oração. Pode ser anônimo.">
+<meta name="theme-color" content="#F0C749">
+<meta property="og:title" content="Precisa de oração? — IDPB Jave Sabaoth">
+<meta property="og:description" content="Envie seu pedido de oração. Pode ser anônimo.">
+<meta property="og:image" content="assets/img/icons/icon-512.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="assets/img/icons/favicon-48.png" type="image/png">
+<link rel="apple-touch-icon" href="assets/img/icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-pagina="oracao">
+<main id="conteudo">
+  <section class="page-head"><div class="container estreito">
+    <p class="eyebrow">Oração</p>
+    <h1>Precisa de oração?</h1>
+    <p>Você não está sozinho. Conte para nós o que está no seu coração. Nossa equipe de intercessão vai orar por você.</p>
+  </div></section>
+  <section class="secao" style="padding-top:8px"><div class="container estreito">
+    <div class="card" id="area-oracao">
+      <form class="form" id="form-oracao" novalidate>
+        <div class="campo"><label for="pedido">Seu pedido *</label><textarea id="pedido" name="pedido" required maxlength="3000" placeholder="Escreva aqui…"></textarea></div>
+        <label class="check"><input type="checkbox" name="anonimo" id="anonimo"><span><b>Enviar anonimamente</b><br><small>Não guardaremos seu nome, contato nem sua conta.</small></span></label>
+        <div id="dados-pessoais" class="pilha">
+          <div class="campo"><label for="nome">Seu nome <span class="muted">(opcional)</span></label><input id="nome" name="nome" type="text" maxlength="100" autocomplete="name"></div>
+          <div class="campo"><label for="contato">Celular ou e-mail para retorno <span class="muted">(opcional)</span></label><input id="contato" name="contato" type="text" maxlength="120"></div>
+        </div>
+        <label class="check"><input type="checkbox" name="publico"><span>Pode compartilhar com a equipe de intercessores (sem expor detalhes publicamente).</span></label>
+        <div class="msg" role="alert" aria-live="assertive"></div>
+        <button class="btn bloco" type="submit"><i data-icon="oracao"></i>Enviar pedido</button>
+        <p class="pequeno">Ao enviar, você concorda com a nossa <a href="privacidade.html">política de privacidade</a>.</p>
+      </form>
+    </div>
+  </div></section>
+</main>
+<script type="module" src="js/core/layout.js"></script>
+<script type="module">
+  import { enviarPedidoOracao } from "./js/core/forms.js";
+  import { icon } from "./js/core/icons.js";
+  import { esc, mensagemErro } from "./js/core/ui.js";
+  const f = document.getElementById("form-oracao");
+  const anon = document.getElementById("anonimo");
+  anon.addEventListener("change", () => document.getElementById("dados-pessoais").classList.toggle("oculto", anon.checked));
+  f.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fd = new FormData(f), msg = f.querySelector(".msg");
+    const pedido = String(fd.get("pedido") || "").trim();
+    if (!pedido) { msg.innerHTML = `<div class="alerta erro">${icon("alerta")}<p>Escreva seu pedido.</p></div>`; f.pedido.focus(); return; }
+    const b = f.querySelector("button[type=submit]"); b.setAttribute("aria-busy", "true");
+    try {
+      await enviarPedidoOracao({ pedido, nome: String(fd.get("nome")||"").trim(), contato: String(fd.get("contato")||"").trim(), anonimo: anon.checked, publico: !!fd.get("publico") });
+      document.getElementById("area-oracao").innerHTML = `<div class="alerta ok aparecer">${icon("check")}<div><h3>Recebemos seu pedido.</h3><p>Vamos orar por você. "Lancem sobre Ele toda a sua ansiedade, porque Ele tem cuidado de vocês." (1Pe 5:7)</p></div></div>`;
+    } catch (err) { msg.innerHTML = `<div class="alerta erro">${icon("alerta")}<p>${esc(mensagemErro(err))}</p></div>`; }
+    finally { b.removeAttribute("aria-busy"); }
+  });
+</script>
+</body>
+</html>

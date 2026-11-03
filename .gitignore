@@ -1,0 +1,25 @@
+# ===== Textos bíblicos licenciados: NUNCA versionar =====
+/biblias-pdf/
+/biblias-json/
+scripts/importar-biblia/saida/
+scripts/importar-biblia/pdfs/
+*.pdf
+
+# ===== Chaves e segredos =====
+*-service-account*.json
+serviceAccount*.json
+chave-servico*.json
+*.key
+.env
+.env.*
+
+# ===== Ferramentas =====
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+.DS_Store

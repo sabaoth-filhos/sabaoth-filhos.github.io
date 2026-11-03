@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Contribuir — IDPB Jave Sabaoth</title>
+<meta name="description" content="Contribua com dízimos e ofertas pelo Pix.">
+<meta name="theme-color" content="#F0C749">
+<meta property="og:title" content="Contribuir — IDPB Jave Sabaoth">
+<meta property="og:description" content="Contribua com dízimos e ofertas pelo Pix.">
+<meta property="og:image" content="assets/img/icons/icon-512.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="assets/img/icons/favicon-48.png" type="image/png">
+<link rel="apple-touch-icon" href="assets/img/icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-pagina="contribuir">
+<main id="conteudo">
+  <section class="page-head"><div class="container estreito">
+    <p class="eyebrow">Generosidade</p>
+    <h1>Contribuir</h1>
+    <p>Seus dízimos e ofertas sustentam a obra, cuidam de pessoas e levam o Evangelho adiante. Obrigado pela sua fidelidade.</p>
+  </div></section>
+  <section class="secao" style="padding-top:8px"><div class="container estreito">
+    <div class="card" style="text-align:center">
+      <div class="icone-card verde" style="margin:0 auto 12px"><i data-icon="qr"></i></div>
+      <h2>Pix</h2>
+      <p class="muted">Aponte a câmera do app do seu banco para o QR code, ou copie a chave.</p>
+      <div id="pix-aviso"></div>
+      <div class="qr" id="pix-qr" aria-label="QR code do Pix"></div>
+      <div style="text-align:left;margin-top:20px" class="pilha">
+        <span class="rotulo">Chave Pix</span>
+        <div class="pix-chave"><code id="pix-chave"></code><button class="btn" id="copiar-chave" aria-label="Copiar chave Pix"><i data-icon="copiar"></i>Copiar</button></div>
+        <p class="pequeno">Titular: <b id="pix-titular"></b></p>
+        <button class="btn secundario bloco" id="copiar-codigo"><i data-icon="copiar"></i>Copiar código "Pix copia e cola"</button>
+      </div>
+    </div>
+    <p class="pequeno" style="margin-top:16px">Membros: os lançamentos feitos pela tesouraria aparecem em <a href="membro/contribuicoes.html">Minhas contribuições</a>.</p>
+  </div></section>
+</main>
+<script type="module" src="js/core/layout.js"></script>
+<script type="module">
+  import { getIgreja } from "./js/core/dados-publicos.js";
+  import { payloadPix, chaveEhPlaceholder } from "./js/core/pix.js";
+  import { copiar, qrSvg, esc } from "./js/core/ui.js";
+  import { icon } from "./js/core/icons.js";
+  const I = await getIgreja();
+  document.getElementById("pix-chave").textContent = I.pixChave;
+  document.getElementById("pix-titular").textContent = I.pixTitular;
+  const placeholder = chaveEhPlaceholder(I.pixChave);
+  const codigo = placeholder ? "" : payloadPix({ chave: I.pixChave, nome: I.pixTitular, cidade: I.pixCidade || "MANAUS" });
+  if (placeholder) {
+    document.getElementById("pix-aviso").innerHTML = `<div class="alerta" style="text-align:left;margin-bottom:12px">${icon("info")}<p>A chave Pix ainda não foi configurada. Edite em <b>js/site-config.js</b> ou no painel admin (Conteúdo público).</p></div>`;
+    document.getElementById("pix-qr").innerHTML = `<div style="width:220px;height:220px;display:grid;place-items:center;color:#666;border:2px dashed #ccc">QR code<br>(aguardando chave)</div>`;
+  } else {
+    try { document.getElementById("pix-qr").innerHTML = await qrSvg(codigo, 5); } catch { document.getElementById("pix-qr").textContent = "Não foi possível gerar o QR code."; }
+  }
+  document.getElementById("copiar-chave").onclick = () => copiar(I.pixChave, "Chave Pix copiada!");
+  document.getElementById("copiar-codigo").onclick = () => placeholder ? alert("Chave Pix ainda não configurada.") : copiar(codigo, "Código Pix copiado! Cole no app do banco.");
+</script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sobre — IDPB Jave Sabaoth</title>
+<meta name="description" content="Quem somos, no que cremos, nossa liderança e o vínculo com a Igreja de Deus Pentecostal do Brasil.">
+<meta name="theme-color" content="#F0C749">
+<meta property="og:title" content="Sobre — IDPB Jave Sabaoth">
+<meta property="og:description" content="Quem somos, no que cremos, nossa liderança e o vínculo com a Igreja de Deus Pentecostal do Brasil.">
+<meta property="og:image" content="assets/img/icons/icon-512.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="assets/img/icons/favicon-48.png" type="image/png">
+<link rel="apple-touch-icon" href="assets/img/icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-pagina="sobre">
+<main id="conteudo">
+  <section class="page-head"><div class="container estreito">
+    <p class="eyebrow">Sobre nós</p>
+    <h1>Uma família que ama a Palavra</h1>
+    <p>Somos a IDPB Jave Sabaoth, uma igreja local da Igreja de Deus Pentecostal do Brasil, em Manaus. [HISTÓRIA DA IGREJA: quando começou, como chegou ao endereço atual, o que Deus tem feito.]</p>
+  </div></section>
+
+  <section class="secao suave"><div class="container grid grid-2" style="align-items:center">
+    <img src="assets/img/logo-idpb.jpg" alt="Logo da Igreja de Deus Pentecostal do Brasil" width="560" height="552" loading="lazy" style="max-width:320px;margin:auto;border-radius:var(--raio)">
+    <div>
+      <p class="eyebrow">Vínculo com a IDPB</p>
+      <h2>Igreja de Deus Pentecostal do Brasil</h2>
+      <p class="muted">Fazemos parte da IDPB, cujo lema é "Proclamando a verdade da Bíblia no poder do Espírito Santo". [Texto sobre a convenção/região, sede, presidência e como a igreja local se relaciona com a IDPB.]</p>
+    </div>
+  </div></section>
+
+  <section class="secao"><div class="container">
+    <p class="eyebrow">No que cremos</p>
+    <h2>Nossas crenças</h2>
+    <div class="grid grid-3" style="margin-top:16px">
+      <div class="card"><div class="icone-card verde"><i data-icon="biblia"></i></div><h3>A Bíblia</h3><p class="muted">Cremos na Bíblia como a Palavra de Deus inspirada, nossa única regra de fé e prática.</p></div>
+      <div class="card"><div class="icone-card verde"><i data-icon="estrela"></i></div><h3>Um só Deus</h3><p class="muted">Cremos em um só Deus, eternamente existente em três pessoas: Pai, Filho e Espírito Santo.</p></div>
+      <div class="card"><div class="icone-card verde"><i data-icon="coracao"></i></div><h3>Salvação em Jesus</h3><p class="muted">Cremos que a salvação é pela graça, mediante a fé em Jesus Cristo, que morreu e ressuscitou.</p></div>
+      <div class="card"><div class="icone-card verde"><i data-icon="agua"></i></div><h3>Batismo nas águas</h3><p class="muted">Praticamos o batismo por imersão, como testemunho público de fé.</p></div>
+      <div class="card"><div class="icone-card verde"><i data-icon="evangelismo"></i></div><h3>Poder do Espírito Santo</h3><p class="muted">Cremos no batismo no Espírito Santo e nos dons espirituais para a edificação da Igreja.</p></div>
+      <div class="card"><div class="icone-card verde"><i data-icon="igreja"></i></div><h3>A volta de Jesus</h3><p class="muted">Aguardamos a volta de Cristo e vivemos com esperança e santidade.</p></div>
+    </div>
+    <p class="pequeno" style="margin-top:12px">[Revise este resumo conforme a declaração de fé oficial da IDPB.]</p>
+  </div></section>
+
+  <section class="secao suave"><div class="container">
+    <p class="eyebrow">Liderança</p>
+    <h2>Quem cuida de nós</h2>
+    <div class="grid grid-3" id="lideranca" style="margin-top:16px"></div>
+  </div></section>
+</main>
+<script type="module" src="js/core/layout.js"></script>
+<script type="module">
+  import { getIgreja } from "./js/core/dados-publicos.js";
+  import { esc, avatar } from "./js/core/ui.js";
+  const I = await getIgreja();
+  const lideres = (I.lideranca && I.lideranca.length) ? I.lideranca : [
+    { nome: "[NOME DO PASTOR]", cargo: "Pastor presidente" },
+    { nome: "[NOME DA PASTORA]", cargo: "Pastora" },
+    { nome: "[NOME]", cargo: "[CARGO]" }
+  ];
+  document.getElementById("lideranca").innerHTML = lideres.map(l => `<div class="card linha">${avatar(l.nome, l.foto)}<div><h3 style="margin:0">${esc(l.nome)}</h3><span class="muted">${esc(l.cargo)}</span></div></div>`).join("");
+</script>
+</body>
+</html>

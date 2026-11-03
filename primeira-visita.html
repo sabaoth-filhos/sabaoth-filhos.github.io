@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Primeira visita — IDPB Jave Sabaoth</title>
+<meta name="description" content="O que esperar do culto, onde estacionar, ministério infantil e como avisar que você vem.">
+<meta name="theme-color" content="#F0C749">
+<meta property="og:title" content="Primeira visita — IDPB Jave Sabaoth">
+<meta property="og:description" content="O que esperar do culto, onde estacionar, ministério infantil e como avisar que você vem.">
+<meta property="og:image" content="assets/img/icons/icon-512.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="assets/img/icons/favicon-48.png" type="image/png">
+<link rel="apple-touch-icon" href="assets/img/icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-pagina="visita">
+<main id="conteudo">
+  <section class="page-head"><div class="container estreito">
+    <p class="eyebrow">Primeira vez aqui?</p>
+    <h1>Que bom que você vem!</h1>
+    <p>Queremos que você se sinta em casa desde a porta. Veja o que esperar e, se quiser, avise que você vem: vamos te receber pessoalmente.</p>
+    <a class="btn" href="#avise"><i data-icon="seta"></i>Avise que você vem</a>
+  </div></section>
+
+  <section class="secao"><div class="container grid grid-2">
+    <div class="card"><div class="icone-card verde"><i data-icon="microfone"></i></div><h3>Como é o culto</h3>
+      <p class="muted">O culto dura cerca de [DURAÇÃO]. Começamos com louvor e adoração, depois oramos juntos e ouvimos a pregação da Palavra. Ninguém vai te pedir para falar ou se levantar. Venha com a roupa que você se sente bem.</p></div>
+    <div class="card"><div class="icone-card verde"><i data-icon="carro"></i></div><h3>Onde estacionar</h3>
+      <p class="muted">[INFORMAÇÕES DE ESTACIONAMENTO: rua, vagas, pontos de ônibus próximos.] Nossa equipe de recepção fica na entrada para te ajudar.</p>
+      <a class="btn secundario pequeno" id="maps" href="#" target="_blank" rel="noopener"><i data-icon="pin"></i>Como chegar</a></div>
+    <div class="card"><div class="icone-card verde"><i data-icon="crianca"></i></div><h3>Ministério infantil</h3>
+      <p class="muted">Durante a pregação, as crianças de [FAIXA ETÁRIA] participam de uma programação com professores preparados, em ambiente seguro. Você faz o cadastro na entrada e retira a criança com a etiqueta.</p></div>
+    <div class="card"><div class="icone-card verde"><i data-icon="cafe"></i></div><h3>Depois do culto</h3>
+      <p class="muted">Fique um pouco! Gostamos de conversar, conhecer você e orar se precisar. Procure alguém da recepção com o crachá amarelo.</p></div>
+  </div></section>
+
+  <section class="secao suave" id="avise"><div class="container estreito">
+    <div class="card" id="form-visita"></div>
+  </div></section>
+
+  <section class="secao"><div class="container estreito">
+    <h2>Horários</h2><ul class="lista-icones" id="lista-horarios-simples"></ul>
+    <p class="muted" style="margin-top:12px" id="endereco-texto"></p>
+  </div></section>
+</main>
+<script type="module" src="js/core/layout.js"></script>
+<script type="module">
+  import { montarFormulario } from "./js/core/forms.js";
+  import { preencherDadosIgreja } from "./js/paginas/comum.js";
+  montarFormulario(document.getElementById("form-visita"), "visita");
+  preencherDadosIgreja();
+</script>
+</body>
+</html>
