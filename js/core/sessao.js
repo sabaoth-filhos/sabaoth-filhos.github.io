@@ -1,5 +1,5 @@
 // Sessão do membro: carrega o perfil (members/{uid}), protege páginas e faz o "Sair" seguro.
-import { auth, authPronto, getDb, SITE } from "./firebase.js";
+import { auth, authPronto, getDb, SITE, lerDoc } from "./firebase.js";
 import { signOut } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 import {
   doc, getDoc, setDoc, serverTimestamp, terminate, clearIndexedDbPersistence, waitForPendingWrites
@@ -15,7 +15,7 @@ export const ehAdmin = (m) => !!m && Array.isArray(m.papeis) && m.papeis.include
 export async function garantirMembro(user, extra = {}) {
   const db = await getDb();
   const ref = doc(db, "members", user.uid);
-  const s = await getDoc(ref);
+  const s = await lerDoc(ref);
   if (s.exists()) return { id: user.uid, ...s.data() };
   const novo = {
     nome: extra.nome || user.displayName || "",

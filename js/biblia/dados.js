@@ -8,6 +8,7 @@ import {
   doc, getDoc, getDocFromCache, setDoc, collection, query, where, getDocs, deleteDoc
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 import { chaveVers } from "./referencias.js";
+import { lerDoc } from "../core/firebase.js";
 
 export const VERSOES = self.SITE_CONFIG.BIBLIAS;
 
@@ -15,7 +16,7 @@ const _meta = {};
 export async function progresso(db, versao) {
   if (_meta[versao]) return _meta[versao];
   try {
-    const s = await getDoc(doc(db, "bible", versao, "meta", "progresso"));
+    const s = await lerDoc(doc(db, "bible", versao, "meta", "progresso"));
     _meta[versao] = s.exists() ? s.data() : { livros: {} };
   } catch { _meta[versao] = { livros: {} }; }
   return _meta[versao];
@@ -32,7 +33,7 @@ export async function capitulo(db, versao, livro, cap) {
   if (_caps.has(k)) return _caps.get(k);
   let vs = null;
   try {
-    const s = await getDoc(doc(db, "bible", versao, "books", livro, "chapters", String(cap)));
+    const s = await lerDoc(doc(db, "bible", versao, "books", livro, "chapters", String(cap)));
     if (s.exists()) vs = s.data().versiculos || null;
   } catch (e) {
     // Sem internet: tenta o livro inteiro já baixado no aparelho.
@@ -73,7 +74,7 @@ export async function ultimoPonto(db, uid) {
   let local = null;
   try { local = JSON.parse(localStorage.getItem(LS + "_" + uid) || "null"); } catch {}
   try {
-    const s = await getDoc(doc(db, "users", uid, "readingProgress", "atual"));
+    const s = await lerDoc(doc(db, "users", uid, "readingProgress", "atual"));
     const r = s.exists() ? s.data() : null;
     if (r && (!local || (r.em || 0) >= (local.em || 0))) return r;
   } catch {}

@@ -1,0 +1,248 @@
+rules_version = '2';
+
+// =====================================================================
+//  Regras de segurança — IDPB Jave Sabaoth
+//  Papéis ficam em members/{uid}.papeis (lista): "lider", "tesoureiro", "admin".
+//  Ninguém (nem admin) lê as anotações pessoais em users/{uid}/**.
+//  Publicar: Console Firebase > Firestore > Regras > colar este arquivo > Publicar.
+// =====================================================================
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- Funções auxiliares ----------
+    function logado() { return request.auth != null; }
+    function uid() { return request.auth.uid; }
+    function caminhoMembro(id) { return /databases/$(database)/documents/members/$(id); }
+    function eu() { return get(caminhoMembro(uid())).data; }
+    function aprovado() { return logado() && exists(caminhoMembro(uid())) && eu().get('status', '') == 'aprovado'; }
+    function papeis() { return eu().get('papeis', []); }
+    function ehAdmin() { return aprovado() && papeis().hasAny(['admin']); }
+    function temPapel(p) { return aprovado() && papeis().hasAny([p, 'admin']); }
+    function dados() { return request.resource.data; }
+    function mudou() { return dados().diff(resource.data).affectedKeys(); }
+    function texto(v, max) { return v is string && v.size() <= max; }
+    function textoOpc(campo, max) { return !(campo in dados()) || texto(dados()[campo], max); }
+    // Foto em data URL, comprimida no navegador (~40 KB). Limite rígido de 60.000 caracteres.
+    function fotoValida() {
+      return !('foto' in dados()) || dados().foto == '' ||
+        (dados().foto is string && dados().foto.size() <= 60000 &&
+         dados().foto.matches('^data:image/(webp|jpeg|png);base64,[A-Za-z0-9+/=]+$'));
+    }
+
+    // ---------- Dados públicos da igreja ----------
+    match /settings/{id} {
+      allow read: if true;
+      allow write: if ehAdmin();
+    }
+    match /counters/{id} {
+      allow read, write: if ehAdmin();
+    }
+    match /series/{id} {
+      allow read: if true;
+      allow write: if ehAdmin();
+    }
+    match /sermons/{id} {
+      allow read: if true;
+      allow write: if ehAdmin();
+    }
+    match /events/{id} {
+      allow read: if resource.data.get('publico', false) == true || aprovado();
+      allow write: if ehAdmin();
+    }
+
+    // ---------- Formulários públicos ----------
+    match /visitorForms/{id} {
+      allow create: if dados().keys().hasOnly(['tipo','nome','celular','email','mensagem','extras','consentimento','status','criadoEm','uid'])
+        && dados().tipo in ['visita','grupo','voluntariado','batismo']
+        && texto(dados().nome, 100) && dados().nome.size() > 0
+        && texto(dados().celular, 30) && textoOpc('email', 120) && textoOpc('mensagem', 2000)
+        && (!('extras' in dados()) || (dados().extras is map && dados().extras.size() <= 10))
+        && dados().consentimento == true && dados().status == 'novo'
+        && dados().criadoEm == request.time
+        && (!('uid' in dados()) || (logado() && dados().uid == uid()));
+      allow read, update, delete: if ehAdmin();
+    }
+
+    // Pedidos de oração: anônimos NÃO guardam uid, nome nem contato.
+    match /prayerRequests/{id} {
+      allow create: if dados().keys().hasOnly(['pedido','anonimo','intercessores','status','criadoEm','nome','contato','uid'])
+        && texto(dados().pedido, 3000) && dados().pedido.size() > 0
+        && dados().anonimo is bool && dados().status == 'novo' && dados().criadoEm == request.time
+        && (dados().anonimo == false || !dados().keys().hasAny(['uid','nome','contato']))
+        && textoOpc('nome', 100) && textoOpc('contato', 120)
+        && (!('uid' in dados()) || (logado() && dados().uid == uid()));
+      allow read: if ehAdmin() || (logado() && resource.data.get('uid', '') == uid());
+      allow update, delete: if ehAdmin();
+    }
+
+    // ---------- Membros ----------
+    match /members/{id} {
+      allow read: if (logado() && uid() == id) || ehAdmin();
+
+      // Primeiro acesso: sempre "pendente" e sem papéis.
+      allow create: if logado() && uid() == id
+        && dados().keys().hasOnly(['nome','email','status','papeis','perfilCompleto','consentimentoEm','criadoEm'])
+        && dados().status == 'pendente' && dados().papeis == [] && dados().perfilCompleto == false
+        && texto(dados().nome, 100) && texto(dados().email, 200)
+        || ehAdmin();   // admin pode cadastrar membros manualmente (ex.: dados de exemplo)
+
+      // O membro aprovado edita só os próprios dados pessoais (cargo, batismo, membresia, papéis: só liderança).
+      allow update: if (logado() && uid() == id && resource.data.status == 'aprovado'
+          && mudou().hasOnly(['nome','celular','aniversario','foto','endereco','familia','arvoreVisibilidade','perfilCompleto','atualizadoEm'])
+          && textoOpc('nome', 100) && textoOpc('celular', 30) && textoOpc('endereco', 200)
+          && (!('arvoreVisibilidade' in dados()) || dados().arvoreVisibilidade in ['foto','nome','oculto'])
+          && fotoValida())
+        || (ehAdmin() && fotoValida());
+
+      allow delete: if ehAdmin();
+    }
+
+    // Cartão "público para membros": nome, foto (se permitido), dia/mês do aniversário.
+    match /directory/{id} {
+      allow read: if aprovado();
+      allow write: if (aprovado() && uid() == id
+          && dados().keys().hasOnly(['nome','foto','aniversarioDia','aniversarioMes','arvore','atualizadoEm'])
+          && texto(dados().nome, 100) && fotoValida()
+          && (!('arvore' in dados()) || dados().arvore in ['foto','nome','oculto']))
+        || (ehAdmin() && fotoValida());
+      allow delete: if ehAdmin();
+    }
+
+    // Verificação da carteirinha (QR): consulta só por código (token aleatório), sem listar.
+    match /cards/{token} {
+      allow get: if true;
+      allow list: if false;
+      allow write: if ehAdmin();
+    }
+
+    // ---------- Grupos, ministérios, escalas ----------
+    match /groups/{id} {
+      allow read: if aprovado() && (uid() in resource.data.get('membros', []) || resource.data.get('liderId', '') == uid() || ehAdmin());
+      allow create, delete: if ehAdmin();
+      allow update: if ehAdmin() || (temPapel('lider') && resource.data.get('liderId', '') == uid()
+          && mudou().hasOnly(['membros','dia','horario','local','atualizadoEm']));
+    }
+
+    match /ministries/{id} {
+      allow read: if aprovado();
+      allow create, delete: if ehAdmin();
+      allow update: if ehAdmin() || (temPapel('lider') && uid() in resource.data.get('liderIds', [])
+          && mudou().hasOnly(['membros','atualizadoEm']));
+    }
+
+    match /schedules/{id} {
+      function liderDoMinisterio(minId) {
+        return temPapel('lider') && uid() in get(/databases/$(database)/documents/ministries/$(minId)).data.get('liderIds', []);
+      }
+      allow read: if aprovado() && (resource.data.memberId == uid() || uid() in resource.data.get('liderIds', []) || ehAdmin());
+      allow create: if ehAdmin() || liderDoMinisterio(dados().ministerioId);
+      allow delete: if ehAdmin() || liderDoMinisterio(resource.data.ministerioId);
+      allow update: if ehAdmin() || liderDoMinisterio(resource.data.ministerioId)
+        // "Não poderei ir": o próprio membro só muda status/motivo.
+        || (aprovado() && resource.data.memberId == uid()
+            && mudou().hasOnly(['status','motivo','avisadoEm'])
+            && dados().status in ['ausente','confirmado'] && textoOpc('motivo', 500));
+    }
+
+    // ---------- Eventos e inscrições ----------
+    match /registrations/{id} {
+      allow read: if logado() && (resource.data.memberId == uid() || temPapel('lider') || ehAdmin());
+      allow create: if aprovado() && dados().memberId == uid() && id == dados().eventId + '_' + uid()
+        && dados().keys().hasOnly(['eventId','memberId','nome','criadoEm']);
+      allow delete: if (logado() && resource.data.memberId == uid()) || ehAdmin();
+      allow update: if ehAdmin();
+    }
+
+    // ---------- Contribuições (privadas) ----------
+    match /contributions/{id} {
+      allow read: if (aprovado() && resource.data.memberId == uid()) || temPapel('tesoureiro');
+      allow write: if temPapel('tesoureiro');
+    }
+
+    // ---------- Avisos ----------
+    match /notices/{id} {
+      function podePublicar(d) {
+        return ehAdmin() || (temPapel('lider') && (
+          (d.alvoTipo == 'grupo' && get(/databases/$(database)/documents/groups/$(d.alvoId)).data.get('liderId', '') == uid()) ||
+          (d.alvoTipo == 'ministerio' && uid() in get(/databases/$(database)/documents/ministries/$(d.alvoId)).data.get('liderIds', []))));
+      }
+      allow read: if aprovado();
+      allow create: if podePublicar(dados()) && dados().autorId == uid();
+      allow update, delete: if ehAdmin() || (temPapel('lider') && resource.data.autorId == uid() && (request.method == 'delete' || podePublicar(dados())));
+    }
+
+    // ---------- Bíblia (textos licenciados) ----------
+    // Leitura somente por membros aprovados. Escrita: admin ou script de importação (Admin SDK ignora regras).
+    match /bible/{versao} {
+      allow read: if aprovado();
+      allow write: if ehAdmin();
+      match /{doc=**} {
+        allow read: if aprovado();
+        allow write: if ehAdmin();
+      }
+    }
+
+    // ---------- Dados pessoais: anotações, destaques, progresso ----------
+    // SOMENTE o dono. Nem líder nem admin.
+    match /users/{dono}/{colecao}/{docId} {
+      allow read, write: if logado() && uid() == dono && colecao != 'notes';
+    }
+    // Anotações: controle de versão contra perda entre aparelhos.
+    // Uma atualização só é aceita se foi feita sobre a versão atual do servidor
+    // (baseMs == atualizadoEm). Se não, o app guarda a outra como "versão anterior".
+    match /users/{dono}/notes/{notaId} {
+      allow read, delete: if logado() && uid() == dono;
+      allow create: if logado() && uid() == dono && dados().atualizadoEm is int && dados().texto is string;
+      allow update: if logado() && uid() == dono && dados().atualizadoEm is int && dados().texto is string
+        && dados().get('baseMs', null) == resource.data.get('atualizadoEm', null);
+      match /versoes/{versaoId} {
+        allow read, write: if logado() && uid() == dono;
+      }
+    }
+
+    // ---------- Árvore da Fé ----------
+    match /spiritualLinks/{membroId} {
+      function semCicloDireto(d) {
+        return !('ganhoPorId' in d) || d.ganhoPorId == null || d.ganhoPorId == '' ||
+          (d.ganhoPorId != membroId &&
+           !(exists(/databases/$(database)/documents/spiritualLinks/$(d.ganhoPorId)) &&
+             get(/databases/$(database)/documents/spiritualLinks/$(d.ganhoPorId)).data.get('ganhoPorId', '') == membroId));
+      }
+      function camposValidos(d) {
+        return d.keys().hasOnly(['ganhoPorId','ganhoPorNomeExterno','ganhoPorNome','modos','modoOutro','dataConversao','contribuiram','status','raiz','criadoPor','criadoEm','atualizadoEm','confirmadoPor','confirmadoEm','historico','ficticio'])
+          && d.status in ['pendente','confirmado']
+          && (!('modos' in d) || (d.modos is list && d.modos.size() <= 9))
+          && (!('contribuiram' in d) || (d.contribuiram is list && d.contribuiram.size() <= 10))
+          && (!('ganhoPorNomeExterno' in d) || texto(d.ganhoPorNomeExterno, 100))
+          && (!('historico' in d) || (d.historico is list && d.historico.size() <= 100));
+      }
+      // Pelo próprio membro: indicação fica 'pendente'; "ninguém daqui" (raiz) não precisa de confirmação.
+      function propriaValida(d) {
+        return (d.criadoPor == uid() || (request.method == 'update' && d.criadoPor == resource.data.criadoPor)) && camposValidos(d) && semCicloDireto(d) &&
+          (d.status == 'pendente' ||
+           (d.get('raiz', false) == true && d.status == 'confirmado' && !('ganhoPorId' in d) && !('ganhoPorNomeExterno' in d)));
+      }
+      allow read: if aprovado();
+      allow create: if (aprovado() && uid() == membroId && propriaValida(dados()))
+        || ((ehAdmin() || temPapel('lider')) && camposValidos(dados()) && semCicloDireto(dados()));
+      allow update: if
+        // dono edita enquanto pendente (ou se é raiz); não pode se autoconfirmar
+        (aprovado() && uid() == membroId && (resource.data.status == 'pendente' || resource.data.get('raiz', false) == true)
+          && propriaValida(dados()))
+        // a pessoa indicada confirma ("Sim, fulano é meu fruto")
+        || (aprovado() && resource.data.get('ganhoPorId', '') == uid() && resource.data.status == 'pendente'
+          && dados().status == 'confirmado' && mudou().hasOnly(['status','confirmadoPor','confirmadoEm','historico','atualizadoEm'])
+          && dados().confirmadoPor == uid())
+        // admin corrige/move qualquer ligação (inclusive confirmada)
+        || (ehAdmin() && camposValidos(dados()) && semCicloDireto(dados()));
+      allow delete: if ehAdmin() || (aprovado() && uid() == membroId && resource.data.status == 'pendente');
+    }
+
+    // Testemunho separado: só aparece para outros se o membro permitir.
+    match /testimonies/{membroId} {
+      allow read: if (logado() && uid() == membroId) || ehAdmin() || (aprovado() && resource.data.get('visivel', false) == true);
+      allow write: if ((aprovado() && uid() == membroId) || ehAdmin())
+        && (request.method == 'delete' || (dados().keys().hasOnly(['texto','visivel','atualizadoEm','ficticio']) && texto(dados().texto, 600) && dados().visivel is bool));
+    }
+  }
+}

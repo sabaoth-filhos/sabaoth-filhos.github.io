@@ -8,7 +8,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 import {
   initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
-  memoryLocalCache, connectFirestoreEmulator
+  memoryLocalCache, connectFirestoreEmulator, getDoc, getDocFromCache
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
 export const SITE = self.SITE_CONFIG;
@@ -62,4 +62,12 @@ async function iniciarDb() {
   });
   if (usandoEmulador) connectFirestoreEmulator(_db, "127.0.0.1", 8080);
   return _db;
+}
+
+/** getDoc que, sem internet, vai direto ao cache do aparelho (evita a espera de alguns segundos). */
+export async function lerDoc(ref) {
+  if (typeof navigator !== "undefined" && navigator.onLine === false) {
+    try { return await getDocFromCache(ref); } catch { /* não está no cache: tenta o normal */ }
+  }
+  return getDoc(ref);
 }
