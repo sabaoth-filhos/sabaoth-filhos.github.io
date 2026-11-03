@@ -383,3 +383,53 @@ tr:last-child td { border-bottom: 0; }
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
   @view-transition { navigation: none; }
 }
+
+/* =========================================================
+   Leitor da Bíblia
+   ========================================================= */
+.leitor-barra { position: sticky; top: var(--header-h); z-index: 20; background: var(--bg); border-bottom: 1px solid var(--borda); padding: 8px 0; }
+.leitor-barra .container { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.leitor-barra select { min-height: 44px; width: auto; padding: 8px 10px; font-weight: 700; }
+.btn-ref { flex: 1; min-width: 120px; justify-content: space-between; background: var(--bg-suave); color: var(--texto); border: 1.5px solid var(--borda); }
+.btn-ref:hover { background: var(--bg-suave); border-color: var(--ouro-escuro); box-shadow: none; }
+.leitor { --leitor-fonte: 1.15rem; font-family: Georgia, "Times New Roman", serif; font-size: var(--leitor-fonte); line-height: 1.85; padding: 18px 0 32px; max-width: 760px; margin: 0 auto; }
+.leitor h2 { font-family: var(--fonte-titulo); font-size: 1.6rem; margin: 8px 0 16px; }
+.leitor .v { cursor: pointer; border-radius: 4px; padding: 1px 2px; transition: background var(--t); -webkit-tap-highlight-color: transparent; }
+.leitor .v sup { font-family: var(--fonte-titulo); font-size: .62em; font-weight: 800; color: var(--texto-3); margin-right: 3px; user-select: none; }
+.leitor .v[data-cor="amarelo"] { background: var(--hl-amarelo); }
+.leitor .v[data-cor="verde"] { background: var(--hl-verde); }
+.leitor .v[data-cor="azul"] { background: var(--hl-azul); }
+.leitor .v[data-cor="rosa"] { background: var(--hl-rosa); }
+.leitor .v.sel { outline: 2px dashed var(--ouro-escuro); outline-offset: 1px; background: color-mix(in srgb, var(--ouro) 22%, transparent); }
+.leitor .v.piscar { animation: piscar 1.6s ease; }
+@keyframes piscar { 0%, 60% { background: var(--ouro); } }
+.leitor .ic-nota, .leitor .ic-fav { display: inline-grid; place-items: center; width: 22px; height: 22px; vertical-align: -4px; border: 0; background: var(--verde); color: #fff; border-radius: 6px; cursor: pointer; margin: 0 2px; padding: 0; }
+.leitor .ic-fav { background: none; color: var(--ouro-escuro); cursor: default; }
+.leitor .ic-nota svg, .leitor .ic-fav svg { width: 14px; height: 14px; }
+.leitor.comparar { max-width: 1100px; }
+.leitor .linha-comp { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 4px 0; border-bottom: 1px solid var(--borda); }
+.leitor .linha-comp > div { min-width: 0; }
+.leitor .cab-comp { font-family: var(--fonte-titulo); font-size: .8rem; font-weight: 800; color: var(--texto-2); position: sticky; top: calc(var(--header-h) + 62px); background: var(--bg); z-index: 1; padding: 6px 0; }
+@media (max-width: 640px) { .leitor.comparar { font-size: calc(var(--leitor-fonte) * .9); } .leitor .linha-comp { gap: 10px; } }
+.em-breve { text-align: center; padding: 48px 16px; font-family: var(--fonte-corpo); }
+.nav-cap { display: flex; justify-content: space-between; gap: 10px; max-width: 760px; margin: 0 auto; padding-bottom: 12px; }
+.aviso-direitos { font-family: var(--fonte-corpo); font-size: .8rem; color: var(--texto-3); border-top: 1px solid var(--borda); padding-top: 12px; margin-top: 20px; max-width: 760px; margin-left: auto; margin-right: auto; }
+.barra-acoes { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--bottom-nav-h) + 10px + env(safe-area-inset-bottom)); z-index: 70; width: min(96vw, 560px); background: var(--bg-elev); border: 1px solid var(--borda); box-shadow: var(--sombra-forte); border-radius: 18px; padding: 10px 12px; display: grid; gap: 8px; animation: aparecer .2s both; }
+@media (min-width: 900px) { .barra-acoes { bottom: 20px; } }
+.barra-acoes .cores { display: flex; gap: 8px; align-items: center; }
+.barra-acoes .cor { width: 38px; height: 38px; border-radius: 999px; border: 2px solid var(--borda); cursor: pointer; }
+.barra-acoes .cor[aria-pressed="true"] { border-color: var(--texto); box-shadow: 0 0 0 2px var(--bg-elev) inset; }
+.barra-acoes .botoes { display: flex; gap: 6px; flex-wrap: wrap; }
+.grade-livros { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+.grade-livros button { min-height: 48px; border-radius: 10px; border: 1.5px solid var(--borda); background: var(--bg-elev); color: var(--texto); font: 600 .9rem var(--fonte-corpo); cursor: pointer; padding: 6px; line-height: 1.15; }
+.grade-livros button:hover { border-color: var(--ouro-escuro); }
+.grade-livros button[disabled] { opacity: .5; cursor: not-allowed; }
+.grade-livros button small { display: block; font-size: .68rem; color: var(--texto-3); font-weight: 700; }
+.grade-livros button[aria-current="true"] { background: var(--ouro); color: var(--preto); border-color: var(--ouro-escuro); }
+.grade-caps { grid-template-columns: repeat(auto-fill, minmax(52px, 1fr)); }
+.resultado-busca { display: block; width: 100%; text-align: left; padding: 10px 12px; border: 0; border-bottom: 1px solid var(--borda); background: none; color: var(--texto); cursor: pointer; font: inherit; }
+.resultado-busca:hover { background: var(--bg-suave); }
+.resultado-busca mark { background: var(--hl-amarelo); color: inherit; }
+/* Modo "Estou no culto" (uma mão) */
+.modo-culto textarea { font-size: 1.1rem; }
+.modo-culto .campo label { font-size: .9rem; }

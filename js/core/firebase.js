@@ -23,8 +23,8 @@ auth.languageCode = "pt-BR";
 
 // Emulador local (somente para testes em localhost: abra qualquer página com ?emulador=1).
 const local = ["localhost", "127.0.0.1"].includes(location.hostname);
-if (local && new URLSearchParams(location.search).has("emulador")) sessionStorage.setItem("emulador", "1");
-export const usandoEmulador = local && sessionStorage.getItem("emulador") === "1";
+if (local && new URLSearchParams(location.search).has("emulador")) localStorage.setItem("emulador", "1");
+export const usandoEmulador = local && localStorage.getItem("emulador") === "1";
 if (usandoEmulador) connectAuthEmulator(auth, "http://127.0.0.1:9099", { disableWarnings: true });
 
 /** Primeiro estado de autenticação conhecido (resolve uma vez). */

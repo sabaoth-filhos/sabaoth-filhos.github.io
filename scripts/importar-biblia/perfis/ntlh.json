@@ -1,0 +1,6 @@
+{
+  "_comentario": "Ajustes de extração para a NTLH. Rode 'extrair' com um PDF pequeno, confira a 'amostra' (Gn 1 e Sl 23) e ajuste aqui: margens, colunas, tamanhos de fonte dos números de versículo e das notas, regex de cabeçalho. Em 'versificacao' registre capítulos que diferem da tabela padrão, ex.: {\"ml\": {\"3\": 18}}.",
+  "colunas": 2,
+  "nomes_livros": {},
+  "versificacao": {}
+}
