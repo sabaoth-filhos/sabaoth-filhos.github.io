@@ -33,12 +33,16 @@ export const authPronto = new Promise((resolve) => {
 });
 
 let _db = null;
+let _dbPromessa = null;
 /**
  * Firestore. Cache offline (IndexedDB) somente para quem está logado,
  * conforme a regra de proteção dos textos bíblicos. Visitantes usam cache em memória.
  */
-export async function getDb() {
-  if (_db) return _db;
+export function getDb() {
+  // memoriza a promessa: chamadas simultâneas recebem a MESMA instância
+  return (_dbPromessa ||= iniciarDb());
+}
+async function iniciarDb() {
   const user = await authPronto;
   // Se a limpeza do cache falhou no "Sair" (ex.: outra aba aberta), conclui agora.
   let pendenteLimpar = false;

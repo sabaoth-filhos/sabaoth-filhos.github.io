@@ -1,0 +1,605 @@
+{
+ "_aviso": "DADOS FICTÍCIOS para teste. Carregue e remova pelo painel admin (aba Ferramentas). Nenhum texto bíblico licenciado.",
+ "members": [
+  {
+   "id": "exemplo-m01",
+   "nome": "Maria Exemplo (fictícia)",
+   "cargo": "Missionária",
+   "aniversario": "1958-11-12",
+   "arvoreVisibilidade": "foto"
+  },
+  {
+   "id": "exemplo-m02",
+   "nome": "Márcia Exemplo (fictícia)",
+   "cargo": "Diaconisa",
+   "aniversario": "1975-11-03",
+   "arvoreVisibilidade": "foto"
+  },
+  {
+   "id": "exemplo-m03",
+   "nome": "João Exemplo (fictício)",
+   "cargo": "Presbítero",
+   "aniversario": "1970-04-20",
+   "arvoreVisibilidade": "foto"
+  },
+  {
+   "id": "exemplo-m04",
+   "nome": "Pedro Exemplo (fictício)",
+   "cargo": "Diácono",
+   "aniversario": "1982-07-09",
+   "arvoreVisibilidade": "foto"
+  },
+  {
+   "id": "exemplo-m05",
+   "nome": "Paulo Exemplo (fictício)",
+   "cargo": "Membro",
+   "aniversario": "1990-11-25",
+   "arvoreVisibilidade": "foto"
+  },
+  {
+   "id": "exemplo-m06",
+   "nome": "Rita Exemplo (fictícia)",
+   "cargo": "Membro",
+   "aniversario": "1988-02-14",
+   "arvoreVisibilidade": "foto"
+  },
+  {
+   "id": "exemplo-m07",
+   "nome": "Ana Clara Exemplo (fictícia)",
+   "cargo": "Membro",
+   "aniversario": "2001-09-30",
+   "arvoreVisibilidade": "nome"
+  },
+  {
+   "id": "exemplo-m08",
+   "nome": "Tiago Exemplo (fictício)",
+   "cargo": "Membro",
+   "aniversario": "1995-12-01",
+   "arvoreVisibilidade": "foto"
+  },
+  {
+   "id": "exemplo-m09",
+   "nome": "Lucas Exemplo (fictício)",
+   "cargo": "Membro",
+   "aniversario": "2003-05-05",
+   "arvoreVisibilidade": "foto"
+  },
+  {
+   "id": "exemplo-m10",
+   "nome": "Sara Exemplo (fictícia)",
+   "cargo": "Membro",
+   "aniversario": "1999-11-18",
+   "arvoreVisibilidade": "oculto"
+  },
+  {
+   "id": "exemplo-m11",
+   "nome": "José Exemplo (fictício)",
+   "cargo": "Pastor",
+   "aniversario": "1960-03-03",
+   "arvoreVisibilidade": "foto"
+  },
+  {
+   "id": "exemplo-m12",
+   "nome": "Débora Exemplo (fictícia)",
+   "cargo": "Membro",
+   "aniversario": "1985-06-21",
+   "arvoreVisibilidade": "foto"
+  },
+  {
+   "id": "exemplo-m13",
+   "nome": "Caleb Exemplo (fictício)",
+   "cargo": "Membro",
+   "aniversario": "2005-11-09",
+   "arvoreVisibilidade": "foto"
+  },
+  {
+   "id": "exemplo-m14",
+   "nome": "Rute Exemplo (fictícia)",
+   "cargo": "Membro",
+   "aniversario": "1979-08-08",
+   "arvoreVisibilidade": "foto"
+  },
+  {
+   "id": "exemplo-m15",
+   "nome": "Davi Exemplo (fictício)",
+   "cargo": "Membro",
+   "aniversario": "1993-01-27",
+   "arvoreVisibilidade": "foto"
+  }
+ ],
+ "spiritualLinks": [
+  {
+   "id": "exemplo-m01",
+   "raiz": true,
+   "status": "confirmado",
+   "modos": [],
+   "criadoPor": "seed",
+   "historico": [
+    {
+     "em": 0,
+     "por": "seed",
+     "acao": "criado (dados de exemplo)"
+    }
+   ]
+  },
+  {
+   "id": "exemplo-m11",
+   "raiz": true,
+   "status": "confirmado",
+   "modos": [],
+   "criadoPor": "seed",
+   "historico": [
+    {
+     "em": 0,
+     "por": "seed",
+     "acao": "criado (dados de exemplo)"
+    }
+   ]
+  },
+  {
+   "id": "exemplo-m02",
+   "ganhoPorId": "exemplo-m01",
+   "modos": [
+    "relacionamento",
+    "oracao",
+    "jejum",
+    "comunhao"
+   ],
+   "dataConversao": "2008",
+   "status": "confirmado",
+   "criadoPor": "seed",
+   "ganhoPorNome": "Maria Exemplo (fictícia)",
+   "historico": [
+    {
+     "em": 0,
+     "por": "seed",
+     "acao": "criado (dados de exemplo)"
+    }
+   ]
+  },
+  {
+   "id": "exemplo-m03",
+   "ganhoPorId": "exemplo-m01",
+   "modos": [
+    "evangelismo"
+   ],
+   "dataConversao": "2010",
+   "status": "confirmado",
+   "criadoPor": "seed",
+   "ganhoPorNome": "Maria Exemplo (fictícia)",
+   "historico": [
+    {
+     "em": 0,
+     "por": "seed",
+     "acao": "criado (dados de exemplo)"
+    }
+   ]
+  },
+  {
+   "id": "exemplo-m04",
+   "ganhoPorId": "exemplo-m01",
+   "modos": [
+    "oracao",
+    "jejum"
+   ],
+   "dataConversao": "2011",
+   "status": "confirmado",
+   "criadoPor": "seed",
+   "ganhoPorNome": "Maria Exemplo (fictícia)",
+   "historico": [
+    {
+     "em": 0,
+     "por": "seed",
+     "acao": "criado (dados de exemplo)"
+    }
+   ]
+  },
+  {
+   "id": "exemplo-m05",
+   "ganhoPorId": "exemplo-m02",
+   "modos": [
+    "celula",
+    "relacionamento"
+   ],
+   "dataConversao": "2015",
+   "status": "confirmado",
+   "criadoPor": "seed",
+   "ganhoPorNome": "Márcia Exemplo (fictícia)",
+   "historico": [
+    {
+     "em": 0,
+     "por": "seed",
+     "acao": "criado (dados de exemplo)"
+    }
+   ]
+  },
+  {
+   "id": "exemplo-m06",
+   "ganhoPorId": "exemplo-m02",
+   "modos": [
+    "convite"
+   ],
+   "dataConversao": "2016",
+   "status": "confirmado",
+   "contribuiram": [
+    {
+     "id": "exemplo-m03",
+     "nome": "João Exemplo (fictício)"
+    }
+   ],
+   "criadoPor": "seed",
+   "ganhoPorNome": "Márcia Exemplo (fictícia)",
+   "historico": [
+    {
+     "em": 0,
+     "por": "seed",
+     "acao": "criado (dados de exemplo)"
+    }
+   ]
+  },
+  {
+   "id": "exemplo-m07",
+   "ganhoPorId": "exemplo-m03",
+   "modos": [
+    "familia"
+   ],
+   "dataConversao": "2017",
+   "status": "confirmado",
+   "criadoPor": "seed",
+   "ganhoPorNome": "João Exemplo (fictício)",
+   "historico": [
+    {
+     "em": 0,
+     "por": "seed",
+     "acao": "criado (dados de exemplo)"
+    }
+   ]
+  },
+  {
+   "id": "exemplo-m08",
+   "ganhoPorId": "exemplo-m04",
+   "modos": [
+    "comunhao"
+   ],
+   "dataConversao": "2018",
+   "status": "confirmado",
+   "criadoPor": "seed",
+   "ganhoPorNome": "Pedro Exemplo (fictício)",
+   "historico": [
+    {
+     "em": 0,
+     "por": "seed",
+     "acao": "criado (dados de exemplo)"
+    }
+   ]
+  },
+  {
+   "id": "exemplo-m09",
+   "ganhoPorId": "exemplo-m05",
+   "modos": [
+    "evangelismo"
+   ],
+   "dataConversao": "2021",
+   "status": "confirmado",
+   "criadoPor": "seed",
+   "ganhoPorNome": "Paulo Exemplo (fictício)",
+   "historico": [
+    {
+     "em": 0,
+     "por": "seed",
+     "acao": "criado (dados de exemplo)"
+    }
+   ]
+  },
+  {
+   "id": "exemplo-m10",
+   "ganhoPorId": "exemplo-m08",
+   "modos": [
+    "relacionamento"
+   ],
+   "dataConversao": "2022",
+   "status": "confirmado",
+   "criadoPor": "seed",
+   "ganhoPorNome": "Tiago Exemplo (fictício)",
+   "historico": [
+    {
+     "em": 0,
+     "por": "seed",
+     "acao": "criado (dados de exemplo)"
+    }
+   ]
+  },
+  {
+   "id": "exemplo-m12",
+   "ganhoPorId": "exemplo-m11",
+   "modos": [
+    "oracao"
+   ],
+   "dataConversao": "2012",
+   "status": "confirmado",
+   "criadoPor": "seed",
+   "ganhoPorNome": "José Exemplo (fictício)",
+   "historico": [
+    {
+     "em": 0,
+     "por": "seed",
+     "acao": "criado (dados de exemplo)"
+    }
+   ]
+  },
+  {
+   "id": "exemplo-m13",
+   "ganhoPorId": "exemplo-m12",
+   "modos": [
+    "familia",
+    "celula"
+   ],
+   "dataConversao": "2020",
+   "status": "confirmado",
+   "criadoPor": "seed",
+   "ganhoPorNome": "Débora Exemplo (fictícia)",
+   "historico": [
+    {
+     "em": 0,
+     "por": "seed",
+     "acao": "criado (dados de exemplo)"
+    }
+   ]
+  },
+  {
+   "id": "exemplo-m14",
+   "ganhoPorNomeExterno": "Irmã Joana (já falecida, fictícia)",
+   "modos": [
+    "oracao",
+    "outro"
+   ],
+   "modoOutro": "Visitas no hospital",
+   "dataConversao": "1999",
+   "status": "confirmado",
+   "criadoPor": "seed",
+   "historico": [
+    {
+     "em": 0,
+     "por": "seed",
+     "acao": "criado (dados de exemplo)"
+    }
+   ]
+  },
+  {
+   "id": "exemplo-m15",
+   "ganhoPorId": "exemplo-m06",
+   "modos": [
+    "relacionamento"
+   ],
+   "dataConversao": "2024",
+   "status": "pendente",
+   "criadoPor": "seed",
+   "ganhoPorNome": "Rita Exemplo (fictícia)",
+   "historico": [
+    {
+     "em": 0,
+     "por": "seed",
+     "acao": "criado (dados de exemplo)"
+    }
+   ]
+  }
+ ],
+ "testimonies": [
+  {
+   "id": "exemplo-m02",
+   "texto": "Testemunho fictício: a Maria orou por mim durante meses e me convidou para um café. Ali conheci o amor de Deus.",
+   "visivel": true
+  },
+  {
+   "id": "exemplo-m05",
+   "texto": "Testemunho fictício e privado (não deve aparecer para outros membros).",
+   "visivel": false
+  }
+ ],
+ "groups": [
+  {
+   "id": "exemplo-g1",
+   "nome": "Célula Esperança (fictícia)",
+   "liderId": "exemplo-m02",
+   "liderNome": "Márcia Exemplo (fictícia)",
+   "dia": "Quarta-feira",
+   "horario": "19h30",
+   "local": "Rua Fictícia, 123 — Bairro Exemplo",
+   "membros": [
+    "exemplo-m02",
+    "exemplo-m05",
+    "exemplo-m06",
+    "exemplo-m09"
+   ]
+  },
+  {
+   "id": "exemplo-g2",
+   "nome": "Célula Vida Nova (fictícia)",
+   "liderId": "exemplo-m12",
+   "liderNome": "Débora Exemplo (fictícia)",
+   "dia": "Sexta-feira",
+   "horario": "20h",
+   "local": "Av. Exemplo, 45",
+   "membros": [
+    "exemplo-m12",
+    "exemplo-m13",
+    "exemplo-m14"
+   ]
+  }
+ ],
+ "ministries": [
+  {
+   "id": "exemplo-louvor",
+   "nome": "Louvor (fictício)",
+   "liderIds": [
+    "exemplo-m03"
+   ],
+   "liderNome": "João Exemplo (fictício)",
+   "liderWhatsapp": "",
+   "membros": [
+    "exemplo-m03",
+    "exemplo-m06",
+    "exemplo-m07"
+   ]
+  },
+  {
+   "id": "exemplo-recepcao",
+   "nome": "Recepção (fictícia)",
+   "liderIds": [
+    "exemplo-m04"
+   ],
+   "liderNome": "Pedro Exemplo (fictício)",
+   "liderWhatsapp": "",
+   "membros": [
+    "exemplo-m04",
+    "exemplo-m08",
+    "exemplo-m10"
+   ]
+  }
+ ],
+ "schedules": [
+  {
+   "id": "exemplo-s1",
+   "ministerioId": "exemplo-louvor",
+   "ministerioNome": "Louvor (fictício)",
+   "memberId": "exemplo-m06",
+   "memberNome": "Rita Exemplo (fictícia)",
+   "data": "+4d",
+   "hora": "19h",
+   "funcao": "Vocal",
+   "status": "escalado"
+  },
+  {
+   "id": "exemplo-s2",
+   "ministerioId": "exemplo-recepcao",
+   "ministerioNome": "Recepção (fictícia)",
+   "memberId": "exemplo-m08",
+   "memberNome": "Tiago Exemplo (fictício)",
+   "data": "+4d",
+   "hora": "18h30",
+   "funcao": "Porta principal",
+   "status": "escalado"
+  }
+ ],
+ "events": [
+  {
+   "id": "exemplo-e1",
+   "titulo": "Culto de Celebração (exemplo)",
+   "data": "+5d",
+   "hora": "19h",
+   "local": "Templo",
+   "publico": true,
+   "inscricoes": false,
+   "descricao": "Evento fictício para teste."
+  },
+  {
+   "id": "exemplo-e2",
+   "titulo": "Retiro de Jovens (exemplo)",
+   "data": "+30d",
+   "hora": "8h",
+   "local": "Sítio Fictício",
+   "publico": false,
+   "inscricoes": true,
+   "descricao": "Evento fictício com inscrição."
+  },
+  {
+   "id": "exemplo-e3",
+   "titulo": "Batismo nas águas (exemplo)",
+   "data": "+45d",
+   "hora": "9h",
+   "local": "Templo",
+   "publico": true,
+   "inscricoes": true,
+   "descricao": "Evento fictício."
+  }
+ ],
+ "series": [
+  {
+   "id": "exemplo-raizes",
+   "titulo": "Raízes (fictícia)",
+   "descricao": "Série fictícia sobre fundamentos da fé.",
+   "cor": "#5E7A44",
+   "ordem": 2,
+   "destaque": true
+  },
+  {
+   "id": "exemplo-avivados",
+   "titulo": "Avivados (fictícia)",
+   "descricao": "Série fictícia sobre o Espírito Santo.",
+   "cor": "#8A6D1F",
+   "ordem": 1
+  }
+ ],
+ "sermons": [
+  {
+   "id": "exemplo-msg1",
+   "titulo": "Firmes na Palavra (exemplo)",
+   "serieId": "exemplo-raizes",
+   "pregador": "Pr. José Exemplo (fictício)",
+   "data": "-3d",
+   "youtube": "",
+   "referencias": "Sl 1; Mt 7:24-27",
+   "resumo": "Mensagem fictícia para teste do site."
+  },
+  {
+   "id": "exemplo-msg2",
+   "titulo": "Uma casa sobre a rocha (exemplo)",
+   "serieId": "exemplo-raizes",
+   "pregador": "Pr. José Exemplo (fictício)",
+   "data": "-10d",
+   "youtube": "",
+   "referencias": "Mt 7:24-27"
+  },
+  {
+   "id": "exemplo-msg3",
+   "titulo": "O vento sopra onde quer (exemplo)",
+   "serieId": "exemplo-avivados",
+   "pregador": "Pb. João Exemplo (fictício)",
+   "data": "-17d",
+   "youtube": "",
+   "referencias": "Jo 3:8; At 2"
+  },
+  {
+   "id": "exemplo-msg4",
+   "titulo": "Línguas de fogo (exemplo)",
+   "serieId": "exemplo-avivados",
+   "pregador": "Pb. João Exemplo (fictício)",
+   "data": "-24d",
+   "youtube": "",
+   "referencias": "At 2:1-4"
+  }
+ ],
+ "notices": [
+  {
+   "id": "exemplo-n1",
+   "titulo": "Aviso geral (exemplo)",
+   "texto": "Este é um aviso fictício para todos os membros.",
+   "alvoTipo": "geral",
+   "criadoEm": "-1d"
+  },
+  {
+   "id": "exemplo-n2",
+   "titulo": "Célula Esperança (exemplo)",
+   "texto": "Aviso fictício só para a Célula Esperança.",
+   "alvoTipo": "grupo",
+   "alvoId": "exemplo-g1",
+   "criadoEm": "-2d"
+  }
+ ],
+ "contributions": [
+  {
+   "id": "exemplo-c1",
+   "memberId": "exemplo-m02",
+   "valor": 250,
+   "tipo": "Dízimo",
+   "data": "-20d"
+  },
+  {
+   "id": "exemplo-c2",
+   "memberId": "exemplo-m02",
+   "valor": 50,
+   "tipo": "Oferta",
+   "data": "-13d"
+  }
+ ]
+}

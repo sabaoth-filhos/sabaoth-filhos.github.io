@@ -50,7 +50,7 @@ export const fmtMoeda = (n) => Number(n || 0).toLocaleString("pt-BR", { style: "
 export const hojeISO = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
 
 export function iniciais(nome = "") {
-  const p = String(nome).trim().split(/\s+/).filter(Boolean);
+  const p = String(nome).replace(/\(.*?\)/g, " ").trim().split(/\s+/).filter((w) => /^\p{L}/u.test(w));
   return ((p[0]?.[0] || "?") + (p.length > 1 ? p[p.length - 1][0] : "")).toUpperCase();
 }
 export function avatar(nome, foto, classe = "") {
