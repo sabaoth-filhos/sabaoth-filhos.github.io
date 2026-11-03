@@ -23,10 +23,25 @@
     <p class="eyebrow">Primeira vez aqui?</p>
     <h1>Que bom que você vem!</h1>
     <p>Queremos que você se sinta em casa desde a porta. Veja o que esperar e, se quiser, avise que você vem: vamos te receber pessoalmente.</p>
-    <a class="btn" href="#avise"><i data-icon="seta"></i>Avise que você vem</a>
+    <div class="proximo-culto cartao-claro" id="proximo-culto" hidden></div>
+    <div class="linha" style="margin-top:16px">
+      <a class="btn" href="#avise"><i data-icon="maoAmiga"></i>Quero ser recebido</a>
+      <a class="btn secundario" data-maps data-sem-proximo href="#" target="_blank" rel="noopener"><i data-icon="pin"></i>Como chegar</a>
+    </div>
   </div></section>
 
-  <section class="secao"><div class="container grid grid-2">
+  <section class="secao" aria-labelledby="t-esperar"><div class="container estreito">
+    <p class="eyebrow">Passo a passo</p>
+    <h2 id="t-esperar">O que esperar</h2>
+    <ol class="roteiro">
+      <li><span class="roteiro-n" aria-hidden="true">1</span><div><h3>Na chegada</h3><p class="muted">A equipe de recepção te recebe na porta, ajuda a encontrar um lugar e, se você tiver filhos, mostra o ministério infantil.</p></div></li>
+      <li><span class="roteiro-n" aria-hidden="true">2</span><div><h3>Louvor e oração</h3><p class="muted">Cantamos juntos e oramos. Fique à vontade para só acompanhar: ninguém vai te chamar à frente.</p></div></li>
+      <li><span class="roteiro-n" aria-hidden="true">3</span><div><h3>A Palavra</h3><p class="muted">A pregação é a parte central do culto, sempre a partir da Bíblia e com aplicação para a vida de hoje.</p></div></li>
+      <li><span class="roteiro-n" aria-hidden="true">4</span><div><h3>Depois do culto</h3><p class="muted">Fique um pouco para conversar. Se quiser oração ou tiver alguma dúvida, procure alguém da recepção.</p></div></li>
+    </ol>
+  </div></section>
+
+  <section class="secao suave"><div class="container grid grid-2">
     <div class="card"><div class="icone-card verde"><i data-icon="microfone"></i></div><h3>Como é o culto</h3>
       <p class="muted">O culto dura cerca de [DURAÇÃO]. Começamos com louvor e adoração, depois oramos juntos e ouvimos a pregação da Palavra. Ninguém vai te pedir para falar ou se levantar. Venha com a roupa que você se sente bem.</p></div>
     <div class="card"><div class="icone-card verde"><i data-icon="carro"></i></div><h3>Onde estacionar</h3>
@@ -36,6 +51,18 @@
       <p class="muted">Durante a pregação, as crianças de [FAIXA ETÁRIA] participam de uma programação com professores preparados, em ambiente seguro. Você faz o cadastro na entrada e retira a criança com a etiqueta.</p></div>
     <div class="card"><div class="icone-card verde"><i data-icon="cafe"></i></div><h3>Depois do culto</h3>
       <p class="muted">Fique um pouco! Gostamos de conversar, conhecer você e orar se precisar. Procure alguém da recepção com o crachá amarelo.</p></div>
+  </div></section>
+
+  <section class="secao" aria-labelledby="t-faq"><div class="container estreito">
+    <p class="eyebrow">Dúvidas</p>
+    <h2 id="t-faq">Perguntas frequentes</h2>
+    <div class="faq">
+      <details><summary>Preciso ser membro para participar?</summary><p>Não. Os cultos são abertos a todos. Venha quantas vezes quiser, sem compromisso.</p></details>
+      <details><summary>Que roupa devo usar?</summary><p>A roupa com que você se sente bem e à vontade. O que importa é você estar aqui.</p></details>
+      <details><summary>Vou precisar contribuir?</summary><p>Não. Visitante não precisa contribuir. A oferta é um ato voluntário de quem faz parte da igreja.</p></details>
+      <details><summary>Posso levar meus filhos?</summary><p>Claro! Temos ministério infantil com professores preparados durante a pregação. Se preferir, as crianças também podem ficar com você.</p></details>
+      <details><summary>E se eu não conhecer ninguém?</summary><p>Avise que você vem pelo formulário abaixo: alguém da recepção vai te esperar e te apresentar à igreja.</p></details>
+    </div>
   </div></section>
 
   <section class="secao suave" id="avise"><div class="container estreito">

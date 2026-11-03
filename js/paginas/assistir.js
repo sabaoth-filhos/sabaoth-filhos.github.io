@@ -1,5 +1,6 @@
 // Mensagens por série ("campanhas"), com busca e vídeos do YouTube.
-import { getMensagens, getSeries, youtubeId } from "../core/dados-publicos.js";
+import { getMensagens, getSeries, youtubeId, getIgreja } from "../core/dados-publicos.js";
+import { aoVivo } from "../core/agenda.js";
 import { esc, fmtData, normalizar } from "../core/ui.js";
 import { icon } from "../core/icons.js";
 import { videoFachada } from "./comum.js";
@@ -43,3 +44,17 @@ function lista() {
 
 document.getElementById("busca").addEventListener("input", (e) => { termo = e.target.value; lista(); });
 destaque(); abas(); lista();
+
+// Transmissão ao vivo (ligada pelo admin em Conteúdo público).
+getIgreja().then((I) => {
+  const v = aoVivo(I);
+  const el = document.getElementById("ao-vivo");
+  if (!v) { el.innerHTML = ""; return; }
+  const id = youtubeId(v.url);
+  el.innerHTML = `<section class="card ao-vivo-card aparecer" aria-labelledby="t-vivo">
+    <p class="pc-rotulo"><span class="ponto-vivo" aria-hidden="true"></span>Ao vivo agora</p>
+    <h2 id="t-vivo">${esc(v.titulo || "Culto ao vivo")}</h2>
+    ${id ? videoFachada(id, v.titulo || "Culto ao vivo") : ""}
+    <a class="btn secundario" href="${esc(v.url)}" target="_blank" rel="noopener">${icon("youtube")}Abrir no YouTube</a></section>`;
+  if (location.hash === "#ao-vivo") el.scrollIntoView({ block: "start" });
+});

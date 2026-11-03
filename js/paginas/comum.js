@@ -2,17 +2,32 @@
 import { getIgreja } from "../core/dados-publicos.js";
 import { esc } from "../core/ui.js";
 import { icon } from "../core/icons.js";
+import { proximoCulto, aoVivo } from "../core/agenda.js";
 
 export const linkMaps = (I) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(I.mapsQuery || I.endereco)}`;
 export const linkWa = (I) => /^\d{10,}$/.test(String(I.whatsapp)) ? `https://wa.me/${I.whatsapp}?text=${encodeURIComponent("Olá! Vim pelo site da IDPB Jave Sabaoth.")}` : "#";
 
 export async function preencherDadosIgreja() {
   const I = await getIgreja();
-  document.querySelectorAll("#maps, #hero-maps").forEach((a) => (a.href = linkMaps(I)));
+  document.querySelectorAll("#maps, #hero-maps, [data-maps]").forEach((a) => (a.href = linkMaps(I)));
   document.querySelectorAll("#wa").forEach((a) => (a.href = linkWa(I)));
   document.querySelectorAll("#endereco-texto").forEach((e) => (e.innerHTML = `${icon("pin")} ${esc(I.endereco)}`.replace("<svg", '<svg style="display:inline;width:18px;vertical-align:-3px"')));
+  const prox = proximoCulto(I.horarios || []);
   const h = document.getElementById("lista-horarios");
-  if (h) h.innerHTML = (I.horarios || []).map((x) => `<div class="horario">${icon("relogio")}<div><strong>${esc(x.dia)} · ${esc(x.hora)}</strong><span>${esc(x.nome)}</span></div></div>`).join("");
+  if (h) h.innerHTML = (I.horarios || []).map((x, i) => `<div class="horario${prox && prox.indice === i ? " proximo" : ""}">${icon("relogio")}<div><strong>${esc(x.dia)} · ${esc(x.hora)}</strong><span>${esc(x.nome)}</span></div></div>`).join("");
+  const pc = document.getElementById("proximo-culto");
+  if (pc && prox) {
+    pc.hidden = false;
+    document.querySelectorAll("[data-sem-proximo]").forEach((e) => (e.hidden = true)); // evita "Como chegar" repetido
+    pc.innerHTML = `<div class="pc-texto"><span class="pc-rotulo">${prox.agora ? '<span class="ponto-vivo" aria-hidden="true"></span>' : ""}Próximo culto</span>
+      <strong>${esc(prox.rotulo)} · ${esc(prox.nome)}</strong>${prox.falta ? `<span class="pc-falta">${esc(prox.falta)}</span>` : ""}</div>
+      <a class="btn escuro" href="${linkMaps(I)}" target="_blank" rel="noopener">${icon("pin")}Como chegar</a>`;
+  }
+  const vivo = aoVivo(I);
+  const hv = document.getElementById("hero-vivo");
+  if (hv) hv.hidden = !vivo;
+  const ha = document.getElementById("hero-assistir");
+  if (ha && vivo) { ha.classList.add("vivo"); ha.querySelector("span").textContent = "Assistir ao vivo"; ha.href = "assistir.html#ao-vivo"; }
   const hs = document.getElementById("lista-horarios-simples");
   if (hs) hs.innerHTML = (I.horarios || []).map((x) => `<li>${icon("relogio")}<span><b>${esc(x.dia)}, ${esc(x.hora)}</b> — ${esc(x.nome)}</span></li>`).join("");
   return I;

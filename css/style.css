@@ -108,6 +108,8 @@ small, .pequeno { font-size: .875rem; color: var(--texto-2); }
 .faixa-ouro a { color: var(--sobre-ouro); }
 .eyebrow { display: inline-flex; align-items: center; gap: 8px; font-family: var(--fonte-titulo); font-weight: 700; font-size: .8rem; text-transform: uppercase; letter-spacing: .12em; color: var(--texto-2); margin-bottom: 10px; }
 .eyebrow::before { content: ""; width: 22px; height: 3px; background: var(--verde); border-radius: 2px; }
+/* O atributo hidden sempre esconde, mesmo em elementos com display próprio (.btn, .card…). */
+[hidden] { display: none !important; }
 /* Tamanho padrão dos ícones (regras mais específicas abaixo ajustam cada caso). */
 svg.ic { width: 1.25em; height: 1.25em; flex: none; vertical-align: -.25em; }
 .grid { display: grid; gap: 16px; }
@@ -259,7 +261,7 @@ svg.ic { width: 1.25em; height: 1.25em; flex: none; vertical-align: -.25em; }
 .campo { display: grid; gap: 6px; }
 .campo label, .rotulo { font-weight: 700; font-size: .95rem; }
 .campo .ajuda { font-size: .85rem; color: var(--texto-2); }
-input[type="text"], input[type="email"], input[type="password"], input[type="tel"], input[type="date"], input[type="time"], input[type="number"], input[type="search"], input[type="url"], input[type="month"], select, textarea {
+input:not([type]), input[type="text"], input[type="email"], input[type="password"], input[type="tel"], input[type="date"], input[type="time"], input[type="number"], input[type="search"], input[type="url"], input[type="month"], select, textarea {
   width: 100%; min-height: 50px; padding: 12px 14px; border-radius: var(--raio-sm); border: 1.5px solid var(--borda);
   background: var(--bg-elev); color: var(--texto); font: inherit; transition: border-color var(--t), box-shadow var(--t);
 }
@@ -459,3 +461,55 @@ tr:last-child td { border-bottom: 0; }
 .bloq-icone.perigo { background: var(--perigo-bg); color: var(--perigo); }
 .bloq-icone.ouro { background: var(--ouro); color: var(--preto); }
 .bloq-acoes { justify-content: center; margin: 20px 0 12px; }
+
+/* Próximo culto (faixa dourada) */
+.proximo-culto { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 20px; padding: 18px 4px; border-bottom: 1px solid rgba(15,14,13,.18); }
+.proximo-culto .pc-texto { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.proximo-culto .pc-rotulo { display: inline-flex; align-items: center; gap: 8px; font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; }
+.proximo-culto strong { font-family: var(--fonte-titulo); font-size: 1.2rem; }
+.proximo-culto .pc-falta { font-size: .95rem; }
+.btn.escuro { background: var(--preto); color: #fff; border-color: var(--preto); }
+.btn.escuro:hover { background: #2b2925; }
+.horario.proximo { background: rgba(255,255,255,.55); border-radius: 12px; }
+@media (min-width: 640px) { .proximo-culto { padding: 18px; } }
+
+/* Ao vivo */
+.ponto-vivo { width: 10px; height: 10px; border-radius: 50%; background: #E5322D; box-shadow: 0 0 0 0 rgba(229,50,45,.6); animation: pulso-vivo 1.6s infinite; flex: none; }
+@keyframes pulso-vivo { 70% { box-shadow: 0 0 0 8px rgba(229,50,45,0); } 100% { box-shadow: 0 0 0 0 rgba(229,50,45,0); } }
+@media (prefers-reduced-motion: reduce) { .ponto-vivo { animation: none; } }
+.pilula-vivo { display: flex; width: fit-content; align-items: center; gap: 10px; margin-bottom: 14px; padding: 8px 14px; border-radius: 999px; background: #fff; color: var(--preto); font-weight: 700; text-decoration: none; }
+.pilula-vivo[hidden] { display: none; }
+.hero .btn.secundario.vivo { background: #fff; color: var(--preto); }
+.selo-vivo { white-space: nowrap; display: inline-block; margin-left: 6px; padding: 2px 7px; border-radius: 999px; background: #B3261E; color: #fff; font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; line-height: 1.4; }
+.nav-inferior a { position: relative; }
+.nav-inferior .selo-vivo { position: absolute; top: 3px; left: 50%; margin-left: 2px; font-size: .55rem; padding: 1px 5px; letter-spacing: 0; }
+.ao-vivo-card { margin-bottom: 24px; border: 2px solid #E5322D; }
+.ao-vivo-card .pc-rotulo { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 6px; font-size: .8rem; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: var(--perigo); }
+.ao-vivo-card .video { margin: 12px 0 16px; }
+
+/* Primeira visita */
+.proximo-culto.cartao-claro { margin-top: 16px; padding: 14px 18px; border: 0; border-radius: var(--raio); background: var(--ouro); color: var(--sobre-ouro); }
+.roteiro { list-style: none; margin: 20px 0 0; padding: 0; display: grid; gap: 4px; }
+.roteiro li { display: flex; gap: 16px; position: relative; padding-bottom: 18px; }
+.roteiro li:not(:last-child)::before { content: ""; position: absolute; left: 19px; top: 44px; bottom: 0; width: 2px; background: var(--borda); }
+.roteiro-n { flex: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--ouro); color: var(--preto); font-family: var(--fonte-titulo); font-weight: 800; }
+.roteiro h3 { margin: 6px 0 4px; font-size: 1.1rem; }
+.roteiro p { margin: 0; }
+.faq { display: grid; gap: 10px; margin-top: 16px; }
+.faq details { border: 1px solid var(--borda); border-radius: 14px; background: var(--bg-elev); }
+.faq summary { cursor: pointer; padding: 16px 18px; font-weight: 700; list-style: none; display: flex; justify-content: space-between; gap: 12px; min-height: 44px; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; font-size: 1.4rem; line-height: 1; color: var(--texto-2); }
+.faq details[open] summary::after { content: "–"; }
+.faq details p { margin: 0; padding: 0 18px 16px; color: var(--texto-2); }
+
+/* Contribuir */
+.pix-titulo { display: flex; align-items: center; gap: 10px; }
+.pix-layout { display: grid; gap: 24px; align-items: start; }
+@media (min-width: 720px) { .pix-layout { grid-template-columns: 1.2fr 1fr; } }
+.pix-qr-bloco { text-align: center; }
+.pix-qr-bloco .qr { margin: 0 auto 8px; }
+.btn.grande { min-height: 56px; font-size: 1.05rem; }
+.btn.copiado { background: var(--ok-bg); color: var(--ok); border-color: var(--ok); }
+.pix-passos { margin: 0; padding-left: 1.3em; color: var(--texto-2); }
+.pix-passos li + li { margin-top: 4px; }

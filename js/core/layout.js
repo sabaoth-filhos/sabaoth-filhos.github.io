@@ -3,6 +3,7 @@
 import "../site-config.js";
 import { icon, hidratarIcones } from "./icons.js";
 import { ROOT, rota, esc } from "./ui.js";
+import { aoVivo } from "./agenda.js";
 
 const SITE = self.SITE_CONFIG;
 const I = SITE.IGREJA;
@@ -173,6 +174,18 @@ function montar() {
   });
 }
 montar();
+
+// Selo "Ao vivo" no item Assistir (usa os dados públicos já carregados pela página, sem Firebase aqui).
+function marcarAoVivo(I) {
+  const vivo = !!aoVivo(I);
+  document.querySelectorAll(`.nav-principal a[href$="assistir.html"], .nav-inferior a[href$="assistir.html"]`).forEach((a) => {
+    a.classList.toggle("vivo", vivo);
+    a.querySelector(".selo-vivo")?.remove();
+    if (vivo) a.insertAdjacentHTML("beforeend", '<span class="selo-vivo">Ao vivo</span>');
+  });
+}
+try { const c = JSON.parse(sessionStorage.getItem("pub_igreja") || "null"); if (c) marcarAoVivo(c.v); } catch {}
+document.addEventListener("igreja-carregada", (e) => marcarAoVivo(e.detail));
 
 // PWA: registra o service worker (escopo = raiz do site).
 if ("serviceWorker" in navigator && location.protocol !== "file:") {

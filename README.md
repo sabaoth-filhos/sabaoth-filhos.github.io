@@ -79,6 +79,11 @@ Mantenha os mesmos nomes de arquivo ao trocar as fotos. Depois de mudanças gran
 
 ---
 
+### 8. Transmissão ao vivo (a cada culto transmitido)
+Painel admin → **Conteúdo público** → **Transmissão ao vivo**: cole o link da live do YouTube e toque em **Estou ao vivo**. O site mostra o selo “Ao vivo” no menu, um destaque na página inicial e o vídeo no topo de **Assistir**. O selo some sozinho depois de 3 horas (ou toque em **Encerrar transmissão**).
+
+O destaque **“Próximo culto”** é calculado automaticamente a partir dos horários cadastrados (fuso de Manaus). Escreva o dia por extenso ou abreviado (“Domingo”, “Quarta-feira”, “Seg a Sex”) e a hora como “18h”, “19h30” ou “19:30”.
+
 ## 🌐 Endereço do site e domínio próprio
 
 Todos os caminhos do site são **relativos**. A URL base fica num único arquivo, [`js/site-config.js`](js/site-config.js) (`BASE_URL`), usada no **link mágico** e no link de verificação da carteirinha. O `manifest.webmanifest` e o `sw.js` usam caminhos relativos ao local onde o site está, então não precisam ser alterados.

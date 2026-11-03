@@ -9,10 +9,10 @@ import { hojeISO } from "./ui.js";
 const SITE = self.SITE_CONFIG;
 const TTL = 10 * 60 * 1000;
 
-async function cache(chave, fn) {
+async function cache(chave, fn, ttl = TTL) {
   try {
     const c = JSON.parse(sessionStorage.getItem("pub_" + chave) || "null");
-    if (c && Date.now() - c.t < TTL) return c.v;
+    if (c && Date.now() - c.t < ttl) return c.v;
   } catch {}
   const v = await fn();
   try { sessionStorage.setItem("pub_" + chave, JSON.stringify({ t: Date.now(), v })); } catch {}
@@ -24,8 +24,10 @@ export async function getIgreja() {
     const extra = await cache("igreja", async () => {
       const s = await getDoc(doc(await getDb(), "settings", "public"));
       return s.exists() ? s.data() : {};
-    });
-    return { ...SITE.IGREJA, ...limpar(extra) };
+    }, 2 * 60 * 1000);
+    const I = { ...SITE.IGREJA, ...limpar(extra) };
+    document.dispatchEvent(new CustomEvent("igreja-carregada", { detail: I }));
+    return I;
   } catch { return { ...SITE.IGREJA }; }
 }
 const limpar = (o) => Object.fromEntries(Object.entries(o || {}).filter(([, v]) => v !== "" && v != null && !(Array.isArray(v) && !v.length)));

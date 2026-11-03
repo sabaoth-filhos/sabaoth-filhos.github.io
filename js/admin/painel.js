@@ -514,13 +514,36 @@ async function abaConteudo(el) {
   const v = { ...self.SITE_CONFIG.IGREJA, ...(s.exists() ? s.data() : {}) };
   const horariosTxt = (v.horarios || []).map((h) => `${h.dia} | ${h.hora} | ${h.nome}`).join("\n");
   const lidTxt = (v.lideranca || []).map((h) => `${h.nome} | ${h.cargo}`).join("\n");
-  el.innerHTML = `<form class="form card" id="fc" style="max-width:720px">
+  const vivoAtivo = v.aoVivo && Number(v.aoVivo.ate) > Date.now();
+  el.innerHTML = `<div class="card pilha" id="painel-vivo" style="max-width:720px;margin-bottom:16px">
+    <h3 style="margin:0">Transmissão ao vivo</h3>
+    <p class="muted" style="margin:0">${vivoAtivo
+      ? `<b>No ar</b> até ${new Date(v.aoVivo.ate).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Manaus" })}. O site mostra o selo “Ao vivo” e o vídeo na página Assistir.`
+      : "Quando começar a live no YouTube, cole o link aqui e toque em “Estou ao vivo”. O selo some sozinho depois de 3 horas."}</p>
+    <div class="campo"><label for="v-url">Link da live no YouTube</label><input id="v-url" type="url" placeholder="https://youtube.com/live/…" value="${esc(v.aoVivo?.url || "")}"></div>
+    <div class="campo"><label for="v-tit">Título (opcional)</label><input id="v-tit" maxlength="100" placeholder="Culto da Família" value="${esc(v.aoVivo?.titulo || "")}"></div>
+    <div class="linha"><button class="btn" type="button" id="v-iniciar">${icon("play")}${vivoAtivo ? "Renovar por 3 horas" : "Estou ao vivo"}</button>
+      ${vivoAtivo ? `<button class="btn secundario" type="button" id="v-encerrar">${icon("fechar")}Encerrar transmissão</button>` : ""}</div>
+  </div>
+  <form class="form card" id="fc" style="max-width:720px">
     <p class="muted">Estes dados aparecem na parte pública (home, primeira visita, contribuir, sobre). Campos vazios usam o padrão de <code>js/site-config.js</code>.</p>
     ${[["nome", "Nome da igreja"], ["endereco", "Endereço"], ["mapsQuery", "Texto para o Google Maps (\"Como chegar\")"], ["instagram", "Instagram (link completo)"], ["youtube", "YouTube (link completo)"], ["whatsapp", "WhatsApp (só números com DDI/DDD)"], ["pixChave", "Chave Pix"], ["pixTitular", "Titular do Pix"], ["pixCidade", "Cidade do Pix"]]
       .map(([k, t]) => `<div class="campo"><label for="s-${k}">${t}</label><input id="s-${k}" value="${esc(v[k] || "")}"></div>`).join("")}
     <div class="campo"><label for="s-horarios">Horários dos cultos</label><textarea id="s-horarios" placeholder="Domingo | 18h | Culto da família">${esc(horariosTxt)}</textarea><small class="ajuda">Um por linha: dia | hora | nome</small></div>
     <div class="campo"><label for="s-lid">Liderança (página Sobre)</label><textarea id="s-lid" placeholder="Pr. Fulano | Pastor presidente">${esc(lidTxt)}</textarea><small class="ajuda">Um por linha: nome | cargo</small></div>
     <button class="btn">${icon("check")}Salvar conteúdo público</button></form>`;
+  const salvarVivo = async (ate) => {
+    const url = el.querySelector("#v-url").value.trim();
+    if (ate && !/^https:\/\/(www\.|m\.)?(youtube\.com|youtu\.be)\//.test(url)) { toast("Cole um link do YouTube (https://youtube.com/…).", "erro"); return; }
+    try {
+      await setDoc(doc(db, "settings", "public"), { aoVivo: { url, titulo: el.querySelector("#v-tit").value.trim(), ate } }, { merge: true });
+      try { sessionStorage.removeItem("pub_igreja"); } catch {}
+      toast(ate ? "Pronto! O site já mostra “Ao vivo”." : "Transmissão encerrada.");
+      abaConteudo(el);
+    } catch (err) { toast(mensagemErro(err), "erro"); }
+  };
+  el.querySelector("#v-iniciar").onclick = () => salvarVivo(Date.now() + 3 * 60 * 60 * 1000);
+  el.querySelector("#v-encerrar")?.addEventListener("click", () => salvarVivo(0));
   el.querySelector("#fc").onsubmit = async (e) => {
     e.preventDefault();
     const val = (k) => el.querySelector("#s-" + k).value.trim();
@@ -528,7 +551,7 @@ async function abaConteudo(el) {
     dados.horarios = val("horarios").split("\n").map((l) => l.split("|").map((x) => x.trim())).filter((p) => p[0]).map(([dia, hora = "", nome = ""]) => ({ dia, hora, nome }));
     dados.lideranca = val("lid").split("\n").map((l) => l.split("|").map((x) => x.trim())).filter((p) => p[0]).map(([nome, cargo = ""]) => ({ nome, cargo }));
     dados.atualizadoEm = serverTimestamp();
-    try { await setDoc(doc(db, "settings", "public"), dados); try { sessionStorage.removeItem("pub_igreja"); } catch {} toast("Conteúdo público salvo."); }
+    try { await setDoc(doc(db, "settings", "public"), dados, { merge: true }); try { sessionStorage.removeItem("pub_igreja"); } catch {} toast("Conteúdo público salvo."); }
     catch (err) { toast(mensagemErro(err), "erro"); }
   };
 }

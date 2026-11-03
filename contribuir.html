@@ -25,18 +25,33 @@
     <p>Seus dízimos e ofertas sustentam a obra, cuidam de pessoas e levam o Evangelho adiante. Obrigado pela sua fidelidade.</p>
   </div></section>
   <section class="secao" style="padding-top:8px"><div class="container estreito">
-    <div class="card" style="text-align:center">
-      <div class="icone-card verde" style="margin:0 auto 12px"><i data-icon="qr"></i></div>
-      <h2>Pix</h2>
-      <p class="muted">Aponte a câmera do app do seu banco para o QR code, ou copie a chave.</p>
+    <div class="card pix-card">
+      <h2 class="pix-titulo"><i data-icon="qr"></i>Pix</h2>
       <div id="pix-aviso"></div>
-      <div class="qr" id="pix-qr" aria-label="QR code do Pix"></div>
-      <div style="text-align:left;margin-top:20px" class="pilha">
-        <span class="rotulo">Chave Pix</span>
-        <div class="pix-chave"><code id="pix-chave"></code><button class="btn" id="copiar-chave" aria-label="Copiar chave Pix"><i data-icon="copiar"></i>Copiar</button></div>
-        <p class="pequeno">Titular: <b id="pix-titular"></b></p>
-        <button class="btn secundario bloco" id="copiar-codigo"><i data-icon="copiar"></i>Copiar código "Pix copia e cola"</button>
+      <div class="pix-layout">
+        <div class="pix-acoes pilha">
+          <button class="btn bloco grande" id="copiar-codigo"><i data-icon="copiar"></i><span>Copiar código Pix</span></button>
+          <ol class="pix-passos pequeno">
+            <li>Toque em <b>Copiar código Pix</b>.</li>
+            <li>No app do seu banco, escolha <b>Pix copia e cola</b>.</li>
+            <li>Cole o código, digite o valor e confirme.</li>
+          </ol>
+          <span class="rotulo">Ou use a chave Pix</span>
+          <div class="pix-chave"><code id="pix-chave"></code><button class="btn secundario" id="copiar-chave" aria-label="Copiar chave Pix"><i data-icon="copiar"></i><span>Copiar</span></button></div>
+          <p class="pequeno">Titular: <b id="pix-titular"></b></p>
+        </div>
+        <div class="pix-qr-bloco">
+          <div class="qr" id="pix-qr" aria-label="QR code do Pix"></div>
+          <p class="pequeno muted">Está no computador? Aponte a câmera do app do banco para o QR code.</p>
+        </div>
       </div>
+    </div>
+
+    <div class="grid grid-2" style="margin-top:16px">
+      <div class="card"><div class="icone-card verde"><i data-icon="escudo"></i></div><h3>Transparência</h3>
+        <p class="muted">Cada contribuição é registrada pela tesouraria e a prestação de contas é apresentada à igreja. Membros acompanham os próprios lançamentos na área do membro.</p></div>
+      <div class="card"><div class="icone-card verde"><i data-icon="igreja"></i></div><h3>No culto</h3>
+        <p class="muted">Se preferir, você também pode entregar seu dízimo ou oferta durante o culto, no momento da contribuição.</p></div>
     </div>
     <p class="pequeno" style="margin-top:16px">Membros: os lançamentos feitos pela tesouraria aparecem em <a href="membro/contribuicoes.html">Minhas contribuições</a>.</p>
   </div></section>
@@ -58,8 +73,15 @@
   } else {
     try { document.getElementById("pix-qr").innerHTML = await qrSvg(codigo, 5); } catch { document.getElementById("pix-qr").textContent = "Não foi possível gerar o QR code."; }
   }
-  document.getElementById("copiar-chave").onclick = () => copiar(I.pixChave, "Chave Pix copiada!");
-  document.getElementById("copiar-codigo").onclick = () => placeholder ? alert("Chave Pix ainda não configurada.") : copiar(codigo, "Código Pix copiado! Cole no app do banco.");
+  // Mostra "Copiado!" no próprio botão por alguns segundos (retorno visível além do aviso).
+  const confirmarBotao = (b, txt) => {
+    const sp = b.querySelector("span"), antes = sp.textContent;
+    sp.textContent = txt; b.classList.add("copiado");
+    setTimeout(() => { sp.textContent = antes; b.classList.remove("copiado"); }, 2500);
+  };
+  const bChave = document.getElementById("copiar-chave"), bCod = document.getElementById("copiar-codigo");
+  bChave.onclick = async () => { if (placeholder) return alert("Chave Pix ainda não configurada."); await copiar(I.pixChave, "Chave Pix copiada!"); confirmarBotao(bChave, "Copiada!"); };
+  bCod.onclick = async () => { if (placeholder) return alert("Chave Pix ainda não configurada."); await copiar(codigo, "Código Pix copiado! Cole no app do banco."); confirmarBotao(bCod, "Código copiado!"); };
 </script>
 </body>
 </html>
