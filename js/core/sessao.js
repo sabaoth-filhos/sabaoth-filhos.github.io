@@ -11,7 +11,7 @@ export const PAPEIS = ["membro", "lider", "tesoureiro", "admin"];
 export const temPapel = (m, p) => !!m && Array.isArray(m.papeis) && (m.papeis.includes(p) || m.papeis.includes("admin"));
 export const ehAdmin = (m) => !!m && Array.isArray(m.papeis) && m.papeis.includes("admin");
 
-/** Cria o documento do membro no primeiro acesso (sempre como "pendente"). */
+/** Cria o documento do membro no primeiro acesso (já aprovado, sem papéis). */
 export async function garantirMembro(user, extra = {}) {
   const db = await getDb();
   const ref = doc(db, "members", user.uid);
@@ -20,7 +20,7 @@ export async function garantirMembro(user, extra = {}) {
   const novo = {
     nome: extra.nome || user.displayName || "",
     email: (user.email || "").toLowerCase(),
-    status: "pendente",
+    status: "aprovado",
     papeis: [],
     perfilCompleto: false,
     consentimentoEm: serverTimestamp(),
@@ -37,7 +37,7 @@ export const membroAtual = () => _membro;
 /**
  * Protege uma página da área do membro.
  * - sem login: vai para entrar.html
- * - pendente/recusado: mostra a mensagem e para
+ * - pendente/recusado (bloqueado): mostra a mensagem e para
  * - aprovado sem perfil completo: vai para perfil (completar)
  * - `papel`: exige papel (lider/tesoureiro/admin)
  * @returns {Promise<{user, membro, db}>}
@@ -70,9 +70,9 @@ export async function exigirMembro({ papel = null, permitirPerfilIncompleto = fa
   if (membro.status !== "aprovado") {
     const recusado = membro.status === "recusado";
     telaBloqueio(
-      recusado ? "Cadastro não aprovado" : "Cadastro em análise",
+      recusado ? "Acesso bloqueado" : "Cadastro em análise",
       recusado
-        ? "Seu cadastro não foi aprovado. Se acha que foi engano, fale com a liderança da igreja."
+        ? "Seu acesso à área do membro foi bloqueado. Se acha que foi engano, fale com a liderança da igreja."
         : "Seu cadastro foi recebido e aguarda aprovação da liderança."
     );
     return new Promise(() => {});

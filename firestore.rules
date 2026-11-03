@@ -79,10 +79,11 @@ service cloud.firestore {
     match /members/{id} {
       allow read: if (logado() && uid() == id) || ehAdmin();
 
-      // Primeiro acesso: sempre "pendente" e sem papéis.
+      // Primeiro acesso: entra já "aprovado" (aprovação automática), sem papéis.
+      // Quem o admin bloquear fica com status "recusado" e não consegue se recadastrar (o documento continua existindo).
       allow create: if logado() && uid() == id
         && dados().keys().hasOnly(['nome','email','status','papeis','perfilCompleto','consentimentoEm','criadoEm'])
-        && dados().status == 'pendente' && dados().papeis == [] && dados().perfilCompleto == false
+        && dados().status == 'aprovado' && dados().papeis == [] && dados().perfilCompleto == false
         && texto(dados().nome, 100) && texto(dados().email, 200)
         || ehAdmin();   // admin pode cadastrar membros manualmente (ex.: dados de exemplo)
 

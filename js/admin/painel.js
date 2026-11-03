@@ -29,7 +29,7 @@ const nomeDe = (id) => ctx.pessoas.get(id)?.nome || id;
 
 /* =================== Abas =================== */
 const ABAS = [
-  admin && { id: "pendentes", nome: "Cadastros pendentes", ic: "relogio", fn: abaPendentes },
+  admin && { id: "cadastros", nome: "Controle de cadastros", ic: "usuarios", fn: abaCadastros },
   admin && { id: "membros", nome: "Membros", ic: "usuarios", fn: abaMembros },
   admin && { id: "grupos", nome: "Grupos", ic: "grupo", fn: abaGrupos },
   !admin && lider && { id: "meugrupo", nome: "Meu grupo", ic: "grupo", fn: abaMeuGrupo },
@@ -69,27 +69,80 @@ hidratarIcones();
 (async () => {
   if (!admin) return;
   try {
-    const p = await getDocs(query(collection(db, "members"), where("status", "==", "pendente")));
-    if (p.size) document.querySelector('[data-c="pendentes"]').innerHTML = ` <span class="selo perigo" style="padding:0 7px">${p.size}</span>`;
+    const p = await getDocs(collection(db, "members"));
+    const novos = p.docs.filter((d) => ["aprovado", "pendente"].includes(d.data().status) && !d.data().numeroMembro).length;
+    if (novos) document.querySelector('[data-c="cadastros"]').innerHTML = ` <span class="selo perigo" style="padding:0 7px">${novos}</span>`;
     const l = await getDocs(query(collection(db, "spiritualLinks"), where("status", "==", "pendente")));
     if (l.size) document.querySelector('[data-c="arvore"]').innerHTML = ` <span class="selo perigo" style="padding:0 7px">${l.size}</span>`;
   } catch {}
 })();
 
-/* =================== Cadastros pendentes =================== */
-async function abaPendentes(el) {
+/* =================== Controle de cadastros =================== */
+// Aprovação automática: todo cadastro novo já entra aprovado. Aqui o admin vê quem entrou,
+// gera nº/carteirinha, bloqueia ou exclui cadastros indesejados.
+const ESTADO_ROTULO = { aprovado: "Ativo", pendente: "Pendente", recusado: "Bloqueado", inativo: "Inativo" };
+const msCriado = (m) => (m.criadoEm && typeof m.criadoEm.toMillis === "function") ? m.criadoEm.toMillis() : 0;
+async function abaCadastros(el) {
   el.innerHTML = `<span class="carregando"></span>`;
-  const s = await getDocs(query(collection(db, "members"), where("status", "==", "pendente")));
-  const l = s.docs.map((d) => ({ id: d.id, ...d.data() }));
-  el.innerHTML = l.length ? `<div class="pilha">${l.map((m) => `
-    <article class="card linha entre"><div class="linha">${avatar(m.nome, m.foto)}<div><b>${esc(m.nome || "(sem nome)")}</b><br><small class="muted">${esc(m.email)} · cadastro em ${esc(fmtData(m.criadoEm))}</small></div></div>
-    <div class="linha"><button class="btn pequeno" data-aprovar="${m.id}">${icon("check")}Aprovar</button><button class="btn fantasma pequeno" data-recusar="${m.id}">Recusar</button></div></article>`).join("")}</div>`
-    : `<div class="vazio">Nenhum cadastro aguardando aprovação. 🙌</div>`;
-  el.querySelectorAll("[data-aprovar]").forEach((b) => b.onclick = async () => { try { await aprovar(b.dataset.aprovar); toast("Cadastro aprovado!"); abaPendentes(el); } catch (e) { toast(mensagemErro(e), "erro"); } });
-  el.querySelectorAll("[data-recusar]").forEach((b) => b.onclick = async () => {
-    if (!(await confirmar("Recusar este cadastro? A pessoa verá que não foi aprovada.", { ok: "Recusar", perigo: true }))) return;
-    await updateDoc(doc(db, "members", b.dataset.recusar), { status: "recusado", atualizadoEm: serverTimestamp() }); toast("Cadastro recusado."); abaPendentes(el);
-  });
+  const s = await getDocs(collection(db, "members"));
+  const todos = s.docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => msCriado(b) - msCriado(a));
+  let filtro = "todos", busca = "";
+  const desenhar = () => {
+    const q = busca.trim().toLowerCase();
+    const l = todos.filter((m) => (filtro === "todos" || (filtro === "novos" ? !m.numeroMembro && m.status !== "recusado" : m.status === filtro))
+      && (!q || (m.nome || "").toLowerCase().includes(q) || (m.email || "").toLowerCase().includes(q)));
+    const n = (f) => todos.filter((m) => f === "novos" ? !m.numeroMembro && m.status !== "recusado" : m.status === f).length;
+    el.innerHTML = `<p class="muted">Todo cadastro novo entra <b>aprovado automaticamente</b>. Use esta lista para conferir quem entrou e <b>bloquear</b> ou <b>excluir</b> cadastros indesejados.</p>
+      <div class="linha" style="flex-wrap:wrap;gap:8px;margin:8px 0 14px">
+        ${[["todos", `Todos (${todos.length})`], ["novos", `Sem carteirinha (${n("novos")})`], ["aprovado", `Ativos (${n("aprovado")})`], ["recusado", `Bloqueados (${n("recusado")})`]]
+          .map(([v, t]) => `<button class="chip" data-f="${v}" aria-pressed="${filtro === v}">${esc(t)}</button>`).join("")}
+        <input type="search" id="busca-cad" placeholder="Buscar por nome ou e-mail" value="${esc(busca)}" style="flex:1;min-width:200px">
+      </div>
+      ${l.length ? `<div class="pilha">${l.map((m) => {
+        const eu = m.id === user.uid, bloq = m.status === "recusado";
+        return `<article class="card linha entre" style="flex-wrap:wrap;gap:10px"><div class="linha">${avatar(m.nome, m.foto)}<div>
+          <b>${esc(m.nome || "(sem nome)")}</b> <span class="selo ${bloq ? "perigo" : ""}">${esc(ESTADO_ROTULO[m.status] || m.status)}</span>${(m.papeis || []).includes("admin") ? ` <span class="selo">admin</span>` : ""}
+          <br><small class="muted">${esc(m.email || "")} · cadastro em ${esc(fmtData(m.criadoEm))}${m.numeroMembro ? ` · nº ${esc(m.numeroMembro)}` : ""}</small></div></div>
+          <div class="linha" style="flex-wrap:wrap;gap:6px">
+            ${!bloq && !m.numeroMembro ? `<button class="btn pequeno" data-cart="${m.id}">${icon("check")}Gerar nº e carteirinha</button>` : ""}
+            ${m.status === "pendente" ? `<button class="btn pequeno" data-ativar="${m.id}">Aprovar</button>` : ""}
+            ${eu ? `<small class="muted">(você)</small>` : bloq
+              ? `<button class="btn secundario pequeno" data-ativar="${m.id}">Desbloquear</button>`
+              : `<button class="btn fantasma pequeno" data-bloq="${m.id}">Bloquear</button>`}
+            ${eu ? "" : `<button class="btn fantasma pequeno" data-excluir="${m.id}" style="color:var(--perigo, #b42318)">Excluir</button>`}
+          </div></article>`; }).join("")}</div>`
+        : `<div class="vazio">Nenhum cadastro nesta lista.</div>`}`;
+    el.querySelectorAll("[data-f]").forEach((b) => b.onclick = () => { filtro = b.dataset.f; desenhar(); });
+    const bi = el.querySelector("#busca-cad");
+    bi.oninput = () => { busca = bi.value; const pos = bi.selectionStart; desenhar(); const nb = el.querySelector("#busca-cad"); nb.focus(); nb.setSelectionRange(pos, pos); };
+    const achar = (id) => todos.find((m) => m.id === id);
+    const acao = (sel, fn) => el.querySelectorAll(sel).forEach((b) => b.onclick = async () => {
+      b.disabled = true;
+      try { await fn(achar(b.getAttribute(sel.slice(1, -1)))); } catch (e) { toast(mensagemErro(e), "erro"); }
+      abaCadastros(el);
+    });
+    acao("[data-cart]", async (m) => { await aprovar(m.id); toast("Nº de membro e carteirinha gerados."); });
+    acao("[data-ativar]", async (m) => {
+      if (m.cartaoToken) await setDoc(doc(db, "cards", m.cartaoToken), { status: "ativo" }, { merge: true });
+      await updateDoc(doc(db, "members", m.id), { status: "aprovado", atualizadoEm: serverTimestamp() });
+      toast("Acesso liberado.");
+    });
+    acao("[data-bloq]", async (m) => {
+      if (!(await confirmar(`Bloquear ${m.nome || m.email}? A pessoa perde o acesso à área do membro e some da lista de membros. Ela não consegue se cadastrar de novo com esta conta.`, { ok: "Bloquear", perigo: true }))) return;
+      await updateDoc(doc(db, "members", m.id), { status: "recusado", atualizadoEm: serverTimestamp() });
+      await deleteDoc(doc(db, "directory", m.id)).catch(() => {});
+      if (m.cartaoToken) await setDoc(doc(db, "cards", m.cartaoToken), { status: "inativo" }, { merge: true }).catch(() => {});
+      toast("Cadastro bloqueado.");
+    });
+    acao("[data-excluir]", async (m) => {
+      if (!(await confirmar(`Excluir de vez o cadastro de ${m.nome || m.email}? Os dados do cadastro são apagados. Atenção: se a pessoa entrar de novo, ela é aprovada automaticamente. Para impedir o acesso, use "Bloquear".`, { ok: "Excluir", perigo: true }))) return;
+      await deleteDoc(doc(db, "directory", m.id)).catch(() => {});
+      if (m.cartaoToken) await deleteDoc(doc(db, "cards", m.cartaoToken)).catch(() => {});
+      await deleteDoc(doc(db, "members", m.id));
+      toast("Cadastro excluído.");
+    });
+  };
+  desenhar();
 }
 
 /** Aprova: número de membro sequencial, carteirinha com token aleatório (QR de verificação). */
@@ -109,7 +162,7 @@ async function aprovar(id) {
 
 /* =================== Membros =================== */
 function abaMembros(el) {
-  const ESTADOS = [["aprovado", "Aprovado"], ["pendente", "Pendente"], ["recusado", "Recusado"], ["inativo", "Inativo"]];
+  const ESTADOS = [["aprovado", "Aprovado"], ["pendente", "Pendente"], ["recusado", "Bloqueado"], ["inativo", "Inativo"]];
   montarCrud(el, {
     colecao: "members", titulo: "Membro", podeCriar: false,
     descricao: "Cargo, batismo, membresia, número e papéis só a liderança altera. Os dados pessoais o próprio membro edita no perfil.",
