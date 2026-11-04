@@ -639,12 +639,12 @@ h1.titulo-h2 { font-size: clamp(1.6rem, 4.5vw, 2.4rem); }
 
 /* Itens de visita na linha do menu: mesmo visual de Início, Assistir, Participar e Contribuir */
 .nav-principal .nav-visita { display: none; }
-@media (min-width: 1240px) {
+@media (min-width: 1280px) {
   .nav-principal .nav-visita { display: list-item; }
   .nav-principal .nav-visita[hidden] { display: none !important; }
   .barra-visita { display: none; }
 }
-@media (min-width: 1240px) {
+@media (min-width: 1280px) {
   /* Cabeçalho um pouco mais largo e itens mais compactos para tudo caber sem cortar o nome */
   .site-header .container { max-width: max(var(--max), min(100vw, 1360px)); }
   .site-header .nav-principal ul { gap: 2px; }
