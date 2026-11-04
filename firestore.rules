@@ -23,6 +23,11 @@ service cloud.firestore {
     function texto(v, max) { return v is string && v.size() <= max; }
     function textoOpc(campo, max) { return !(campo in dados()) || texto(dados()[campo], max); }
     // Foto em data URL, comprimida no navegador (~40 KB). Limite rígido de 60.000 caracteres.
+    // E-mail da conta (minúsculo) e se o Google/Firebase confirmou que a pessoa é dona dele.
+    function emailConta() { return request.auth.token.get('email', '').lower(); }
+    function emailVerificado() { return request.auth.token.get('email_verified', false) == true; }
+    // Pré-autorizado: e-mail confirmado E presente na lista allowlist/{email} mantida pelo admin.
+    function preAutorizado() { return emailVerificado() && emailConta() != '' && exists(/databases/$(database)/documents/allowlist/$(emailConta())); }
     function fotoValida() {
       return !('foto' in dados()) || dados().foto == '' ||
         (dados().foto is string && dados().foto.size() <= 60000 &&
@@ -75,20 +80,41 @@ service cloud.firestore {
       allow update, delete: if ehAdmin();
     }
 
+    // ---------- Lista de e-mails pré-autorizados ----------
+    // Cada pessoa só consegue consultar o PRÓPRIO e-mail (para saber se já entra liberada). Só o admin lista e edita.
+    match /allowlist/{email} {
+      allow get: if logado() && emailVerificado() && email == emailConta();
+      allow list, write: if ehAdmin();
+    }
+
     // ---------- Membros ----------
     match /members/{id} {
       allow read: if (logado() && uid() == id) || ehAdmin();
 
-      // Primeiro acesso: entra já "aprovado" (aprovação automática), sem papéis.
-      // Quem o admin bloquear fica com status "recusado" e não consegue se recadastrar (o documento continua existindo).
-      allow create: if logado() && uid() == id
-        && dados().keys().hasOnly(['nome','email','status','papeis','perfilCompleto','consentimentoEm','criadoEm'])
-        && dados().status == 'aprovado' && dados().papeis == [] && dados().perfilCompleto == false
-        && texto(dados().nome, 100) && texto(dados().email, 200)
+      // Primeiro acesso:
+      //  - e-mail confirmado e na lista de pré-autorizados → entra "aprovado" (liberadoPor: 'lista');
+      //  - qualquer outro caso → entra "pendente" e só um admin libera.
+      // O e-mail gravado é sempre o da conta (não dá para se cadastrar com e-mail de outra pessoa).
+      // Quem o admin bloquear fica "recusado" e não consegue se recadastrar (o documento continua existindo).
+      allow create: if (logado() && uid() == id
+        && dados().keys().hasOnly(['nome','email','emailVerificado','status','liberadoPor','papeis','perfilCompleto','consentimentoEm','criadoEm'])
+        && dados().papeis == [] && dados().perfilCompleto == false
+        && texto(dados().nome, 100) && dados().email == emailConta()
+        && dados().get('emailVerificado', false) == emailVerificado()
+        && ((dados().status == 'aprovado' && dados().get('liberadoPor', '') == 'lista' && preAutorizado())
+            || (dados().status == 'pendente' && !('liberadoPor' in dados()))))
         || ehAdmin();   // admin pode cadastrar membros manualmente (ex.: dados de exemplo)
 
       // O membro aprovado edita só os próprios dados pessoais (cargo, batismo, membresia, papéis: só liderança).
-      allow update: if (logado() && uid() == id && resource.data.status == 'aprovado'
+      allow update: if
+        // Quem estava "pendente" é liberado sozinho quando o admin coloca o e-mail na lista
+        // (ou quando a pessoa confirma o e-mail que já estava na lista).
+        (logado() && uid() == id && resource.data.status == 'pendente' && preAutorizado()
+          && resource.data.get('email', '') == emailConta()
+          && dados().status == 'aprovado' && dados().liberadoPor == 'lista'
+          && mudou().hasOnly(['status','liberadoPor','emailVerificado','atualizadoEm'])
+          && dados().get('emailVerificado', false) == true)
+        || (logado() && uid() == id && resource.data.status == 'aprovado'
           && mudou().hasOnly(['nome','celular','aniversario','foto','endereco','familia','arvoreVisibilidade','perfilCompleto','atualizadoEm'])
           && textoOpc('nome', 100) && textoOpc('celular', 30) && textoOpc('endereco', 200)
           && (!('arvoreVisibilidade' in dados()) || dados().arvoreVisibilidade in ['foto','nome','oculto'])

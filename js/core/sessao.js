@@ -2,7 +2,7 @@
 import { auth, authPronto, getDb, SITE, lerDoc } from "./firebase.js";
 import { signOut } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 import {
-  doc, getDoc, setDoc, serverTimestamp, terminate, clearIndexedDbPersistence, waitForPendingWrites
+  doc, getDoc, setDoc, updateDoc, serverTimestamp, terminate, clearIndexedDbPersistence, waitForPendingWrites
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 import { rota, esc, toast, confirmar } from "./ui.js";
 import { icon } from "./icons.js";
@@ -11,16 +11,49 @@ export const PAPEIS = ["membro", "lider", "tesoureiro", "admin"];
 export const temPapel = (m, p) => !!m && Array.isArray(m.papeis) && (m.papeis.includes(p) || m.papeis.includes("admin"));
 export const ehAdmin = (m) => !!m && Array.isArray(m.papeis) && m.papeis.includes("admin");
 
-/** Cria o documento do membro no primeiro acesso (já aprovado, sem papéis). */
+/** E-mail e "e-mail confirmado" exatamente como o servidor vê (token atualizado). */
+async function dadosDaConta(user) {
+  try { await user.reload(); } catch {}
+  let verificado = !!user.emailVerified;
+  try { verificado = (await user.getIdTokenResult(true)).claims.email_verified === true; } catch {}
+  return { email: (user.email || "").toLowerCase(), verificado };
+}
+/** O e-mail desta conta está na lista de pré-autorizados? (cada um só consulta o próprio) */
+async function estaNaLista(db, email, verificado) {
+  if (!email || !verificado) return false;
+  try { return (await getDoc(doc(db, "allowlist", email))).exists(); } catch { return false; }
+}
+
+/**
+ * Cria o documento do membro no primeiro acesso:
+ * e-mail confirmado e pré-autorizado → "aprovado"; qualquer outro caso → "pendente" (o admin libera).
+ * Se já existe como "pendente" e o e-mail entrou na lista, libera sozinho.
+ */
 export async function garantirMembro(user, extra = {}) {
   const db = await getDb();
   const ref = doc(db, "members", user.uid);
   const s = await lerDoc(ref);
-  if (s.exists()) return { id: user.uid, ...s.data() };
+  if (s.exists()) {
+    const m = { id: user.uid, ...s.data() };
+    if (m.status === "pendente") {
+      const { email, verificado } = await dadosDaConta(user);
+      if (email === m.email && (await estaNaLista(db, email, verificado))) {
+        try {
+          await updateDoc(ref, { status: "aprovado", liberadoPor: "lista", emailVerificado: true, atualizadoEm: serverTimestamp() });
+          return { ...m, status: "aprovado", liberadoPor: "lista", emailVerificado: true };
+        } catch (e) { console.warn("Liberação automática não aplicada:", e); }
+      }
+    }
+    return m;
+  }
+  const { email, verificado } = await dadosDaConta(user);
+  const naLista = await estaNaLista(db, email, verificado);
   const novo = {
     nome: extra.nome || user.displayName || "",
-    email: (user.email || "").toLowerCase(),
-    status: "aprovado",
+    email,
+    emailVerificado: verificado,
+    status: naLista ? "aprovado" : "pendente",
+    ...(naLista ? { liberadoPor: "lista" } : {}),
     papeis: [],
     perfilCompleto: false,
     consentimentoEm: serverTimestamp(),
@@ -76,7 +109,9 @@ export async function exigirMembro({ papel = null, permitirPerfilIncompleto = fa
       recusado ? "Acesso bloqueado" : "Cadastro em análise",
       recusado
         ? "Seu acesso à área do membro foi bloqueado. Se acha que foi engano, fale com a liderança da igreja."
-        : "Seu cadastro foi recebido e está aguardando a liberação da liderança. Assim que for liberado, toque em “Verificar de novo”."
+        : (auth.currentUser && !auth.currentUser.emailVerified
+          ? "Falta confirmar o seu e-mail: abra o link que enviamos para a sua caixa de entrada (veja também o spam) e depois toque em “Verificar de novo”. Se o seu e-mail ainda não estiver na lista da igreja, a liderança vai liberar o acesso."
+          : "Seu cadastro foi recebido. O acesso à área do membro é liberado pela liderança da igreja. Assim que for liberado, toque em “Verificar de novo”.")
     );
     return new Promise(() => {});
   }

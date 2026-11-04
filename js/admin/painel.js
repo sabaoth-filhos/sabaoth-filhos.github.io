@@ -3,7 +3,7 @@ import { exigirMembro, temPapel, ehAdmin } from "../core/sessao.js";
 import {
   collection, getDocs, query, where, doc, getDoc, setDoc, updateDoc, deleteDoc, runTransaction, serverTimestamp, writeBatch, orderBy, limit, addDoc
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
-import { esc, toast, confirmar, comDesfazer, normalizar, abrirDialogo, mensagemErro, fmtData, fmtMoeda, hojeISO, idAleatorio, baixarArquivo, copiar, avatar, linkWhatsApp, rota, esqueleto } from "../core/ui.js";
+import { esc, toast, confirmar, comDesfazer, estadoVazio, normalizar, abrirDialogo, mensagemErro, fmtData, fmtMoeda, hojeISO, idAleatorio, baixarArquivo, copiar, avatar, linkWhatsApp, rota, esqueleto } from "../core/ui.js";
 import { icon, hidratarIcones } from "../core/icons.js";
 import { montarCrud } from "./crud.js";
 import { LIVROS } from "../biblia/livros.js";
@@ -31,6 +31,7 @@ const nomeDe = (id) => ctx.pessoas.get(id)?.nome || id;
 const ABAS = [
   { id: "inicio", nome: "Pendências", ic: "sino", fn: abaInicio },
   admin && { id: "cadastros", nome: "Controle de cadastros", ic: "usuarios", fn: abaCadastros },
+  admin && { id: "autorizados", nome: "E-mails autorizados", ic: "escudo", fn: abaAutorizados },
   admin && { id: "membros", nome: "Membros", ic: "usuarios", fn: abaMembros },
   admin && { id: "grupos", nome: "Grupos", ic: "grupo", fn: abaGrupos },
   !admin && lider && { id: "meugrupo", nome: "Meu grupo", ic: "grupo", fn: abaMeuGrupo },
@@ -132,8 +133,11 @@ async function abaInicio(el) {
   el.innerHTML = esqueleto("cards", 3);
   const contar = async (fn) => { try { return await fn(); } catch (e) { console.warn(e); return null; } };
   const hoje = hojeISO();
+  const membrosLista = admin ? await contar(async () => (await getDocs(collection(db, "members"))).docs.map((d) => d.data())) : null;
+  const emAnalise = membrosLista ? membrosLista.filter((m) => m.status === "pendente").length : 0;
+  const aRevisar = membrosLista ? membrosLista.filter(antigoSemRevisao).length : 0;
   const [semCartao, formsNovos, oracoesNovas, ausencias, ligacoes] = await Promise.all([
-    admin ? contar(async () => (await getDocs(collection(db, "members"))).docs.filter((d) => d.data().status !== "recusado" && !d.data().numeroMembro).length) : null,
+    membrosLista ? membrosLista.filter((m) => m.status === "aprovado" && !m.numeroMembro).length : null,
     admin ? contar(async () => (await getDocs(query(collection(db, "visitorForms"), where("status", "==", "novo")))).size) : null,
     admin ? contar(async () => (await getDocs(query(collection(db, "prayerRequests"), where("status", "==", "novo")))).size) : null,
     (admin || lider) ? contar(async () => {
@@ -143,7 +147,9 @@ async function abaInicio(el) {
     }) : null,
     admin ? contar(async () => (await getDocs(query(collection(db, "spiritualLinks"), where("status", "==", "pendente")))).size) : null
   ]);
-  if (semCartao) card("p-cad", "cartao", semCartao, "Cadastros sem carteirinha", "Membros novos esperando número e carteirinha.", "cadastros");
+  if (emAnalise) card("p-analise", "relogio", emAnalise, "Cadastros em análise", "Pessoas que entraram com e-mail fora da lista de autorizados e esperam você liberar o acesso.", "cadastros", "Liberar acesso");
+  if (aRevisar) card("p-revisar", "alerta", aRevisar, "Cadastros antigos a revisar", "Entraram pela aprovação automática antiga e veem o conteúdo de membros sem terem sido conferidos.", "cadastros", "Revisar");
+  if (semCartao) card("p-cad", "cartao", semCartao, "Cadastros sem carteirinha", "Membros liberados esperando número e carteirinha.", "cadastros");
   if (formsNovos) card("p-forms", "convite", formsNovos, "Formulários novos", "Visitantes, células, voluntariado e batismo aguardando contato.", "formularios", "Entrar em contato");
   if (oracoesNovas) card("p-ora", "oracao", oracoesNovas, "Pedidos de oração novos", "Pedidos que ainda não foram marcados como “Estamos orando”.", "oracao", "Ver pedidos");
   if (ausencias?.length) card("p-esc", "escala", ausencias.length, "Escalas com “Não posso”", ausencias.slice(0, 3).map((e) => `${nomeDe(e.memberId)} · ${e.ministerioNome || ""} · ${fmtData(e.data, { day: "2-digit", month: "short" })}`).join(" | ") + (ausencias.length > 3 ? " …" : ""), "escalas", "Ajustar escala");
@@ -171,7 +177,7 @@ async function abaInicio(el) {
   if (!admin) return;
   try {
     const p = await getDocs(collection(db, "members"));
-    const novos = p.docs.filter((d) => ["aprovado", "pendente"].includes(d.data().status) && !d.data().numeroMembro).length;
+    const novos = p.docs.filter((d) => d.data().status === "pendente" || antigoSemRevisao(d.data())).length;
     if (novos) document.querySelector('[data-c="cadastros"]').innerHTML = ` <span class="selo perigo" style="padding:0 7px">${novos}</span>`;
     const l = await getDocs(query(collection(db, "spiritualLinks"), where("status", "==", "pendente")));
     if (l.size) document.querySelector('[data-c="arvore"]').innerHTML = ` <span class="selo perigo" style="padding:0 7px">${l.size}</span>`;
@@ -187,15 +193,26 @@ async function abaCadastros(el) {
   el.innerHTML = esqueleto("cards", 4);
   const s = await getDocs(collection(db, "members"));
   const todos = s.docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => msCriado(b) - msCriado(a));
-  let filtro = "todos", busca = ctx.buscaInicial || "";
+  let filtro = todos.some((m) => m.status === "pendente") ? "pendente" : "todos", busca = ctx.buscaInicial || "";
+  if (busca) filtro = "todos";
+  const FILTROS = {
+    todos: () => true,
+    pendente: (m) => m.status === "pendente",
+    revisar: antigoSemRevisao,
+    novos: (m) => !m.numeroMembro && m.status === "aprovado",
+    aprovado: (m) => m.status === "aprovado",
+    recusado: (m) => m.status === "recusado"
+  };
   const desenhar = () => {
     const q = busca.trim().toLowerCase();
-    const l = todos.filter((m) => (filtro === "todos" || (filtro === "novos" ? !m.numeroMembro && m.status !== "recusado" : m.status === filtro))
-      && (!q || (m.nome || "").toLowerCase().includes(q) || (m.email || "").toLowerCase().includes(q)));
-    const n = (f) => todos.filter((m) => f === "novos" ? !m.numeroMembro && m.status !== "recusado" : m.status === f).length;
-    el.innerHTML = `<p class="muted">Todo cadastro novo entra <b>aprovado automaticamente</b>. Use esta lista para conferir quem entrou e <b>bloquear</b> ou <b>excluir</b> cadastros indesejados.</p>
+    const l = todos.filter((m) => FILTROS[filtro](m) && (!q || (m.nome || "").toLowerCase().includes(q) || (m.email || "").toLowerCase().includes(q)));
+    const n = (f) => todos.filter(FILTROS[f]).length;
+    const nRevisar = n("revisar");
+    el.innerHTML = `<p class="muted">Quem entra com um e-mail da lista de <a href="#autorizados">e-mails autorizados</a> recebe acesso na hora. Os demais ficam <b>em análise</b> até um admin tocar em <b>Liberar acesso</b>.</p>
+      ${nRevisar ? `<div class="alerta" style="margin:10px 0">${icon("alerta")}<div><p><b>${nRevisar} cadastro(s) entraram pela aprovação automática antiga</b> e ainda veem todo o conteúdo de membros sem terem sido conferidos.</p>
+        <div class="linha" style="margin-top:8px"><button class="btn pequeno" data-f="revisar">Ver quais são</button><button class="btn secundario pequeno" id="revisar-todos">Mover todos para “em análise”</button></div></div></div>` : ""}
       <div class="linha" style="flex-wrap:wrap;gap:8px;margin:8px 0 14px">
-        ${[["todos", `Todos (${todos.length})`], ["novos", `Sem carteirinha (${n("novos")})`], ["aprovado", `Ativos (${n("aprovado")})`], ["recusado", `Bloqueados (${n("recusado")})`]]
+        ${[["pendente", `Em análise (${n("pendente")})`], ["todos", `Todos (${todos.length})`], ...(nRevisar ? [["revisar", `A revisar (${nRevisar})`]] : []), ["novos", `Sem carteirinha (${n("novos")})`], ["aprovado", `Ativos (${n("aprovado")})`], ["recusado", `Bloqueados (${n("recusado")})`]]
           .map(([v, t]) => `<button class="chip" data-f="${v}" aria-pressed="${filtro === v}">${esc(t)}</button>`).join("")}
         <input type="search" id="busca-cad" placeholder="Buscar por nome ou e-mail" value="${esc(busca)}" style="flex:1;min-width:200px">
       </div>
@@ -203,10 +220,12 @@ async function abaCadastros(el) {
         const eu = m.id === user.uid, bloq = m.status === "recusado";
         return `<article class="card linha entre" style="flex-wrap:wrap;gap:10px"><div class="linha">${avatar(m.nome, m.foto)}<div>
           <b>${esc(m.nome || "(sem nome)")}</b> <span class="selo ${bloq ? "perigo" : ""}">${esc(ESTADO_ROTULO[m.status] || m.status)}</span>${(m.papeis || []).includes("admin") ? ` <span class="selo">admin</span>` : ""}
+          ${m.status === "aprovado" ? ` <span class="selo">${esc(origemLiberacao(m))}</span>` : ""}${m.emailVerificado === false ? ` <span class="selo perigo" title="A pessoa ainda não confirmou que é dona deste e-mail">e-mail não confirmado</span>` : ""}
           <br><small class="muted">${esc(m.email || "")} · cadastro em ${esc(fmtData(m.criadoEm))}${m.numeroMembro ? ` · nº ${esc(m.numeroMembro)}` : ""}</small></div></div>
           <div class="linha" style="flex-wrap:wrap;gap:6px">
             ${!bloq && !m.numeroMembro ? `<button class="btn pequeno" data-cart="${m.id}">${icon("check")}Gerar nº e carteirinha</button>` : ""}
-            ${m.status === "pendente" ? `<button class="btn pequeno" data-ativar="${m.id}">Aprovar</button>` : ""}
+            ${m.status === "pendente" ? `<button class="btn pequeno" data-ativar="${m.id}">${icon("check")}Liberar acesso</button>` : ""}
+            ${antigoSemRevisao(m) && !eu ? `<button class="btn secundario pequeno" data-manter="${m.id}">Manter acesso</button><button class="btn fantasma pequeno" data-suspender="${m.id}">Mover para em análise</button>` : ""}
             ${eu ? `<small class="muted">(você)</small>` : bloq
               ? `<button class="btn secundario pequeno" data-ativar="${m.id}">Desbloquear</button>`
               : `<button class="btn fantasma pequeno" data-bloq="${m.id}">Bloquear</button>`}
@@ -226,8 +245,31 @@ async function abaCadastros(el) {
     acao("[data-cart]", async (m) => { await aprovar(m.id); toast("Nº de membro e carteirinha gerados."); });
     acao("[data-ativar]", async (m) => {
       if (m.cartaoToken) await setDoc(doc(db, "cards", m.cartaoToken), { status: "ativo" }, { merge: true });
-      await updateDoc(doc(db, "members", m.id), { status: "aprovado", atualizadoEm: serverTimestamp() });
+      await updateDoc(doc(db, "members", m.id), { status: "aprovado", liberadoPor: "admin", aprovadoPor: user.uid, aprovadoEm: serverTimestamp(), atualizadoEm: serverTimestamp() });
       toast("Acesso liberado.");
+    });
+    acao("[data-manter]", async (m) => {
+      await updateDoc(doc(db, "members", m.id), { liberadoPor: "admin", aprovadoPor: user.uid, aprovadoEm: serverTimestamp(), atualizadoEm: serverTimestamp() });
+      toast("Acesso mantido.");
+    });
+    acao("[data-suspender]", async (m) => {
+      await updateDoc(doc(db, "members", m.id), { status: "pendente", atualizadoEm: serverTimestamp() });
+      toast(`${m.nome || m.email} ficou em análise.`);
+    });
+    el.querySelector("#revisar-todos")?.addEventListener("click", async (ev) => {
+      const botao = ev.currentTarget; // guardar antes do await (depois dele currentTarget vira null)
+      const alvo = todos.filter(antigoSemRevisao).filter((m) => m.id !== user.uid);
+      if (!(await confirmar(`Mover ${alvo.length} cadastro(s) para “em análise”? Eles deixam de ver o conteúdo de membros até você liberar. Quem estiver na lista de e-mails autorizados é liberado sozinho no próximo acesso.`, { ok: "Mover para em análise", titulo: "Revisar cadastros antigos" }))) return;
+      botao.disabled = true;
+      try {
+        for (let i = 0; i < alvo.length; i += 400) {
+          const b = writeBatch(db);
+          alvo.slice(i, i + 400).forEach((m) => b.update(doc(db, "members", m.id), { status: "pendente", atualizadoEm: serverTimestamp() }));
+          await b.commit();
+        }
+        toast(`${alvo.length} cadastro(s) em análise.`);
+      } catch (e) { toast(mensagemErro(e), "erro"); }
+      abaCadastros(el);
     });
     acao("[data-bloq]", async (m) => {
       const nome = m.nome || m.email;
@@ -250,6 +292,81 @@ async function abaCadastros(el) {
         await deleteDoc(doc(db, "members", m.id));
       });
       if (ok) toast("Cadastro excluído.");
+    });
+  };
+  desenhar();
+}
+
+/** Aprovado na época da aprovação automática, sem passar pela lista nem por um admin (e que não é admin). */
+function antigoSemRevisao(m) {
+  return m.status === "aprovado" && !m.liberadoPor && !m.aprovadoPor && !(m.papeis || []).includes("admin") && !m.ficticio;
+}
+function origemLiberacao(m) {
+  if (m.liberadoPor === "lista") return "liberado pela lista";
+  if (m.liberadoPor === "admin" || m.aprovadoPor) return "liberado por admin";
+  if ((m.papeis || []).includes("admin")) return "admin";
+  return "aprovação automática antiga";
+}
+const normEmail = (e) => String(e || "").trim().toLowerCase();
+const emailValido = (e) => /^[^\s@/]+@[^\s@/]+\.[^\s@/]+$/.test(e);
+
+/* =================== E-mails autorizados (allowlist) =================== */
+async function abaAutorizados(el) {
+  el.innerHTML = esqueleto("tabela", 4);
+  const [sa, sm] = await Promise.all([getDocs(collection(db, "allowlist")), getDocs(collection(db, "members"))]);
+  const lista = sa.docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => a.id.localeCompare(b.id));
+  const porEmail = new Map(sm.docs.map((d) => [normEmail(d.data().email), { id: d.id, ...d.data() }]));
+  let busca = "";
+  const desenhar = () => {
+    const q = normEmail(busca);
+    const vis = lista.filter((x) => !q || x.id.includes(q) || (x.nome || "").toLowerCase().includes(q));
+    el.innerHTML = `<p class="muted">Quem entrar com um destes e-mails (Google ou link por e-mail) recebe <b>acesso completo na hora</b>. Os demais ficam <b>em análise</b> até um admin liberar em <a href="#cadastros">Controle de cadastros</a>.</p>
+      <form class="card form" id="f-aut" style="max-width:720px">
+        <div class="campo"><label for="aut-emails">Adicionar e-mails</label>
+          <textarea id="aut-emails" rows="4" placeholder="maria@gmail.com&#10;joao@hotmail.com"></textarea>
+          <small class="ajuda">Um por linha (ou separados por vírgula ou ponto e vírgula). Pode colar direto de uma planilha.</small></div>
+        <div class="msg" role="alert"></div>
+        <button class="btn">${icon("mais")}Adicionar à lista</button>
+      </form>
+      <div class="linha entre" style="margin:16px 0 10px"><h3 style="margin:0">Na lista (${lista.length})</h3>
+        <input type="search" id="aut-busca" placeholder="Buscar e-mail" value="${esc(busca)}" style="max-width:280px"></div>
+      ${vis.length ? `<div class="tabela-wrap" tabindex="0" role="region" aria-label="E-mails autorizados"><table><thead><tr><th>E-mail</th><th>Situação</th><th style="width:1%">Ações</th></tr></thead><tbody>
+        ${vis.map((x) => { const m = porEmail.get(x.id); return `<tr><td>${esc(x.id)}</td>
+          <td>${m ? `${esc(m.nome || "")} · <span class="selo ${m.status === "recusado" ? "perigo" : ""}">${esc(ESTADO_ROTULO[m.status] || m.status)}</span>` : '<span class="muted">ainda não entrou</span>'}</td>
+          <td><button class="btn-icone" data-rem="${esc(x.id)}" aria-label="Remover ${esc(x.id)} da lista">${icon("lixeira")}</button></td></tr>`; }).join("")}
+        </tbody></table></div>`
+        : estadoVazio({ ic: "escudo", titulo: lista.length ? "Nenhum e-mail encontrado" : "A lista ainda está vazia", texto: lista.length ? "" : "Enquanto a lista estiver vazia, todo cadastro novo fica em análise até um admin liberar." })}`;
+    el.querySelector("#aut-busca").oninput = (e) => { busca = e.target.value; const pos = e.target.selectionStart; desenhar(); const b = el.querySelector("#aut-busca"); b.focus(); b.setSelectionRange(pos, pos); };
+    el.querySelector("#f-aut").onsubmit = async (e) => {
+      e.preventDefault();
+      const msg = el.querySelector("#f-aut .msg");
+      const brutos = el.querySelector("#aut-emails").value.split(/[\s,;]+/).map(normEmail).filter(Boolean);
+      const invalidos = brutos.filter((x) => !emailValido(x));
+      const novos = [...new Set(brutos.filter(emailValido))].filter((x) => !lista.some((l) => l.id === x));
+      if (invalidos.length) { msg.innerHTML = `<div class="alerta erro">${icon("alerta")}<p>Estes não parecem e-mails válidos: ${esc(invalidos.join(", "))}</p></div>`; return; }
+      if (!novos.length) { msg.innerHTML = `<div class="alerta">${icon("info")}<p>Nenhum e-mail novo para adicionar.</p></div>`; return; }
+      try {
+        let liberados = 0;
+        for (let i = 0; i < novos.length; i += 200) {
+          const b = writeBatch(db);
+          novos.slice(i, i + 200).forEach((x) => {
+            b.set(doc(db, "allowlist", x), { adicionadoPor: user.uid, adicionadoEm: serverTimestamp() });
+            // quem já entrou e está em análise com este e-mail é liberado na hora
+            const m = porEmail.get(x);
+            if (m && m.status === "pendente") { liberados++; b.update(doc(db, "members", m.id), { status: "aprovado", liberadoPor: "lista", aprovadoPor: user.uid, aprovadoEm: serverTimestamp(), atualizadoEm: serverTimestamp() }); }
+          });
+          await b.commit();
+        }
+        toast(`${novos.length} e-mail(s) adicionado(s)${liberados ? ` · ${liberados} cadastro(s) em análise liberado(s)` : ""}.`);
+        abaAutorizados(el);
+      } catch (err) { msg.innerHTML = `<div class="alerta erro">${icon("alerta")}<p>${esc(mensagemErro(err))}</p></div>`; }
+    };
+    el.querySelectorAll("[data-rem]").forEach((b) => b.onclick = async () => {
+      const x = b.dataset.rem;
+      if (!(await confirmar(`Remover ${x} da lista? Quem ainda não entrou com este e-mail passa a ficar em análise. Quem já tem acesso continua com ele (para tirar, use Bloquear em Controle de cadastros).`, { ok: "Remover", perigo: true, titulo: "Remover e-mail autorizado" }))) return;
+      b.closest("tr")?.classList.add("saindo");
+      const ok = await comDesfazer(`${x} será removido da lista.`, () => deleteDoc(doc(db, "allowlist", x)));
+      if (ok) { lista.splice(lista.findIndex((l) => l.id === x), 1); desenhar(); } else b.closest("tr")?.classList.remove("saindo");
     });
   };
   desenhar();

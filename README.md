@@ -46,13 +46,14 @@ Recomendado (economiza espaço e evita lentidão): em **Índices → Campo únic
 **Pela CLI** (cria tudo, inclusive as isenções): `firebase deploy --only firestore:indexes --project idpb-jave-sabaoth`
 
 ### 4. Fazer seu cadastro e virar admin
-1. Abra https://sabaoth-filhos.github.io/entrar.html e entre (Google, link por e-mail ou e-mail e senha). Seu cadastro já entra aprovado (aprovação automática), mas ainda sem papel de admin.
+1. Abra https://sabaoth-filhos.github.io/entrar.html e entre (de preferência com Google). Como a lista de e-mails autorizados começa vazia, seu cadastro entra **em análise** e sem papel de admin.
 2. No console: **Firestore Database → Dados → `members`** → clique no documento com o seu e-mail.
 3. Edite os campos:
    - `status` → `aprovado` (texto), se ainda não estiver
    - `papeis` → tipo **array**, adicione um item texto `admin`
 4. Volte ao site e recarregue. Complete o perfil. No painel aparece **"Painel da liderança"** (`/admin/`).
-5. Daqui em diante, os cadastros entram aprovados sozinhos. No painel, a aba *Controle de cadastros* lista todos: gere o nº e a carteirinha, **bloqueie** quem não deve ter acesso (a pessoa não consegue se recadastrar) ou **exclua** um cadastro (se a pessoa entrar de novo, volta aprovada). Para dar papel de **líder** ou **tesoureiro**, use a aba *Membros*.
+5. **Quem pode entrar:** no painel, aba *E-mails autorizados*, cole os e-mails pré-autorizados (um por linha). Quem entrar com um desses e-mails (confirmado: Google ou link por e-mail) recebe acesso na hora. Todos os outros ficam **em análise** e só veem o conteúdo de membros depois que um admin tocar em **Liberar acesso** (*Controle de cadastros*). Se você incluir o e-mail de alguém que já está em análise, a pessoa é liberada na hora.
+6. Na aba *Controle de cadastros* você também gera o nº e a carteirinha, **bloqueia** quem não deve ter acesso (a pessoa não consegue se recadastrar) ou **exclui** um cadastro (se a pessoa entrar de novo, volta para "em análise", a não ser que o e-mail esteja na lista). Cadastros que entraram na época da aprovação automática aparecem como **"a revisar"**: mantenha ou mova para em análise. Para dar papel de **líder** ou **tesoureiro**, use a aba *Membros*.
 
 ### 5. Personalizar os e-mails do Firebase (já em português)
 Console → **Authentication → Templates**: *Verificação de endereço de e-mail*, *Redefinição de senha* e *Login por link de e-mail*. Ali você altera o nome do remetente, o assunto e o texto (o idioma já está em pt-BR). Em **Authentication → Settings → Domínios autorizados** deve constar `sabaoth-filhos.github.io` (já está).
@@ -157,7 +158,8 @@ Mudanças em relação à sugestão do briefing: `families` virou o campo `famil
 ## 🔐 Segurança e privacidade
 
 - Papéis ficam no Firestore (`members/{uid}.papeis`), nunca no front-end. As regras verificam o papel a cada operação.
-- Conta nova = `aprovado` automaticamente, sem papéis. Contas bloqueadas (`recusado`) ou pendentes não leem nada da área do membro (nem a Bíblia).
+- Conta nova = `aprovado` só se o e-mail estiver confirmado **e** em `allowlist/{email}` (lista de e-mails autorizados, mantida pelo admin); senão entra `pendente`. O e-mail gravado no cadastro é obrigatoriamente o da conta. Contas bloqueadas (`recusado`) ou pendentes não leem nada da área do membro (nem a Bíblia).
+- `allowlist/{email}`: cada pessoa só consegue consultar o próprio e-mail; listar e editar, só admin.
 - O membro só edita os próprios dados pessoais; cargo, batismo, membresia, número, situação e papéis só a liderança altera.
 - Foto: comprimida no navegador (256×256, WebP/JPEG, ~40 KB); as regras recusam fotos com mais de 60.000 caracteres ou que não sejam imagem.
 - Contribuições: leitura só pelo próprio membro, pelo tesoureiro e pelo admin.

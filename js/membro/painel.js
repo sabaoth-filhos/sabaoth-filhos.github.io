@@ -59,9 +59,9 @@ async function escala() {
       ${e.status !== "confirmado" ? `<button class="btn pequeno" id="h-confirmo">${icon("check")}Confirmo</button>` : ""}
       ${e.status !== "ausente" ? `<a class="btn secundario pequeno" href="escalas.html?ausente=${encodeURIComponent(e.id)}">${icon("fechar")}Não posso</a>` : ""}</div>`;
   document.getElementById("h-confirmo")?.addEventListener("click", async (ev) => {
-    ev.currentTarget.disabled = true;
+    const botao = ev.currentTarget; botao.disabled = true;
     try { await updateDoc(doc(db, "schedules", e.id), { status: "confirmado", motivo: "", avisadoEm: serverTimestamp() }); toast("Presença confirmada. Obrigado!"); escala(); }
-    catch (err) { toast(mensagemErro(err), "erro"); ev.currentTarget.disabled = false; }
+    catch (err) { toast(mensagemErro(err), "erro"); botao.disabled = false; }
   });
 }
 
