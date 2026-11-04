@@ -38,7 +38,7 @@ function campoForm(c, v, ctx) {
       const sel = new Set(v || []);
       return `<fieldset class="campo"><legend class="rotulo">${esc(c.rotulo)}</legend>
         ${ops.length > 8 ? `<input type="search" placeholder="Filtrar…" data-filtro="${id}" style="min-height:40px">` : ""}
-        <div id="${id}" class="pilha" style="max-height:240px;overflow:auto;gap:4px;border:1px solid var(--borda);border-radius:10px;padding:8px">
+        <div id="${id}" class="pilha" style="max-height:240px;overflow:auto;gap:4px;border:1px solid var(--borda);border-radius:var(--raio-sm);padding:8px">
         ${ops.map(([k, t]) => `<label class="linha" style="gap:8px;min-height:36px" data-txt="${esc(normalizar(t))}"><input type="checkbox" value="${esc(k)}" ${sel.has(k) ? "checked" : ""} style="width:20px;height:20px">${esc(t)}</label>`).join("")}</div>${ajuda}</fieldset>`;
     }
     case "lista": return `<div class="campo">${rot}<textarea id="${id}" placeholder="Um item por linha">${esc((v || []).map((x) => (typeof x === "object" ? Object.values(x).join(" | ") : x)).join("\n"))}</textarea>${ajuda}</div>`;

@@ -533,7 +533,7 @@ async function abaBiblia(el) {
   }).join("");
   el.querySelectorAll("[data-v]").forEach((b) => b.onclick = () => {
     const i = +b.dataset.v, m = metas[i].livros || {};
-    el.querySelector("#det").innerHTML = `<h3>${esc(vs[i].id)} por livro</h3><div class="grade-livros">${LIVROS.map((l) => `<div style="border:1.5px solid var(--borda);border-radius:10px;padding:6px 8px;font-size:.85rem;${m[l.id] ? "background:var(--ok-bg)" : "opacity:.6"}"><b>${esc(l.abrev)}</b> ${m[l.id] ? `✔<br><small>${m[l.id].capitulos} cap · ${esc((m[l.id].importadoEm || "").slice(0, 10))}</small>` : "<br><small>Em breve</small>"}</div>`).join("")}</div>`;
+    el.querySelector("#det").innerHTML = `<h3>${esc(vs[i].id)} por livro</h3><div class="grade-livros">${LIVROS.map((l) => `<div style="border:1.5px solid var(--borda);border-radius:var(--raio-sm);padding:6px 8px;font-size:.85rem;${m[l.id] ? "background:var(--ok-bg)" : "opacity:.6"}"><b>${esc(l.abrev)}</b> ${m[l.id] ? `✔<br><small>${m[l.id].capitulos} cap · ${esc((m[l.id].importadoEm || "").slice(0, 10))}</small>` : "<br><small>Em breve</small>"}</div>`).join("")}</div>`;
   });
 }
 

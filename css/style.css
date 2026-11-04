@@ -182,13 +182,13 @@ svg.ic { width: 1.25em; height: 1.25em; flex: none; vertical-align: -.25em; }
 .btn svg { width: 20px; height: 20px; flex: none; }
 .btn.secundario { background: transparent; color: var(--texto); border-color: var(--texto); }
 .btn.secundario:hover { background: var(--bg-suave); box-shadow: none; }
-.btn.escuro { background: var(--preto); color: #fff; }
-.btn.escuro:hover { background: #2a2825; }
+.btn.escuro { background: var(--preto); color: #fff; border-color: var(--preto); }
+.btn.escuro:hover { background: #2b2925; box-shadow: none; }
 .btn.claro { background: #fff; color: var(--preto); }
 .btn.fantasma { background: transparent; color: var(--texto); }
 .btn.fantasma:hover { background: var(--bg-suave); box-shadow: none; }
 .btn.perigo { background: var(--perigo); color: var(--sobre-perigo); }
-.btn.pequeno { min-height: 40px; padding: 8px 16px; font-size: .9rem; }
+.btn.pequeno { min-height: 44px; padding: 8px 16px; font-size: .9rem; }
 .btn.bloco { width: 100%; }
 .btn[disabled], .btn[aria-busy="true"] { opacity: .6; pointer-events: none; }
 .btn-google { background: #fff; color: #1f1f1f; border-color: #dadce0; }
@@ -473,8 +473,6 @@ tr:last-child td { border-bottom: 0; }
 .proximo-culto .pc-rotulo { display: inline-flex; align-items: center; gap: 8px; font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; }
 .proximo-culto strong { font-family: var(--fonte-titulo); font-size: 1.2rem; }
 .proximo-culto .pc-falta { font-size: .95rem; }
-.btn.escuro { background: var(--preto); color: #fff; border-color: var(--preto); }
-.btn.escuro:hover { background: #2b2925; }
 .horario.proximo { background: rgba(255,255,255,.55); border-radius: 12px; }
 @media (min-width: 640px) { .proximo-culto { padding: 18px; } }
 
@@ -529,11 +527,11 @@ tr:last-child td { border-bottom: 0; }
 .hoje-cabeca .contador { min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: var(--perigo); color: #fff; font-size: .75rem; font-weight: 800; display: inline-grid; place-items: center; }
 .hoje-ic { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; background: var(--bg-suave); flex: none; }
 .hoje-ic svg { width: 20px; height: 20px; }
-.hoje-ver { font-size: .85rem; font-weight: 700; white-space: nowrap; }
+.hoje-ver { display: inline-flex; align-items: center; min-height: 44px; padding: 0 6px; margin: -10px -6px; font-size: .85rem; font-weight: 700; white-space: nowrap; }
 .hoje-vazio { margin: 0 0 8px; color: var(--texto-2); font-size: .95rem; }
 .hoje-destaque { margin: 0; font-family: var(--fonte-titulo); font-weight: 800; font-size: 1.35rem; }
 .hoje-lista { display: grid; gap: 8px; }
-.hoje-lista a { display: flex; justify-content: space-between; gap: 10px; text-decoration: none; color: inherit; padding: 6px 0; border-bottom: 1px solid var(--borda); }
+.hoje-lista a { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; text-decoration: none; color: inherit; padding: 6px 0; border-bottom: 1px solid var(--borda); }
 .avatar.pequeno { width: 30px; height: 30px; font-size: .72rem; }
 .titulo-secao { font-size: 1.15rem; margin: 28px 0 12px; }
 
@@ -566,7 +564,7 @@ tr:last-child td { border-bottom: 0; }
 
 /* Aviso com "Desfazer" */
 .toast-desfazer { position: relative; overflow: hidden; padding-right: 10px; }
-.btn-desfazer { margin-left: 8px; padding: 6px 12px; min-height: 36px; border-radius: 999px; border: 1.5px solid currentColor; background: none; color: inherit; font: inherit; font-weight: 800; cursor: pointer; }
+.btn-desfazer { margin-left: 8px; padding: 6px 14px; min-height: 44px; border-radius: 999px; border: 1.5px solid currentColor; background: none; color: inherit; font: inherit; font-weight: 800; cursor: pointer; }
 .toast-tempo { position: absolute; left: 0; bottom: 0; height: 3px; width: 100%; background: var(--ouro); transform-origin: left; animation: toast-tempo linear forwards; }
 @keyframes toast-tempo { from { transform: scaleX(1); } to { transform: scaleX(0); } }
 
@@ -604,3 +602,6 @@ tr:last-child td { border-bottom: 0; }
 @media (prefers-reduced-motion: reduce) { .esq-bloco::after, .esq-linha::after { animation: none; } }
 .esq-bloco .esq-linha, .card .esq-linha { background: var(--borda); }
 .esq-bloco.esq-card { background: var(--bg-elev); }
+
+/* Títulos que abrem/fecham opções (details): área de toque de 44px */
+details > summary.linha { min-height: 44px; }
