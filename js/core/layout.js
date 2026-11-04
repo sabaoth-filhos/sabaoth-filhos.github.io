@@ -122,7 +122,7 @@ function footer() {
       </div>
       <div><h4>Visite</h4><ul>
         <li><a href="${rota("primeira-visita.html")}">Primeira vez aqui?</a></li>
-        <li><a href="${rota("index.html#horarios")}">Horários dos cultos</a></li>
+        <li><a href="${rota("primeira-visita.html#horarios")}">Horários dos cultos</a></li>
         <li><a href="${rota("sobre.html")}">Sobre nós</a></li>
       </ul></div>
       <div><h4>Participe</h4><ul>

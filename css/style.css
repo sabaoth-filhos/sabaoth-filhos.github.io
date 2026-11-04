@@ -620,3 +620,6 @@ h1, h2, h3, .hoje-destaque { overflow-wrap: break-word; hyphens: auto; }
 fieldset { min-width: 0; }
 .chip { max-width: 100%; overflow-wrap: anywhere; }
 .form > *, .pilha > *, .grid > * { min-width: 0; }
+
+/* h1 com o tamanho visual de h2 (página inicial sem o bloco de destaque) */
+h1.titulo-h2 { font-size: clamp(1.6rem, 4.5vw, 2.4rem); }
