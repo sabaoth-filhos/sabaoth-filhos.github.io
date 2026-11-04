@@ -48,7 +48,7 @@ function menuConta() {
 
 const MENU = [
   { id: "inicio", nome: "Início", href: "index.html", ic: "casa" },
-  { id: "assistir", nome: "Assistir", href: "assistir.html", ic: "assistir" },
+  { id: "sobre", nome: "Sobre nós", href: "sobre.html", ic: "igreja" },
   { id: "participar", nome: "Participar", href: "participar.html", ic: "grupo" },
   { id: "contribuir", nome: "Contribuir", href: "contribuir.html", ic: "presente" },
   logado
