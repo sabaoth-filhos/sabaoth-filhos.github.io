@@ -56,6 +56,9 @@ const MENU = [
     : { id: "entrar", nome: "Entrar", href: "entrar.html", ic: "entrar", cta: true }
 ];
 
+const linkMapsDe = (X) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(X.mapsQuery || X.endereco || "")}`;
+const linkWaDe = (X) => /^\d{10,15}$/.test(String(X.whatsapp || "")) ? `https://wa.me/${X.whatsapp}?text=${encodeURIComponent("Olá! Vim pelo site da IDPB Jave Sabaoth.")}` : "";
+
 function aplicarTema(t) {
   if (t) document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme;
 }
@@ -74,7 +77,11 @@ function header() {
       <span>${esc(I.nomeCurto)}<small>IDPB · Manaus</small></span>
     </a>
     <nav class="nav-principal" aria-label="Menu principal"><ul>
-      ${MENU.map((m) => `<li><a href="${rota(m.href)}" class="${m.cta ? "cta" : ""}" ${m.id === pagina ? 'aria-current="page"' : ""}>${icon(m.ic)}${m.nome}</a></li>`).join("")}
+      ${MENU.filter((m) => !m.cta).map((m) => `<li><a href="${rota(m.href)}" ${m.id === pagina ? 'aria-current="page"' : ""}>${icon(m.ic)}${m.nome}</a></li>`).join("")}
+      ${areaMembro ? "" : `<li class="nav-visita"><a class="visita" href="${rota("primeira-visita.html")}" ${pagina === "visita" ? 'aria-current="page"' : ""}>${icon("calendario")}Planejar minha visita</a></li>
+      <li class="nav-visita"><a class="contorno" data-maps href="${esc(linkMapsDe(I))}" target="_blank" rel="noopener">${icon("mapa")}Como chegar</a></li>
+      <li class="nav-visita" ${linkWaDe(I) ? "" : "hidden"}><a class="contorno so-icone" data-wa href="${esc(linkWaDe(I) || "#")}" target="_blank" rel="noopener" aria-label="Falar no WhatsApp" title="Falar no WhatsApp">${icon("whatsapp")}</a></li>`}
+      ${MENU.filter((m) => m.cta).map((m) => `<li><a href="${rota(m.href)}" class="cta" ${m.id === pagina ? 'aria-current="page"' : ""}>${icon(m.ic)}${m.nome}</a></li>`).join("")}
     </ul></nav>
     <div class="header-acoes">
       <button class="btn-icone" id="btn-tema" aria-label="Alternar modo claro/escuro">${icon(escuroAgora() ? "sol" : "lua")}</button>
@@ -85,8 +92,6 @@ function header() {
 }
 
 // Faixa logo abaixo do cabeçalho (páginas públicas): visita, mapa e WhatsApp.
-const linkMapsDe = (X) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(X.mapsQuery || X.endereco || "")}`;
-const linkWaDe = (X) => /^\d{10,15}$/.test(String(X.whatsapp || "")) ? `https://wa.me/${X.whatsapp}?text=${encodeURIComponent("Olá! Vim pelo site da IDPB Jave Sabaoth.")}` : "";
 function barraVisita() {
   const b = document.createElement("div");
   b.className = "barra-visita";
@@ -100,8 +105,9 @@ function barraVisita() {
 // Quando a página carrega os dados do painel (Conteúdo público), atualiza os links.
 document.addEventListener("igreja-carregada", (e) => {
   const X = e.detail || {};
-  document.querySelectorAll(".barra-visita [data-maps]").forEach((a) => (a.href = linkMapsDe(X)));
+  document.querySelectorAll(".barra-visita [data-maps], .nav-visita [data-maps]").forEach((a) => (a.href = linkMapsDe(X)));
   document.querySelectorAll(".barra-visita [data-wa]").forEach((a) => { const l = linkWaDe(X); a.hidden = !l; if (l) a.href = l; });
+  document.querySelectorAll(".nav-visita [data-wa]").forEach((a) => { const l = linkWaDe(X); a.closest("li").hidden = !l; if (l) a.href = l; });
 });
 
 function navInferior() {

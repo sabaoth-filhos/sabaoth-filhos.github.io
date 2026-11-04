@@ -632,3 +632,24 @@ h1.titulo-h2 { font-size: clamp(1.6rem, 4.5vw, 2.4rem); }
   .barra-visita-acoes .btn { flex-direction: column; gap: 4px; padding: 8px 4px; min-height: 56px; font-size: .76rem; line-height: 1.15; border-width: 1.5px; border-radius: var(--raio-sm); }
   .barra-visita-acoes .btn svg { width: 20px; height: 20px; }
 }
+
+/* Botões de visita na linha do menu (telas largas); abaixo disso ficam na faixa */
+.nav-principal a.visita { background: var(--ouro); color: var(--preto); }
+.nav-principal a.visita:hover { background: var(--ouro-escuro); }
+.nav-principal a.contorno { box-shadow: inset 0 0 0 2px var(--texto); }
+.nav-principal a.contorno:hover { background: var(--bg-suave); }
+.nav-principal a.visita svg, .nav-principal a.contorno svg { display: inline-block; width: 18px; height: 18px; }
+.nav-principal .nav-visita { display: none; }
+@media (min-width: 1240px) {
+  .nav-principal .nav-visita { display: list-item; }
+  .nav-principal .nav-visita[hidden] { display: none !important; }
+  .barra-visita { display: none; }
+}
+@media (min-width: 1240px) {
+  /* Cabeçalho um pouco mais largo e itens mais compactos para tudo caber sem cortar o nome */
+  .site-header .container { max-width: max(var(--max), min(100vw, 1360px)); }
+  .site-header .nav-principal ul { gap: 2px; }
+  .site-header .nav-principal a { padding: 9px 12px; font-size: .95rem; }
+  .site-header .nav-principal a.visita, .site-header .nav-principal a.contorno, .site-header .nav-principal a.cta { gap: 6px; }
+}
+.site-header .nav-principal a.so-icone { width: 44px; padding: 0; justify-content: center; }
