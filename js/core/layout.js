@@ -148,23 +148,8 @@ function footer() {
           <a href="${esc(wa)}" aria-label="WhatsApp" rel="noopener">${icon("whatsapp")}</a>
         </div>
       </div>
-      <div><h4>Visite</h4><ul>
-        <li><a href="${rota("primeira-visita.html")}">Primeira vez aqui?</a></li>
-        <li><a href="${rota("primeira-visita.html#horarios")}">Horários dos cultos</a></li>
-        <li><a href="${rota("sobre.html")}">Sobre nós</a></li>
-      </ul></div>
-      <div><h4>Participe</h4><ul>
-        <li><a href="${rota("assistir.html")}">Mensagens</a></li>
-        <li><a href="${rota("participar.html")}">Células, voluntariado e batismo</a></li>
-        <li><a href="${rota("oracao.html")}">Precisa de oração?</a></li>
-        <li><a href="${rota("contribuir.html")}">Contribuir</a></li>
-      </ul></div>
-      <div><h4>Membros</h4><ul>
-        <li><a href="${rota(logado ? "membro/index.html" : "entrar.html")}">${logado ? "Minha área" : "Entrar"}</a></li>
-        <li><a href="${rota("privacidade.html")}">Política de privacidade</a></li>
-      </ul></div>
     </div>
-    <div class="base"><span>© ${new Date().getFullYear()} ${esc(I.nome)} · Igreja de Deus Pentecostal do Brasil</span><span>Feito com carinho para a nossa família.</span></div>
+    <div class="base"><span>© ${new Date().getFullYear()} ${esc(I.nome)} · Igreja de Deus Pentecostal do Brasil</span></div>
   </div>`;
   return f;
 }
