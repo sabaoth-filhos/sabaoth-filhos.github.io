@@ -65,7 +65,9 @@ export async function exigirMembro({ papel = null, permitirPerfilIncompleto = fa
     }
   }
   _membro = membro;
-  try { localStorage.setItem("idpb_membro_" + user.uid, JSON.stringify({ id: membro.id, nome: membro.nome, status: membro.status, papeis: membro.papeis, perfilCompleto: membro.perfilCompleto })); } catch {}
+  const resumo = { id: membro.id, nome: membro.nome, status: membro.status, papeis: membro.papeis, perfilCompleto: membro.perfilCompleto };
+  try { localStorage.setItem("idpb_membro_" + user.uid, JSON.stringify(resumo)); } catch {}
+  document.dispatchEvent(new CustomEvent("membro-carregado", { detail: resumo }));
 
   if (membro.status !== "aprovado") {
     const recusado = membro.status === "recusado";

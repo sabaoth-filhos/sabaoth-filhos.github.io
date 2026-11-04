@@ -1,5 +1,5 @@
 import { exigirMembro } from "../core/sessao.js";
-import { esc, avatar, linkWhatsApp } from "../core/ui.js";
+import { esc, avatar, linkWhatsApp, estadoVazio } from "../core/ui.js";
 import { icon } from "../core/icons.js";
 import { meusGrupos, perfisPublicos } from "./comum.js";
 
@@ -7,7 +7,9 @@ const { user, db } = await exigirMembro();
 const app = document.getElementById("app");
 const grupos = await meusGrupos(db, user.uid).catch(() => []);
 if (!grupos.length) {
-  app.innerHTML = `<div class="vazio"><p>Você ainda não está em uma célula.</p><a class="btn" href="../participar.html#grupo">${icon("grupo")}Quero participar de uma célula</a></div>`;
+  app.innerHTML = estadoVazio({ ic: "grupo", titulo: "Você ainda não está em uma célula",
+    texto: "As células são encontros nas casas, durante a semana, para orar, estudar a Bíblia e fazer amigos.",
+    acao: `<a class="btn" href="../participar.html#grupo">${icon("grupo")}Quero participar de uma célula</a>` });
 } else {
   const perfis = await perfisPublicos(db, grupos.flatMap((g) => g.membros || []));
   app.innerHTML = grupos.map((g) => `

@@ -1,6 +1,6 @@
 import { exigirMembro } from "../core/sessao.js";
 import { collection, query, where, getDocs, orderBy, doc, setDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
-import { esc, hojeISO, fmtDataLonga, toast, confirmar, mensagemErro, paraData, MESES } from "../core/ui.js";
+import { esc, hojeISO, fmtDataLonga, toast, confirmar, mensagemErro, paraData, MESES, estadoVazio } from "../core/ui.js";
 import { icon } from "../core/icons.js";
 
 const { user, membro, db } = await exigirMembro();
@@ -22,8 +22,8 @@ async function carregar() {
           : e.inscricoes ? `<button class="btn pequeno" data-inscrever="${e.id}">${icon("ingresso")}Quero participar</button>` : `<span class="selo">Sem inscrição</span>`}
       </div></article>`; };
   const meus = l.filter((e) => minhas.has(e.id)), outros = l.filter((e) => !minhas.has(e.id));
-  app.innerHTML = `<h2 style="font-size:1.2rem">Inscrito</h2><div class="pilha">${meus.map(card).join("") || `<div class="vazio">Você não está inscrito em nenhum evento.</div>`}</div>
-    <h2 style="font-size:1.2rem;margin-top:24px">Próximos eventos</h2><div class="pilha">${outros.map(card).join("") || `<div class="vazio">Nenhum outro evento agendado.</div>`}</div>`;
+  app.innerHTML = `<h2 style="font-size:1.2rem">Inscrito</h2><div class="pilha">${meus.map(card).join("") || estadoVazio({ ic: "ingresso", titulo: "Nenhuma inscrição", texto: outros.some((e) => e.inscricoes) ? "Veja abaixo os eventos com inscrição aberta." : "Quando houver eventos com inscrição, você se inscreve por aqui." })}</div>
+    <h2 style="font-size:1.2rem;margin-top:24px">Próximos eventos</h2><div class="pilha">${outros.map(card).join("") || estadoVazio({ ic: "calendario", titulo: "Nenhum outro evento agendado", texto: "Fique de olho nos avisos: os próximos eventos aparecem aqui." })}</div>`;
   app.querySelectorAll("[data-inscrever]").forEach((b) => b.onclick = async () => {
     try { await setDoc(doc(db, "registrations", `${b.dataset.inscrever}_${user.uid}`), { eventId: b.dataset.inscrever, memberId: user.uid, nome: membro.nome, criadoEm: serverTimestamp() }); toast("Inscrição feita!"); carregar(); }
     catch (e) { toast(mensagemErro(e), "erro"); }

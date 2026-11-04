@@ -1,7 +1,7 @@
 // Histórico privado: só o próprio membro, a tesouraria e o admin leem (garantido nas regras).
 import { exigirMembro } from "../core/sessao.js";
 import { collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
-import { esc, fmtData, fmtMoeda, paraData, mensagemErro } from "../core/ui.js";
+import { esc, fmtData, fmtMoeda, paraData, mensagemErro, estadoVazio } from "../core/ui.js";
 import { icon } from "../core/icons.js";
 
 const { user, db } = await exigirMembro();
@@ -9,7 +9,9 @@ const app = document.getElementById("app");
 try {
   const s = await getDocs(query(collection(db, "contributions"), where("memberId", "==", user.uid), orderBy("data", "desc")));
   const l = s.docs.map((d) => d.data());
-  if (!l.length) app.innerHTML = `<div class="alerta">${icon("escudo")}<p>Nenhum lançamento ainda. Os dízimos e ofertas aparecem aqui depois que a tesouraria lança. Só você e a tesouraria veem estas informações.</p></div>`;
+  if (!l.length) app.innerHTML = estadoVazio({ ic: "moeda", titulo: "Nenhum lançamento ainda",
+    texto: "Seus dízimos e ofertas aparecem aqui depois que a tesouraria lança. Só você e a tesouraria veem estas informações.",
+    acao: `<a class="btn secundario pequeno" href="../contribuir.html">${icon("presente")}Contribuir via Pix</a>` });
   else {
     const porAno = {};
     l.forEach((c) => { const a = paraData(c.data)?.getFullYear() || "—"; (porAno[a] ||= []).push(c); });

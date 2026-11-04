@@ -1,7 +1,7 @@
 // "Minhas anotações": lista com filtros, lixeira (30 dias), exportar PDF/texto e compartilhar no WhatsApp.
 import { exigirMembro, registrarAntesDeSair } from "../core/sessao.js";
 import { collection, getDocs } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
-import { esc, fmtData, abrirDialogo, normalizar, linkWhatsApp, baixarArquivo, carregarScript, CDN, toast, confirmar, hojeISO } from "../core/ui.js";
+import { esc, fmtData, abrirDialogo, normalizar, linkWhatsApp, baixarArquivo, carregarScript, CDN, toast, confirmar, hojeISO, estadoVazio } from "../core/ui.js";
 import { icon, hidratarIcones } from "../core/icons.js";
 import { LIVROS } from "./livros.js";
 import { criarStore, novoId } from "./notas-store.js";
@@ -74,7 +74,9 @@ function render() {
       ${n.refsTexto && n.tipo !== "versiculo" ? `<p class="pequeno muted" style="margin:0">${esc(n.refsTexto)}</p>` : ""}
       <p style="margin:6px 0 0;white-space:pre-line;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">${esc(n.texto || "")}</p>
       ${f.tipo === "lixeira" ? `<div class="linha" style="margin-top:10px"><button class="btn secundario pequeno" data-rest="${esc(n.id)}">Restaurar</button><button class="btn fantasma pequeno" data-apagar="${esc(n.id)}">${icon("lixeira")}Apagar de vez</button><small class="muted">Excluída em ${esc(fmtData(n.excluidoEm))}</small></div>` : ""}
-    </article>`).join("") || `<div class="vazio">Nenhuma anotação ${f.tipo === "lixeira" ? "na lixeira" : "encontrada"}.</div>`}</div>`;
+    </article>`).join("") || (f.tipo === "lixeira" ? estadoVazio({ ic: "lixeira", titulo: "A lixeira está vazia", texto: "Anotações apagadas ficam aqui por 30 dias antes de sumir." })
+      : estadoVazio({ ic: "nota", titulo: "Nenhuma anotação encontrada", texto: "Toque em um versículo na Bíblia para anotar, ou use “Estou no culto” para anotar a pregação.",
+          acao: `<a class="btn secundario pequeno" href="biblia.html">${icon("biblia")}Abrir a Bíblia</a>` }))}</div>`;
 
   app.querySelectorAll("[data-t]").forEach((b) => b.onclick = () => { f.tipo = b.dataset.t; render(); });
   const liga = (id, k) => app.querySelector(id)?.addEventListener("input", (e) => { f[k] = e.target.value; clearTimeout(liga.t); liga.t = setTimeout(() => { render(); app.querySelector(id)?.focus(); }, 300); });

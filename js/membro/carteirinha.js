@@ -27,7 +27,8 @@ app.innerHTML = `
   </div>
   ${url ? "" : `<div class="alerta" style="max-width:420px">${icon("info")}<p>O QR code de verificação aparece depois que a secretaria gerar sua carteirinha no painel.</p></div>`}
   <div class="linha nao-imprimir" style="justify-content:center">
-    <button class="btn" id="baixar">${icon("baixar")}Baixar imagem</button>
+    <button class="btn" id="tela-cheia">${icon("zoomMais")}Mostrar em tela cheia</button>
+    <button class="btn secundario" id="baixar">${icon("baixar")}Baixar imagem</button>
     <button class="btn secundario" id="imprimir">${icon("imprimir")}Imprimir</button>
   </div>
   <p class="pequeno muted nao-imprimir" style="text-align:center;max-width:420px">Dica: no celular, salve a imagem na galeria para mostrar mesmo sem internet.</p>
@@ -35,6 +36,35 @@ app.innerHTML = `
 
 if (url) document.getElementById("qr").innerHTML = await qrSvg(url, 3).catch(() => "");
 document.getElementById("imprimir").onclick = () => print();
+
+/* ---------- Tela cheia: para mostrar na portaria/eventos ----------
+   Fundo branco, cartão o maior possível, QR ampliado e tela sem apagar (Wake Lock, quando o aparelho permite).
+   O brilho da tela não pode ser alterado pelo navegador: por isso o aviso. */
+document.getElementById("tela-cheia").onclick = async () => {
+  const ov = document.createElement("div");
+  ov.className = "cartao-cheio";
+  ov.setAttribute("role", "dialog"); ov.setAttribute("aria-modal", "true"); ov.setAttribute("aria-label", "Carteirinha em tela cheia");
+  ov.innerHTML = `<button class="btn-icone fechar-cheio" aria-label="Fechar tela cheia">${icon("fechar")}</button>
+    <div class="cartao-cheio-area">${document.getElementById("cartao").outerHTML.replace('id="cartao"', "")}</div>
+    ${url ? `<div class="qr-grande" aria-label="QR code de verificação">${await qrSvg(url, 6).catch(() => "")}</div>` : ""}
+    <p class="pequeno">Aumente o brilho da tela para facilitar a leitura do QR code.</p>`;
+  document.body.append(ov);
+  document.documentElement.classList.add("sem-rolagem");
+  let trava = null;
+  try { trava = await navigator.wakeLock?.request("screen"); } catch {}
+  try { await ov.requestFullscreen?.({ navigationUI: "hide" }); } catch {}
+  const fechar = async () => {
+    try { await trava?.release(); } catch {}
+    if (document.fullscreenElement) { try { await document.exitFullscreen(); } catch {} }
+    document.documentElement.classList.remove("sem-rolagem");
+    ov.remove(); document.removeEventListener("keydown", esc_); document.getElementById("tela-cheia").focus();
+  };
+  const esc_ = (e) => { if (e.key === "Escape") fechar(); };
+  document.addEventListener("keydown", esc_);
+  document.addEventListener("fullscreenchange", () => { if (!document.fullscreenElement && ov.isConnected) fechar(); }, { once: true });
+  ov.querySelector(".fechar-cheio").onclick = fechar;
+  ov.querySelector(".fechar-cheio").focus();
+};
 document.getElementById("baixar").onclick = async () => {
   try {
     await carregarScript(CDN.html2canvas);

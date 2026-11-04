@@ -4,6 +4,7 @@ import "../site-config.js";
 import { icon, hidratarIcones } from "./icons.js";
 import { ROOT, rota, esc } from "./ui.js";
 import { aoVivo } from "./agenda.js";
+import { SECOES } from "../membro/secoes.js";
 
 const SITE = self.SITE_CONFIG;
 const I = SITE.IGREJA;
@@ -12,7 +13,7 @@ const logado = (() => { try { return localStorage.getItem("idpb_logado") === "1"
 const areaMembro = document.body.dataset.area === "membro" || document.body.dataset.area === "admin";
 
 // Nome do membro guardado no aparelho (para as iniciais do avatar, sem carregar o Firebase).
-const membroLocal = (() => {
+const lerMembroLocal = () => {
   try {
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i);
@@ -20,7 +21,8 @@ const membroLocal = (() => {
     }
   } catch {}
   return null;
-})();
+};
+let membroLocal = lerMembroLocal();
 const iniciais = (n) => {
   const p = String(n || "").replace(/\(.*?\)/g, "").trim().split(/\s+/).filter(Boolean);
   if (!p.length) return "";
@@ -86,16 +88,19 @@ function navInferior() {
   const n = document.createElement("nav");
   n.className = "nav-inferior";
   n.setAttribute("aria-label", "Menu principal (celular)");
-  const itens = areaMembro
-    ? [
-        { id: "membro", nome: "Painel", href: "membro/index.html", ic: "painel" },
-        { id: "biblia", nome: "Bíblia", href: "membro/biblia.html", ic: "biblia" },
-        { id: "culto", nome: "No culto", href: "membro/culto.html", ic: "microfone" },
-        { id: "anotacoes", nome: "Anotações", href: "membro/anotacoes.html", ic: "nota" },
-        { id: "inicio", nome: "Site", href: "index.html", ic: "casa" }
-      ]
-    : MENU;
-  n.innerHTML = `<ul>${itens.map((m) => `<li><a href="${rota(m.href)}" ${m.id === pagina ? 'aria-current="page"' : ""}>${icon(m.ic)}<span>${m.nome}</span></a></li>`).join("")}</ul>`;
+  if (areaMembro) {
+    const fixos = [
+      { ids: ["membro"], nome: "Início", href: "membro/index.html", ic: "casa" },
+      { ids: ["biblia"], nome: "Bíblia", href: "membro/biblia.html", ic: "biblia" },
+      { ids: ["escalas", "eventos"], nome: "Agenda", href: "membro/escalas.html", ic: "calendario" },
+      { ids: ["carteirinha"], nome: "Carteirinha", href: "membro/carteirinha.html", ic: "cartao" }
+    ];
+    const noMais = !fixos.some((f) => f.ids.includes(pagina));
+    n.innerHTML = `<ul>${fixos.map((m) => `<li><a href="${rota(m.href)}" ${m.ids.includes(pagina) ? 'aria-current="page"' : ""}>${icon(m.ic)}<span>${m.nome}</span></a></li>`).join("")}
+      <li><button type="button" id="btn-mais" aria-haspopup="dialog" ${noMais ? 'aria-current="page"' : ""}>${icon("menu")}<span>Mais</span></button></li></ul>`;
+    return n;
+  }
+  n.innerHTML = `<ul>${MENU.map((m) => `<li><a href="${rota(m.href)}" ${m.id === pagina ? 'aria-current="page"' : ""}>${icon(m.ic)}<span>${m.nome}</span></a></li>`).join("")}</ul>`;
   return n;
 }
 
@@ -168,11 +173,36 @@ function montar() {
       }
     });
   }
+  document.getElementById("btn-mais")?.addEventListener("click", abrirMais);
   document.getElementById("btn-sair")?.addEventListener("click", async () => {
     const { sairComSeguranca } = await import("./sessao.js");
     sairComSeguranca();
   });
 }
+
+/** Folha "Mais" (celular): todas as seções da área do membro. */
+function abrirMais() {
+  membroLocal = lerMembroLocal() || membroLocal;
+  const papeis = membroLocal?.papeis || [];
+  const pode = (s) => !s.papel || papeis.includes("admin") || s.papel.some((p) => papeis.includes(p));
+  const fixas = ["biblia", "escalas", "carteirinha"];
+  const itens = SECOES.filter((s) => pode(s) && !fixas.includes(s.id));
+  const d = document.createElement("dialog");
+  d.className = "folha folha-mais";
+  d.setAttribute("aria-label", "Mais seções");
+  d.innerHTML = `<div class="dialog-cabeca"><h2>Mais</h2><button class="btn-icone" data-fechar aria-label="Fechar">${icon("fechar")}</button></div>
+    <div class="dialog-corpo"><nav aria-label="Seções da área do membro"><ul class="grade-mais">
+      ${itens.map((s) => `<li><a href="${rota("membro/" + s.href)}" ${s.id === pagina ? 'aria-current="page"' : ""}><span class="ic">${icon(s.ic)}</span><span>${esc(s.t)}</span></a></li>`).join("")}
+    </ul></nav>
+    <div class="linha" style="margin-top:16px"><a class="btn secundario" href="${rota("index.html")}">${icon("casa")}Ir para o site</a>
+      <button class="btn fantasma" type="button" id="mais-sair">${icon("sair")}Sair da conta</button></div></div>`;
+  document.body.append(d);
+  d.addEventListener("click", (e) => { if (e.target === d || e.target.closest("[data-fechar]")) d.close(); });
+  d.addEventListener("close", () => d.remove());
+  d.querySelector("#mais-sair").onclick = async () => { d.close(); (await import("./sessao.js")).sairComSeguranca(); };
+  d.showModal();
+}
+
 montar();
 
 // Selo "Ao vivo" no item Assistir (usa os dados públicos já carregados pela página, sem Firebase aqui).
@@ -186,6 +216,16 @@ function marcarAoVivo(I) {
 }
 try { const c = JSON.parse(sessionStorage.getItem("pub_igreja") || "null"); if (c) marcarAoVivo(c.v); } catch {}
 document.addEventListener("igreja-carregada", (e) => marcarAoVivo(e.detail));
+
+// Primeiro acesso após o login: o perfil chega depois do cabeçalho; atualiza o avatar.
+document.addEventListener("membro-carregado", (e) => {
+  membroLocal = e.detail;
+  const b = document.getElementById("btn-conta");
+  const ini = iniciais(e.detail?.nome);
+  if (b && ini) b.innerHTML = `<span aria-hidden="true">${esc(ini)}</span>`;
+  const n = document.querySelector(".conta-pop .conta-nome");
+  if (n) n.textContent = String(e.detail?.nome || "").trim().split(/\s+/)[0] || "Minha conta";
+});
 
 // PWA: registra o service worker (escopo = raiz do site).
 if ("serviceWorker" in navigator && location.protocol !== "file:") {

@@ -169,3 +169,8 @@ export function mensagemErro(e) {
   };
   return m[c] || m[c.replace(/^firestore\//, "")] || e?.message || "Algo deu errado. Tente novamente.";
 }
+
+/** Estado vazio padrão: ícone, título, explicação e (opcional) o próximo passo. */
+export function estadoVazio({ ic = "info", titulo, texto = "", acao = "" }) {
+  return `<div class="vazio">${icon(ic)}<p class="vazio-titulo">${esc(titulo)}</p>${texto ? `<p>${esc(texto)}</p>` : ""}${acao}</div>`;
+}
