@@ -21,7 +21,7 @@ const ESQUELETO = [
   "js/membro/comum.js", "js/membro/painel.js", "js/membro/carteirinha.js", "js/membro/perfil.js", "js/membro/avisos.js", "js/membro/escalas.js", "js/membro/eventos.js", "js/membro/celula.js", "js/membro/contribuicoes.js", "js/membro/oracoes.js",
   "js/biblia/leitor.js", "js/biblia/anotacoes.js", "js/biblia/culto.js", "js/biblia/notas-store.js", "js/biblia/editor-nota.js", "js/biblia/dados.js", "js/biblia/referencias.js", "js/biblia/livros.js",
   "js/arvore/arvore.js", "js/arvore/dados.js", "js/arvore/ligacao.js",
-  "assets/img/logo-idpb.jpg", "assets/img/logo-idpb-transparente.png",
+  "assets/img/logo-idpb.png",
   "assets/img/icons/icon-192.png", "assets/img/icons/icon-512.png", "assets/img/icons/favicon-48.png"
 ].map((p) => new URL(p, BASE).href);
 

@@ -73,7 +73,7 @@ function header() {
   <a class="pular-conteudo" href="#conteudo">Pular para o conteúdo</a>
   <div class="container">
     <a class="marca" href="${rota("index.html")}" aria-label="${esc(I.nome)} — página inicial">
-      <img src="${rota("assets/img/logo-idpb.jpg")}" alt="" width="44" height="44">
+      <img src="${rota("assets/img/logo-idpb.png")}" alt="" width="37" height="44">
       <span>${esc(I.nomeCurto)}<small>IDPB · Manaus</small></span>
     </a>
     <nav class="nav-principal" aria-label="Menu principal"><ul>
@@ -139,7 +139,7 @@ function footer() {
   f.innerHTML = `<div class="container">
     <div class="rodape-grid">
       <div>
-        <img src="${rota("assets/img/logo-idpb-transparente.png")}" alt="Logo da IDPB" width="64" height="76" style="width:64px;margin-bottom:12px" loading="lazy">
+        <img src="${rota("assets/img/logo-idpb.png")}" alt="Logo da IDPB" width="64" height="77" style="width:64px;height:auto;margin-bottom:12px" loading="lazy">
         <p class="lema">${esc(I.lema)}</p>
         <p class="pequeno" style="color:#b9b3a6">${esc(I.nome)} · ${esc(I.endereco)}</p>
         <div class="redes">

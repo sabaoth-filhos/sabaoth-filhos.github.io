@@ -72,7 +72,7 @@ Procure por `[` nos arquivos (ex.: `[ENDEREÇO]`, `[CHAVE PIX]`) ou preencha pel
 | Texto "Como é o culto", estacionamento, faixa etária do infantil | `primeira-visita.html` |
 | História, vínculo com a IDPB, crenças | `sobre.html` |
 | Política de privacidade (data, e-mail do encarregado) | `privacidade.html` |
-| Logo PNG transparente (para usar sobre fotos) | `assets/img/logo-idpb-transparente.png` (gerado a partir do JPG; troque por um oficial se tiver) |
+| Logo (PNG sem fundo, usado em todo o site) | `assets/img/logo-idpb.png` (380×459). Se tiver o arquivo oficial em PNG/SVG, substitua mantendo o nome. |
 
 Mantenha os mesmos nomes de arquivo ao trocar as fotos. Depois de mudanças grandes, aumente `CACHE_VERSION` em `js/site-config.js` para os celulares baixarem a versão nova.
 

@@ -11,7 +11,7 @@ const url = membro.cartaoToken ? SITE.baseUrl() + "verificar.html?c=" + membro.c
 app.innerHTML = `
 <div style="display:grid;justify-items:center;gap:18px">
   <div class="carteirinha aparecer" id="cartao" role="img" aria-label="Carteirinha de membro de ${esc(membro.nome)}">
-    <div class="topo"><img src="${rota("assets/img/logo-idpb-transparente.png")}" alt="">
+    <div class="topo"><img src="${rota("assets/img/logo-idpb.png")}" alt="">
       <div><b>IDPB Jave Sabaoth</b><small>Igreja de Deus Pentecostal do Brasil · Carteira de membro</small></div></div>
     <div class="corpo">
       ${membro.foto ? `<img class="foto" src="${esc(membro.foto)}" alt="">` : `<div class="foto">${esc(iniciais(membro.nome))}</div>`}
