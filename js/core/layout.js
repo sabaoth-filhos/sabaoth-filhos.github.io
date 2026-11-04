@@ -84,6 +84,26 @@ function header() {
   return h;
 }
 
+// Faixa logo abaixo do cabeçalho (páginas públicas): visita, mapa e WhatsApp.
+const linkMapsDe = (X) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(X.mapsQuery || X.endereco || "")}`;
+const linkWaDe = (X) => /^\d{10,15}$/.test(String(X.whatsapp || "")) ? `https://wa.me/${X.whatsapp}?text=${encodeURIComponent("Olá! Vim pelo site da IDPB Jave Sabaoth.")}` : "";
+function barraVisita() {
+  const b = document.createElement("div");
+  b.className = "barra-visita";
+  b.innerHTML = `<div class="container"><nav class="barra-visita-acoes" aria-label="Visite a igreja">
+    <a class="btn pequeno" href="${rota("primeira-visita.html")}" ${pagina === "visita" ? 'aria-current="page"' : ""}>${icon("calendario")}<span>Planejar minha visita</span></a>
+    <a class="btn secundario pequeno" data-maps href="${esc(linkMapsDe(I))}" target="_blank" rel="noopener">${icon("mapa")}<span>Como chegar</span></a>
+    <a class="btn secundario pequeno" data-wa href="${esc(linkWaDe(I) || "#")}" target="_blank" rel="noopener" ${linkWaDe(I) ? "" : "hidden"}>${icon("whatsapp")}<span>Falar no WhatsApp</span></a>
+  </nav></div>`;
+  return b;
+}
+// Quando a página carrega os dados do painel (Conteúdo público), atualiza os links.
+document.addEventListener("igreja-carregada", (e) => {
+  const X = e.detail || {};
+  document.querySelectorAll(".barra-visita [data-maps]").forEach((a) => (a.href = linkMapsDe(X)));
+  document.querySelectorAll(".barra-visita [data-wa]").forEach((a) => { const l = linkWaDe(X); a.hidden = !l; if (l) a.href = l; });
+});
+
 function navInferior() {
   const n = document.createElement("nav");
   n.className = "nav-inferior";
@@ -143,6 +163,7 @@ function footer() {
 
 function montar() {
   document.body.prepend(header());
+  if (!areaMembro && pagina !== "entrar") document.querySelector(".site-header").after(barraVisita());
   if (!document.body.dataset.semRodape) document.body.append(footer());
   document.body.append(navInferior());
   hidratarIcones();

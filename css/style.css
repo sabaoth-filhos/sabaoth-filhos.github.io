@@ -623,3 +623,12 @@ fieldset { min-width: 0; }
 
 /* h1 com o tamanho visual de h2 (página inicial sem o bloco de destaque) */
 h1.titulo-h2 { font-size: clamp(1.6rem, 4.5vw, 2.4rem); }
+
+/* Faixa abaixo do cabeçalho: Planejar visita, Como chegar, WhatsApp */
+.barra-visita { background: var(--bg); border-bottom: 1px solid var(--borda); }
+.barra-visita-acoes { display: flex; flex-wrap: wrap; gap: 8px; padding: 8px 0; }
+@media (max-width: 559px) {
+  .barra-visita-acoes { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 6px; }
+  .barra-visita-acoes .btn { flex-direction: column; gap: 4px; padding: 8px 4px; min-height: 56px; font-size: .76rem; line-height: 1.15; border-width: 1.5px; border-radius: var(--raio-sm); }
+  .barra-visita-acoes .btn svg { width: 20px; height: 20px; }
+}
