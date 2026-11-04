@@ -174,3 +174,31 @@ export function mensagemErro(e) {
 export function estadoVazio({ ic = "info", titulo, texto = "", acao = "" }) {
   return `<div class="vazio">${icon(ic)}<p class="vazio-titulo">${esc(titulo)}</p>${texto ? `<p>${esc(texto)}</p>` : ""}${acao}</div>`;
 }
+
+/**
+ * Ação com "Desfazer": mostra um aviso com botão e só executa depois de `ms`.
+ * Se a pessoa sair da página antes, executa na hora (as gravações do Firestore ficam na fila).
+ * @returns {Promise<boolean>} true = executou; false = desfeito.
+ */
+export function comDesfazer(msg, executar, ms = 6000) {
+  return new Promise((resolve) => {
+    let area = $(".toast-area");
+    if (!area) { area = document.createElement("div"); area.className = "toast-area"; area.setAttribute("role", "status"); area.setAttribute("aria-live", "polite"); document.body.append(area); }
+    const t = document.createElement("div");
+    t.className = "toast toast-desfazer";
+    t.innerHTML = `${icon("lixeira")}<span>${esc(msg)}</span><button type="button" class="btn-desfazer">Desfazer</button><i class="toast-tempo" style="animation-duration:${ms}ms"></i>`;
+    area.append(t);
+    let feito = false;
+    const fim = async (desfeito) => {
+      if (feito) return; feito = true;
+      clearTimeout(timer); removeEventListener("pagehide", sair); t.remove();
+      if (desfeito) { toast("Ação desfeita."); resolve(false); return; }
+      try { await executar(); resolve(true); } catch (e) { toast(mensagemErro(e), "erro"); resolve(false); }
+    };
+    const sair = () => fim(false);
+    const timer = setTimeout(() => fim(false), ms);
+    addEventListener("pagehide", sair);
+    t.querySelector(".btn-desfazer").onclick = () => fim(true);
+    t.querySelector(".btn-desfazer").focus({ preventScroll: true });
+  });
+}

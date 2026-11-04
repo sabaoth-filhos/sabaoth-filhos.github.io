@@ -2,7 +2,7 @@
 import {
   collection, getDocs, query, doc, setDoc, addDoc, deleteDoc, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
-import { esc, abrirDialogo, confirmar, toast, mensagemErro, normalizar, fmtData } from "../core/ui.js";
+import { esc, abrirDialogo, confirmar, toast, mensagemErro, normalizar, fmtData, comDesfazer } from "../core/ui.js";
 import { icon } from "../core/icons.js";
 
 /** Formata valor para a tabela. */
@@ -65,7 +65,7 @@ function lerCampo(c, raiz) {
  */
 export function montarCrud(alvo, cfg, ctx) {
   const { db } = ctx;
-  let itens = [], termo = "";
+  let itens = [], termo = cfg.busca !== false ? (ctx.buscaInicial || "") : "";
   async function carregar() {
     alvo.innerHTML = `<p class="muted"><span class="carregando"></span> Carregando…</p>`;
     try {
@@ -77,7 +77,14 @@ export function montarCrud(alvo, cfg, ctx) {
   }
   function render() {
     const t = normalizar(termo);
-    const vis = t ? itens.filter((i) => normalizar(JSON.stringify(i)).includes(t)) : itens;
+    // Busca também pelos nomes das pessoas referenciadas (memberId, membros[], liderIds…).
+    const textoBusca = (i) => {
+      const nomes = [];
+      const ver = (v) => { if (typeof v === "string" && ctx.pessoas?.has(v)) nomes.push(ctx.pessoas.get(v).nome); else if (Array.isArray(v)) v.forEach(ver); };
+      Object.values(i).forEach(ver);
+      return normalizar(JSON.stringify(i) + " " + nomes.join(" "));
+    };
+    const vis = t ? itens.filter((i) => textoBusca(i).includes(t)) : itens;
     const cols = cfg.colunas.map((id) => cfg.campos.find((c) => c.id === id) || { id, rotulo: id });
     alvo.innerHTML = `
       ${cfg.descricao ? `<p class="muted">${cfg.descricao}</p>` : ""}
@@ -127,9 +134,12 @@ export function montarCrud(alvo, cfg, ctx) {
     };
   }
   async function excluir(item) {
-    if (!(await confirmar(`Excluir "${item.titulo || item.nome || item.id}"? Esta ação não pode ser desfeita.`, { ok: "Excluir", perigo: true }))) return;
-    try { await deleteDoc(doc(db, cfg.colecao, item.id)); await cfg.depoisDeExcluir?.(item, ctx); toast("Excluído."); carregar(); }
-    catch (e) { toast(mensagemErro(e), "erro"); }
+    const nome = item.titulo || item.nome || item.pedido?.slice(0, 40) || item.id;
+    if (!(await confirmar(`Excluir “${nome}” (${cfg.titulo.toLowerCase()})? Você terá alguns segundos para desfazer.`, { ok: "Excluir", perigo: true, titulo: "Excluir " + cfg.titulo.toLowerCase() }))) return;
+    // Some da lista na hora; só apaga de verdade se ninguém tocar em "Desfazer".
+    const antes = itens; itens = itens.filter((i) => i.id !== item.id); render();
+    const ok = await comDesfazer(`“${nome}” excluído.`, async () => { await deleteDoc(doc(db, cfg.colecao, item.id)); await cfg.depoisDeExcluir?.(item, ctx); });
+    if (!ok) { itens = antes; render(); }
   }
   carregar();
   return { recarregar: carregar };

@@ -3,7 +3,7 @@ import { exigirMembro, temPapel, ehAdmin } from "../core/sessao.js";
 import {
   collection, getDocs, query, where, doc, getDoc, setDoc, updateDoc, deleteDoc, runTransaction, serverTimestamp, writeBatch, orderBy, limit, addDoc
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
-import { esc, toast, confirmar, abrirDialogo, mensagemErro, fmtData, fmtMoeda, hojeISO, idAleatorio, baixarArquivo, copiar, avatar, linkWhatsApp, rota } from "../core/ui.js";
+import { esc, toast, confirmar, comDesfazer, normalizar, abrirDialogo, mensagemErro, fmtData, fmtMoeda, hojeISO, idAleatorio, baixarArquivo, copiar, avatar, linkWhatsApp, rota } from "../core/ui.js";
 import { icon, hidratarIcones } from "../core/icons.js";
 import { montarCrud } from "./crud.js";
 import { LIVROS } from "../biblia/livros.js";
@@ -29,6 +29,7 @@ const nomeDe = (id) => ctx.pessoas.get(id)?.nome || id;
 
 /* =================== Abas =================== */
 const ABAS = [
+  { id: "inicio", nome: "Pendências", ic: "sino", fn: abaInicio },
   admin && { id: "cadastros", nome: "Controle de cadastros", ic: "usuarios", fn: abaCadastros },
   admin && { id: "membros", nome: "Membros", ic: "usuarios", fn: abaMembros },
   admin && { id: "grupos", nome: "Grupos", ic: "grupo", fn: abaGrupos },
@@ -49,13 +50,20 @@ const ABAS = [
 
 const app = document.getElementById("app");
 app.innerHTML = `<p class="muted" style="margin-top:-8px">Você entrou como <b>${esc([admin && "admin", lider && !admin && "líder", tesoureiro && !admin && "tesoureiro"].filter(Boolean).join(", "))}</b>. Ninguém, nem o admin, acessa as anotações pessoais dos membros.</p>
+  <div class="busca-global" role="search">
+    <label class="sr-only" for="busca-pessoa">Buscar pessoa por nome</label>
+    ${icon("busca")}<input type="search" id="busca-pessoa" placeholder="Buscar pessoa por nome ou e-mail…" autocomplete="off" aria-controls="busca-res" aria-expanded="false">
+    <ul class="busca-res" id="busca-res" role="listbox" hidden></ul>
+  </div>
   <nav class="tabs" role="tablist" aria-label="Seções do painel" style="margin:8px 0 16px;flex-wrap:wrap">${ABAS.map((a) => `<a class="chip" role="tab" href="#${a.id}" data-aba="${a.id}">${icon(a.ic)}${esc(a.nome)}<span class="contador-aba" data-c="${a.id}"></span></a>`).join("")}</nav>
   <section id="aba" aria-live="polite"></section>`;
 const alvo = document.getElementById("aba");
 
 async function abrirAba() {
   if (Date.now() - pessoasEm > 60000) await carregarPessoas().catch(() => {});
-  const id = location.hash.slice(1);
+  // #aba ou #aba?q=texto (a busca global abre a aba já filtrada)
+  const [id, qs] = location.hash.slice(1).split("?");
+  ctx.buscaInicial = new URLSearchParams(qs || "").get("q") || "";
   const a = ABAS.find((x) => x.id === id) || ABAS[0];
   document.querySelectorAll("[data-aba]").forEach((el) => el.setAttribute("aria-pressed", el.dataset.aba === a.id));
   alvo.innerHTML = `<h2 style="font-size:1.4rem">${esc(a.nome)}</h2><div id="corpo-aba"></div>`;
@@ -64,6 +72,99 @@ async function abrirAba() {
 addEventListener("hashchange", abrirAba);
 abrirAba();
 hidratarIcones();
+
+/* =================== Busca única por pessoa =================== */
+let todosMembros = null; // admin: inclui quem ainda não tem cartão no diretório
+async function listaBusca() {
+  const m = new Map([...ctx.pessoas].map(([id, p]) => [id, { id, nome: p.nome, foto: p.foto }]));
+  if (admin) {
+    if (!todosMembros) { try { todosMembros = (await getDocs(collection(db, "members"))).docs.map((d) => ({ id: d.id, ...d.data() })); } catch { todosMembros = []; } }
+    todosMembros.forEach((x) => m.set(x.id, { ...m.get(x.id), id: x.id, nome: x.nome || m.get(x.id)?.nome, email: x.email, celular: x.celular, status: x.status, numeroMembro: x.numeroMembro, cargo: x.cargo, foto: x.foto || m.get(x.id)?.foto }));
+  }
+  return [...m.values()];
+}
+{
+  const inp = document.getElementById("busca-pessoa"), res = document.getElementById("busca-res");
+  let ativo = -1, atuais = [];
+  const fechar = () => { res.hidden = true; inp.setAttribute("aria-expanded", "false"); ativo = -1; };
+  const desenhar = async () => {
+    const q = normalizar(inp.value.trim());
+    if (q.length < 2) { fechar(); return; }
+    atuais = (await listaBusca()).filter((p) => normalizar(`${p.nome || ""} ${p.email || ""}`).includes(q))
+      .sort((a, b) => (a.nome || "").localeCompare(b.nome || "")).slice(0, 8);
+    res.innerHTML = atuais.length ? atuais.map((p, i) => `<li role="option" id="br-${i}" data-i="${i}" aria-selected="${i === ativo}">${avatar(p.nome, p.foto, "pequeno")}<span><b>${esc(p.nome || "(sem nome)")}</b>${p.email ? `<small class="muted">${esc(p.email)}</small>` : ""}</span>${p.status === "recusado" ? '<span class="selo perigo">Bloqueado</span>' : ""}</li>`).join("")
+      : `<li class="muted" aria-disabled="true">Ninguém encontrado com “${esc(inp.value.trim())}”.</li>`;
+    res.hidden = false; inp.setAttribute("aria-expanded", "true");
+  };
+  inp.addEventListener("input", () => { ativo = -1; desenhar(); });
+  inp.addEventListener("keydown", (e) => {
+    if (res.hidden || !atuais.length) return;
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); ativo = (ativo + (e.key === "ArrowDown" ? 1 : -1) + atuais.length) % atuais.length; desenhar(); inp.setAttribute("aria-activedescendant", "br-" + ativo); }
+    if (e.key === "Enter" && ativo >= 0) { e.preventDefault(); abrirPessoa(atuais[ativo]); }
+    if (e.key === "Escape") fechar();
+  });
+  res.addEventListener("click", (e) => { const li = e.target.closest("[data-i]"); if (li) abrirPessoa(atuais[+li.dataset.i]); });
+  document.addEventListener("click", (e) => { if (!e.target.closest(".busca-global")) fechar(); });
+  function abrirPessoa(p) {
+    fechar(); inp.value = "";
+    const q = encodeURIComponent(p.nome || p.email || "");
+    const wa = /\d{8,}/.test(String(p.celular || "").replace(/\D/g, "")) ? linkWhatsApp(`Olá, ${(p.nome || "").split(" ")[0]}!`, String(p.celular).replace(/\D/g, "").replace(/^(?!55)/, "55")) : "";
+    const d = abrirDialogo({
+      titulo: p.nome || "Pessoa",
+      corpo: `<div class="linha" style="gap:14px;margin-bottom:12px">${avatar(p.nome, p.foto)}<div>
+          <b>${esc(p.nome || "")}</b>${p.status ? ` <span class="selo ${p.status === "recusado" ? "perigo" : ""}">${esc(ESTADO_ROTULO[p.status] || p.status)}</span>` : ""}
+          <br><small class="muted">${esc([p.cargo, p.numeroMembro && "Nº " + p.numeroMembro, p.email, p.celular].filter(Boolean).join(" · "))}</small></div></div>
+        <div class="pilha">
+          ${admin ? `<a class="btn bloco" href="#membros?q=${q}" data-fechar>${icon("lapis")}Editar dados de membro</a>
+          <a class="btn secundario bloco" href="#cadastros?q=${q}" data-fechar>${icon("usuarios")}Ver no controle de cadastros</a>` : ""}
+          ${tesoureiro || admin ? `<a class="btn secundario bloco" href="#contribuicoes?q=${q}" data-fechar>${icon("moeda")}Contribuições</a>` : ""}
+          ${wa ? `<a class="btn fantasma bloco" href="${wa}" target="_blank" rel="noopener">${icon("whatsapp")}Conversar no WhatsApp</a>` : ""}
+        </div>`
+    });
+    return d;
+  }
+}
+
+/* =================== Pendências (visão geral) =================== */
+async function abaInicio(el) {
+  const itens = [];
+  const card = (id, ic, n, titulo, texto, aba, botao = "Resolver") => itens.push({ id, ic, n, titulo, texto, aba, botao });
+  el.innerHTML = `<p class="muted"><span class="carregando"></span> Verificando o que precisa da sua atenção…</p>`;
+  const contar = async (fn) => { try { return await fn(); } catch (e) { console.warn(e); return null; } };
+  const hoje = hojeISO();
+  const [semCartao, formsNovos, oracoesNovas, ausencias, ligacoes] = await Promise.all([
+    admin ? contar(async () => (await getDocs(collection(db, "members"))).docs.filter((d) => d.data().status !== "recusado" && !d.data().numeroMembro).length) : null,
+    admin ? contar(async () => (await getDocs(query(collection(db, "visitorForms"), where("status", "==", "novo")))).size) : null,
+    admin ? contar(async () => (await getDocs(query(collection(db, "prayerRequests"), where("status", "==", "novo")))).size) : null,
+    (admin || lider) ? contar(async () => {
+      const s = await getDocs(admin ? query(collection(db, "schedules"), where("data", ">=", hoje), orderBy("data"), limit(300))
+        : query(collection(db, "schedules"), where("liderIds", "array-contains", user.uid)));
+      return s.docs.map((d) => d.data()).filter((e) => e.data >= hoje && e.status === "ausente");
+    }) : null,
+    admin ? contar(async () => (await getDocs(query(collection(db, "spiritualLinks"), where("status", "==", "pendente")))).size) : null
+  ]);
+  if (semCartao) card("p-cad", "cartao", semCartao, "Cadastros sem carteirinha", "Membros novos esperando número e carteirinha.", "cadastros");
+  if (formsNovos) card("p-forms", "convite", formsNovos, "Formulários novos", "Visitantes, células, voluntariado e batismo aguardando contato.", "formularios", "Entrar em contato");
+  if (oracoesNovas) card("p-ora", "oracao", oracoesNovas, "Pedidos de oração novos", "Pedidos que ainda não foram marcados como “Estamos orando”.", "oracao", "Ver pedidos");
+  if (ausencias?.length) card("p-esc", "escala", ausencias.length, "Escalas com “Não posso”", ausencias.slice(0, 3).map((e) => `${nomeDe(e.memberId)} · ${e.ministerioNome || ""} · ${fmtData(e.data, { day: "2-digit", month: "short" })}`).join(" | ") + (ausencias.length > 3 ? " …" : ""), "escalas", "Ajustar escala");
+  if (ligacoes) card("p-arv", "arvore", ligacoes, "Ligações da Árvore da Fé", "Histórias enviadas pelos membros aguardando confirmação.", "arvore", "Revisar");
+  const atalhos = [
+    tesoureiro && { aba: "contribuicoes", ic: "moeda", t: "Lançar contribuição" },
+    (admin || lider) && { aba: "avisos", ic: "sino", t: "Enviar aviso" },
+    (admin || lider) && { aba: "escalas", ic: "escala", t: "Montar escala" },
+    admin && { aba: "eventos", ic: "ingresso", t: "Criar evento" },
+    admin && { aba: "conteudo", ic: "play", t: "Transmissão ao vivo" }
+  ].filter(Boolean);
+  el.innerHTML = `${itens.length ? `<div class="pendencias">${itens.map((i) => `
+      <article class="card pendencia" id="${i.id}"><div class="pend-num" aria-hidden="true">${i.n}</div>
+        <div class="pend-txt"><h3>${icon(i.ic)}${esc(i.titulo)} <span class="sr-only">(${i.n})</span></h3><p class="muted pequeno">${esc(i.texto)}</p></div>
+        <a class="btn pequeno" href="#${i.aba}">${esc(i.botao)}${icon("seta")}</a></article>`).join("")}</div>`
+    : `<div class="vazio">${icon("check")}<p class="vazio-titulo">Tudo em dia!</p><p>Nenhuma pendência no momento. Bom trabalho!</p></div>`}
+    ${atalhos.length ? `<h3 class="titulo-secao">Atalhos</h3><div class="linha">${atalhos.map((a) => `<a class="chip" href="#${a.aba}" style="text-decoration:none">${icon(a.ic)}${esc(a.t)}</a>`).join("")}</div>` : ""}`;
+  const total = itens.reduce((t, i) => t + i.n, 0);
+  const c = document.querySelector('[data-c="inicio"]');
+  if (c) c.innerHTML = total ? ` <span class="selo perigo" style="padding:0 7px">${total}</span>` : "";
+}
 
 // Contador de pendências
 (async () => {
@@ -86,7 +187,7 @@ async function abaCadastros(el) {
   el.innerHTML = `<span class="carregando"></span>`;
   const s = await getDocs(collection(db, "members"));
   const todos = s.docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => msCriado(b) - msCriado(a));
-  let filtro = "todos", busca = "";
+  let filtro = "todos", busca = ctx.buscaInicial || "";
   const desenhar = () => {
     const q = busca.trim().toLowerCase();
     const l = todos.filter((m) => (filtro === "todos" || (filtro === "novos" ? !m.numeroMembro && m.status !== "recusado" : m.status === filtro))
@@ -116,6 +217,7 @@ async function abaCadastros(el) {
     const bi = el.querySelector("#busca-cad");
     bi.oninput = () => { busca = bi.value; const pos = bi.selectionStart; desenhar(); const nb = el.querySelector("#busca-cad"); nb.focus(); nb.setSelectionRange(pos, pos); };
     const achar = (id) => todos.find((m) => m.id === id);
+    const marcarSaindo = (id) => el.querySelector(`[data-excluir="${id}"], [data-bloq="${id}"]`)?.closest("article")?.classList.add("saindo");
     const acao = (sel, fn) => el.querySelectorAll(sel).forEach((b) => b.onclick = async () => {
       b.disabled = true;
       try { await fn(achar(b.getAttribute(sel.slice(1, -1)))); } catch (e) { toast(mensagemErro(e), "erro"); }
@@ -128,18 +230,26 @@ async function abaCadastros(el) {
       toast("Acesso liberado.");
     });
     acao("[data-bloq]", async (m) => {
-      if (!(await confirmar(`Bloquear ${m.nome || m.email}? A pessoa perde o acesso à área do membro e some da lista de membros. Ela não consegue se cadastrar de novo com esta conta.`, { ok: "Bloquear", perigo: true }))) return;
-      await updateDoc(doc(db, "members", m.id), { status: "recusado", atualizadoEm: serverTimestamp() });
-      await deleteDoc(doc(db, "directory", m.id)).catch(() => {});
-      if (m.cartaoToken) await setDoc(doc(db, "cards", m.cartaoToken), { status: "inativo" }, { merge: true }).catch(() => {});
-      toast("Cadastro bloqueado.");
+      const nome = m.nome || m.email;
+      if (!(await confirmar(`Bloquear ${nome}? A pessoa perde o acesso à área do membro e some da lista de membros. Ela não consegue se cadastrar de novo com esta conta.`, { ok: "Bloquear " + (m.nome || "").split(" ")[0], perigo: true, titulo: "Bloquear cadastro" }))) return;
+      marcarSaindo(m.id);
+      const ok = await comDesfazer(`${nome} será bloqueado(a).`, async () => {
+        await updateDoc(doc(db, "members", m.id), { status: "recusado", atualizadoEm: serverTimestamp() });
+        await deleteDoc(doc(db, "directory", m.id)).catch(() => {});
+        if (m.cartaoToken) await setDoc(doc(db, "cards", m.cartaoToken), { status: "inativo" }, { merge: true }).catch(() => {});
+      });
+      if (ok) toast("Cadastro bloqueado.");
     });
     acao("[data-excluir]", async (m) => {
-      if (!(await confirmar(`Excluir de vez o cadastro de ${m.nome || m.email}? Os dados do cadastro são apagados. Atenção: se a pessoa entrar de novo, ela é aprovada automaticamente. Para impedir o acesso, use "Bloquear".`, { ok: "Excluir", perigo: true }))) return;
-      await deleteDoc(doc(db, "directory", m.id)).catch(() => {});
-      if (m.cartaoToken) await deleteDoc(doc(db, "cards", m.cartaoToken)).catch(() => {});
-      await deleteDoc(doc(db, "members", m.id));
-      toast("Cadastro excluído.");
+      const nome = m.nome || m.email;
+      if (!(await confirmar(`Excluir de vez o cadastro de ${nome}? Os dados do cadastro são apagados. Atenção: se a pessoa entrar de novo, ela é aprovada automaticamente. Para impedir o acesso, use "Bloquear".`, { ok: "Excluir " + (m.nome || "").split(" ")[0], perigo: true, titulo: "Excluir cadastro" }))) return;
+      marcarSaindo(m.id);
+      const ok = await comDesfazer(`Cadastro de ${nome} será excluído.`, async () => {
+        await deleteDoc(doc(db, "directory", m.id)).catch(() => {});
+        if (m.cartaoToken) await deleteDoc(doc(db, "cards", m.cartaoToken)).catch(() => {});
+        await deleteDoc(doc(db, "members", m.id));
+      });
+      if (ok) toast("Cadastro excluído.");
     });
   };
   desenhar();
