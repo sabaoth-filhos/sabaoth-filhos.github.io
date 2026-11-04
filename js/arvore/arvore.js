@@ -21,10 +21,10 @@ let visao = location.hash.slice(1) || "minha";
 const CARD_W = 184, CARD_H = 60, GAP_X = 22, GAP_Y = 64;
 
 app.innerHTML = `
-<div class="tabs" role="tablist" aria-label="Visões da árvore" style="margin-bottom:10px">
-  <button class="chip" role="tab" data-v="minha">${icon("pessoa")}Minha árvore</button>
-  <button class="chip" role="tab" data-v="igreja">${icon("arvore")}Árvore da igreja</button>
-  <button class="chip" role="tab" data-v="geracoes">${icon("grupo")}Gerações</button>
+<div class="tabs" aria-label="Visões da árvore" style="margin-bottom:10px">
+  <button class="chip" data-v="minha">${icon("pessoa")}Minha árvore</button>
+  <button class="chip" data-v="igreja">${icon("arvore")}Árvore da igreja</button>
+  <button class="chip" data-v="geracoes">${icon("grupo")}Gerações</button>
 </div>
 <div id="ferramentas" class="linha" style="margin-bottom:8px">
   <input id="busca" type="search" placeholder="Buscar pessoa…" aria-label="Buscar pessoa na árvore" style="flex:1;min-width:160px;min-height:44px">
@@ -69,7 +69,7 @@ function dadosHierarquia(modo) {
 
 // ---------- Desenho ----------
 const palco = document.getElementById("palco");
-const svg = d3.select(palco).append("svg").attr("width", "100%").attr("height", "100%").attr("role", "img").attr("aria-label", "Árvore da Fé");
+const svg = d3.select(palco).append("svg").attr("width", "100%").attr("height", "100%").attr("role", "group").attr("aria-label", "Árvore da Fé — use Tab para percorrer as pessoas");
 const g = svg.append("g");
 const zoom = d3.zoom().scaleExtent([0.15, 2.5]).on("zoom", (e) => g.attr("transform", e.transform));
 svg.call(zoom).on("dblclick.zoom", null);

@@ -52,10 +52,10 @@ const app = document.getElementById("app");
 app.innerHTML = `<p class="muted" style="margin-top:-8px">Você entrou como <b>${esc([admin && "admin", lider && !admin && "líder", tesoureiro && !admin && "tesoureiro"].filter(Boolean).join(", "))}</b>. Ninguém, nem o admin, acessa as anotações pessoais dos membros.</p>
   <div class="busca-global" role="search">
     <label class="sr-only" for="busca-pessoa">Buscar pessoa por nome</label>
-    ${icon("busca")}<input type="search" id="busca-pessoa" placeholder="Buscar pessoa por nome ou e-mail…" autocomplete="off" aria-controls="busca-res" aria-expanded="false">
+    ${icon("busca")}<input type="search" id="busca-pessoa" role="combobox" aria-autocomplete="list" placeholder="Buscar pessoa por nome ou e-mail…" autocomplete="off" aria-controls="busca-res" aria-expanded="false">
     <ul class="busca-res" id="busca-res" role="listbox" hidden></ul>
   </div>
-  <nav class="tabs" role="tablist" aria-label="Seções do painel" style="margin:8px 0 16px;flex-wrap:wrap">${ABAS.map((a) => `<a class="chip" role="tab" href="#${a.id}" data-aba="${a.id}">${icon(a.ic)}${esc(a.nome)}<span class="contador-aba" data-c="${a.id}"></span></a>`).join("")}</nav>
+  <nav class="tabs" aria-label="Seções do painel" style="margin:8px 0 16px;flex-wrap:wrap">${ABAS.map((a) => `<a class="chip" href="#${a.id}" data-aba="${a.id}">${icon(a.ic)}${esc(a.nome)}<span class="contador-aba" data-c="${a.id}"></span></a>`).join("")}</nav>
   <section id="aba" aria-live="polite"></section>`;
 const alvo = document.getElementById("aba");
 
@@ -65,7 +65,7 @@ async function abrirAba() {
   const [id, qs] = location.hash.slice(1).split("?");
   ctx.buscaInicial = new URLSearchParams(qs || "").get("q") || "";
   const a = ABAS.find((x) => x.id === id) || ABAS[0];
-  document.querySelectorAll("[data-aba]").forEach((el) => el.setAttribute("aria-pressed", el.dataset.aba === a.id));
+  document.querySelectorAll("[data-aba]").forEach((el) => el.dataset.aba === a.id ? el.setAttribute("aria-current", "page") : el.removeAttribute("aria-current"));
   alvo.innerHTML = `<h2 style="font-size:1.4rem">${esc(a.nome)}</h2><div id="corpo-aba"></div>`;
   a.fn(document.getElementById("corpo-aba"));
 }
@@ -552,12 +552,12 @@ async function abaArvore(el) {
     <td style="white-space:nowrap">${l.status === "pendente" ? `<button class="btn pequeno" data-aprovar="${esc(l.id)}">Aprovar</button>` : ""}<button class="btn-icone" data-mover="${esc(l.id)}" aria-label="Corrigir/mover">${icon("lapis")}</button><button class="btn-icone" data-hist="${esc(l.id)}" aria-label="Histórico">${icon("historico")}</button></td></tr>`;
   el.innerHTML = `
     <h3>Ligações aguardando confirmação (${pendentes.length})</h3>
-    <div class="tabela-wrap"><table><thead><tr><th>Membro</th><th>Ganho por</th><th>Como</th><th>Ano</th><th>Situação</th><th></th></tr></thead><tbody>${pendentes.map(linha).join("") || `<tr><td colspan="6" class="muted">Nenhuma pendente.</td></tr>`}</tbody></table></div>
+    <div class="tabela-wrap" tabindex="0" role="region" aria-label="Tabela (role para o lado para ver mais)"><table><thead><tr><th>Membro</th><th>Ganho por</th><th>Como</th><th>Ano</th><th>Situação</th><th></th></tr></thead><tbody>${pendentes.map(linha).join("") || `<tr><td colspan="6" class="muted">Nenhuma pendente.</td></tr>`}</tbody></table></div>
     <h3 style="margin-top:24px">Membros sem "ganho por" informado (${semLigacao.length})</h3>
     <p>${semLigacao.map((m) => `<span class="chip" style="cursor:default;margin:2px">${esc(m.nome)}</span>`).join("") || '<span class="muted">Todos preencheram. 🙌</span>'}</p>
     ${semLigacao.length ? `<div class="linha"><button class="btn pequeno" id="lembrar">${icon("sino")}Lembrar esses membros (aviso no app)</button><button class="btn secundario pequeno" id="lembrar-wa">${icon("whatsapp")}Copiar mensagem para WhatsApp</button></div>` : ""}
     <h3 style="margin-top:24px">Todas as ligações (${ligacoes.size})</h3>
-    <div class="tabela-wrap"><table><thead><tr><th>Membro</th><th>Ganho por</th><th>Como</th><th>Ano</th><th>Situação</th><th></th></tr></thead><tbody>${[...ligacoes.values()].sort((a, b) => nm(a.id).localeCompare(nm(b.id))).map(linha).join("")}</tbody></table></div>
+    <div class="tabela-wrap" tabindex="0" role="region" aria-label="Tabela (role para o lado para ver mais)"><table><thead><tr><th>Membro</th><th>Ganho por</th><th>Como</th><th>Ano</th><th>Situação</th><th></th></tr></thead><tbody>${[...ligacoes.values()].sort((a, b) => nm(a.id).localeCompare(nm(b.id))).map(linha).join("")}</tbody></table></div>
     <p style="margin-top:12px"><button class="btn secundario pequeno" id="nova-lig">${icon("mais")}Cadastrar ligação para um membro</button></p>`;
 
   const hist = (l, acao, extra = {}) => [...(l?.historico || []), { em: Date.now(), por: user.uid, acao, ...extra }].slice(-100);

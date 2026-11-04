@@ -24,6 +24,7 @@
   --sombra: 0 1px 2px rgba(15,14,13,.06), 0 6px 20px rgba(15,14,13,.07);
   --sombra-forte: 0 10px 40px rgba(15,14,13,.18);
   --sobre-ouro: #0F0E0D;
+  --sobre-perigo: #FFFFFF;
   --link: #0F0E0D;
   --perigo: #B3261E;
   --perigo-bg: #FDECEA;
@@ -54,7 +55,7 @@
     --bg: #12110F; --bg-suave: #1B1A17; --bg-elev: #201E1B;
     --texto: #F4F1EA; --texto-2: #CFC9BC; --texto-3: #A39D90;
     --borda: #34312B; --sombra: 0 1px 2px rgba(0,0,0,.4), 0 6px 20px rgba(0,0,0,.35);
-    --link: #F4F1EA; --perigo: #FF8A80; --perigo-bg: #3A1D1B; --ok: #B7D69A; --ok-bg: #1F2A17;
+    --link: #F4F1EA; --perigo: #FF8A80; --sobre-perigo: #12110F; --perigo-bg: #3A1D1B; --ok: #B7D69A; --ok-bg: #1F2A17;
     --aviso-bg: #2E2715; --verde-texto: #B7D69A; --foco: #8AB4F8;
     --hl-amarelo: #6B5A1C; --hl-verde: #3D5229; --hl-azul: #234B6B; --hl-rosa: #6B2D45;
     color-scheme: dark;
@@ -64,7 +65,7 @@
   --bg: #12110F; --bg-suave: #1B1A17; --bg-elev: #201E1B;
   --texto: #F4F1EA; --texto-2: #CFC9BC; --texto-3: #A39D90;
   --borda: #34312B; --sombra: 0 1px 2px rgba(0,0,0,.4), 0 6px 20px rgba(0,0,0,.35);
-  --link: #F4F1EA; --perigo: #FF8A80; --perigo-bg: #3A1D1B; --ok: #B7D69A; --ok-bg: #1F2A17;
+  --link: #F4F1EA; --perigo: #FF8A80; --sobre-perigo: #12110F; --perigo-bg: #3A1D1B; --ok: #B7D69A; --ok-bg: #1F2A17;
   --aviso-bg: #2E2715; --verde-texto: #B7D69A; --foco: #8AB4F8;
   --hl-amarelo: #6B5A1C; --hl-verde: #3D5229; --hl-azul: #234B6B; --hl-rosa: #6B2D45;
   color-scheme: dark;
@@ -186,7 +187,7 @@ svg.ic { width: 1.25em; height: 1.25em; flex: none; vertical-align: -.25em; }
 .btn.claro { background: #fff; color: var(--preto); }
 .btn.fantasma { background: transparent; color: var(--texto); }
 .btn.fantasma:hover { background: var(--bg-suave); box-shadow: none; }
-.btn.perigo { background: var(--perigo); color: #fff; }
+.btn.perigo { background: var(--perigo); color: var(--sobre-perigo); }
 .btn.pequeno { min-height: 40px; padding: 8px 16px; font-size: .9rem; }
 .btn.bloco { width: 100%; }
 .btn[disabled], .btn[aria-busy="true"] { opacity: .6; pointer-events: none; }
@@ -266,7 +267,7 @@ input:not([type]), input[type="text"], input[type="email"], input[type="password
   background: var(--bg-elev); color: var(--texto); font: inherit; transition: border-color var(--t), box-shadow var(--t);
 }
 textarea { min-height: 120px; resize: vertical; line-height: 1.5; }
-input:focus, select:focus, textarea:focus { outline: none; border-color: var(--ouro-escuro); box-shadow: 0 0 0 4px color-mix(in srgb, var(--ouro) 35%, transparent); }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--foco); box-shadow: 0 0 0 3px color-mix(in srgb, var(--foco) 30%, transparent); }
 input[aria-invalid="true"], textarea[aria-invalid="true"] { border-color: var(--perigo); }
 .check { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border: 1.5px solid var(--borda); border-radius: var(--raio-sm); cursor: pointer; background: var(--bg-elev); }
 .check input { width: 22px; height: 22px; margin-top: 2px; accent-color: var(--ouro-escuro); flex: none; }
@@ -275,7 +276,7 @@ input[aria-invalid="true"], textarea[aria-invalid="true"] { border-color: var(--
 .chip { display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; min-height: 44px; border-radius: 999px; border: 1.5px solid var(--borda); background: var(--bg-elev); cursor: pointer; font-weight: 600; font-size: .95rem; user-select: none; color: var(--texto); }
 .chip input { position: absolute; opacity: 0; pointer-events: none; }
 .chip svg { width: 18px; height: 18px; }
-.chip:has(input:checked), .chip[aria-pressed="true"] { background: var(--ouro); border-color: var(--ouro-escuro); color: var(--preto); }
+.chip:has(input:checked), .chip[aria-pressed="true"], .tabs a.chip[aria-current="page"] { background: var(--ouro); border-color: var(--ouro-escuro); color: var(--preto); }
 .chip:has(input:focus-visible) { outline: 3px solid var(--foco); outline-offset: 2px; }
 fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: 10px; }
 legend { font-weight: 700; margin-bottom: 8px; padding: 0; }

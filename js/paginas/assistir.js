@@ -23,7 +23,7 @@ function destaque() {
 function abas() {
   const el = document.getElementById("filtro-series");
   const itens = [{ id: "todas", titulo: "Todas" }, ...series];
-  el.innerHTML = itens.map((s) => `<button class="chip" role="tab" aria-pressed="${s.id === filtro}" aria-selected="${s.id === filtro}" data-id="${esc(s.id)}">${esc(s.titulo)}</button>`).join("");
+  el.innerHTML = itens.map((s) => `<button class="chip" aria-pressed="${s.id === filtro}" data-id="${esc(s.id)}">${esc(s.titulo)}</button>`).join("");
   el.onclick = (e) => { const b = e.target.closest("[data-id]"); if (!b) return; filtro = b.dataset.id; history.replaceState(null, "", filtro === "todas" ? "assistir.html" : "?serie=" + encodeURIComponent(filtro)); abas(); lista(); };
 }
 

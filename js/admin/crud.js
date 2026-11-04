@@ -92,7 +92,7 @@ export function montarCrud(alvo, cfg, ctx) {
         ${cfg.busca !== false ? `<input type="search" placeholder="Buscar…" value="${esc(termo)}" class="crud-busca" style="flex:1;min-width:160px;max-width:360px">` : "<span></span>"}
         <span class="linha">${cfg.extrasTopo || ""}${cfg.podeCriar !== false ? `<button class="btn pequeno crud-novo">${icon("mais")}Novo</button>` : ""}</span>
       </div>
-      <div class="tabela-wrap"><table><thead><tr>${cols.map((c) => `<th>${esc(c.rotulo)}</th>`).join("")}<th style="width:1%">Ações</th></tr></thead>
+      <div class="tabela-wrap" tabindex="0" role="region" aria-label="Tabela (role para o lado para ver mais)"><table><thead><tr>${cols.map((c) => `<th>${esc(c.rotulo)}</th>`).join("")}<th style="width:1%">Ações</th></tr></thead>
       <tbody>${vis.map((i) => `<tr data-id="${esc(i.id)}" ${i.ficticio ? 'title="Dado fictício de exemplo"' : ""}>${cols.map((c) => `<td>${celula(c, i[c.id], { ...ctx, item: i })}</td>`).join("")}
         <td style="white-space:nowrap">${cfg.acoesLinha ? cfg.acoesLinha(i, ctx) : ""}${cfg.podeEditar !== false ? `<button class="btn-icone" data-editar="${esc(i.id)}" aria-label="Editar">${icon("lapis")}</button>` : ""}${cfg.podeExcluir !== false ? `<button class="btn-icone" data-excluir="${esc(i.id)}" aria-label="Excluir">${icon("lixeira")}</button>` : ""}</td></tr>`).join("")
         || `<tr><td colspan="${cols.length + 1}" class="muted" style="text-align:center;padding:24px">Nada por aqui ainda.</td></tr>`}</tbody></table></div>

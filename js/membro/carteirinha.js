@@ -22,7 +22,7 @@ app.innerHTML = `
         <span><b>Nº:</b> ${esc(membro.numeroMembro || "—")}</span>
         ${membro.dataBatismo ? `<span><b>Batismo:</b> ${esc(fmtData(membro.dataBatismo))}</span>` : ""}
       </div>
-      <div class="qrbox" id="qr" aria-label="QR code de verificação"></div>
+      <div class="qrbox" id="qr" role="img" aria-label="QR code de verificação da carteirinha"></div>
     </div>
   </div>
   ${url ? "" : `<div class="alerta" style="max-width:420px">${icon("info")}<p>O QR code de verificação aparece depois que a secretaria gerar sua carteirinha no painel.</p></div>`}
@@ -46,7 +46,7 @@ document.getElementById("tela-cheia").onclick = async () => {
   ov.setAttribute("role", "dialog"); ov.setAttribute("aria-modal", "true"); ov.setAttribute("aria-label", "Carteirinha em tela cheia");
   ov.innerHTML = `<button class="btn-icone fechar-cheio" aria-label="Fechar tela cheia">${icon("fechar")}</button>
     <div class="cartao-cheio-area">${document.getElementById("cartao").outerHTML.replace('id="cartao"', "")}</div>
-    ${url ? `<div class="qr-grande" aria-label="QR code de verificação">${await qrSvg(url, 6).catch(() => "")}</div>` : ""}
+    ${url ? `<div class="qr-grande" role="img" aria-label="QR code de verificação da carteirinha">${await qrSvg(url, 6).catch(() => "")}</div>` : ""}
     <p class="pequeno">Aumente o brilho da tela para facilitar a leitura do QR code.</p>`;
   document.body.append(ov);
   document.documentElement.classList.add("sem-rolagem");

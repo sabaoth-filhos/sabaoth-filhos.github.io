@@ -56,7 +56,7 @@ function render() {
     <a class="btn secundario pequeno" href="culto.html">${icon("microfone")}Estou no culto</a>
     <a class="btn fantasma pequeno" href="biblia.html">${icon("biblia")}Anotar num versículo</a>
   </div>
-  <div class="tabs" role="tablist">${tabs.map(([k, t]) => `<button class="chip" role="tab" aria-pressed="${f.tipo === k}" data-t="${k}">${t}${k === "lixeira" ? ` (${notas.filter((n) => n.excluidoEm).length})` : ""}</button>`).join("")}</div>
+  <div class="tabs">${tabs.map(([k, t]) => `<button class="chip" aria-pressed="${f.tipo === k}" data-t="${k}">${t}${k === "lixeira" ? ` (${notas.filter((n) => n.excluidoEm).length})` : ""}</button>`).join("")}</div>
   <details class="card" style="margin:12px 0" ${f.de || f.ate || f.livro ? "open" : ""}><summary style="cursor:pointer;font-weight:700" class="linha">${icon("filtro")}Filtros e busca</summary>
     <div class="form" style="margin-top:12px">
       <div class="campo"><label for="fq">Buscar no texto</label><input id="fq" type="search" value="${esc(f.q)}"></div>

@@ -25,12 +25,12 @@
     <p>Igreja é família. Escolha por onde quer começar. O formulário é o mesmo e leva menos de um minuto.</p>
   </div></section>
   <section class="secao" style="padding-top:8px"><div class="container">
-    <div class="grid grid-3" role="tablist" aria-label="Escolha uma opção" id="opcoes">
-      <button class="card link" role="tab" data-tipo="grupo" style="text-align:left;cursor:pointer;font:inherit">
+    <div class="grid grid-3" aria-label="Escolha uma opção" id="opcoes">
+      <button class="card link" aria-pressed="false" data-tipo="grupo" style="text-align:left;cursor:pointer;font:inherit">
         <div class="icone-card verde"><i data-icon="grupo"></i></div><h3>Células e grupos</h3><p class="muted">Encontros semanais nas casas para estudar a Bíblia, orar e fazer amigos.</p></button>
-      <button class="card link" role="tab" data-tipo="voluntariado" style="text-align:left;cursor:pointer;font:inherit">
+      <button class="card link" aria-pressed="false" data-tipo="voluntariado" style="text-align:left;cursor:pointer;font:inherit">
         <div class="icone-card verde"><i data-icon="maoAmiga"></i></div><h3>Voluntariado</h3><p class="muted">Louvor, recepção, mídia, infantil… Há um lugar para você servir.</p></button>
-      <button class="card link" role="tab" data-tipo="batismo" style="text-align:left;cursor:pointer;font:inherit">
+      <button class="card link" aria-pressed="false" data-tipo="batismo" style="text-align:left;cursor:pointer;font:inherit">
         <div class="icone-card verde"><i data-icon="agua"></i></div><h3>Batismo</h3><p class="muted">Deu o passo de seguir Jesus? Inscreva-se na próxima turma de batismo.</p></button>
     </div>
     <div class="container estreito" style="padding:0;margin-top:24px"><div class="card" id="form-participar" tabindex="-1"></div></div>
@@ -42,7 +42,7 @@
   const alvo = document.getElementById("form-participar");
   const botoes = [...document.querySelectorAll("#opcoes [data-tipo]")];
   function escolher(tipo, foco) {
-    botoes.forEach(b => { b.setAttribute("aria-selected", b.dataset.tipo === tipo); b.style.borderColor = b.dataset.tipo === tipo ? "var(--ouro-escuro)" : ""; b.style.boxShadow = b.dataset.tipo === tipo ? "0 0 0 3px var(--ouro)" : ""; });
+    botoes.forEach(b => { b.setAttribute("aria-pressed", b.dataset.tipo === tipo); b.style.borderColor = b.dataset.tipo === tipo ? "var(--ouro-escuro)" : ""; b.style.boxShadow = b.dataset.tipo === tipo ? "0 0 0 3px var(--ouro)" : ""; });
     montarFormulario(alvo, tipo);
     history.replaceState(null, "", "#" + tipo);
     if (foco) alvo.scrollIntoView({ behavior: "smooth", block: "start" });

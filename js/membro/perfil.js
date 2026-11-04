@@ -28,7 +28,7 @@ ${completar ? `<div class="alerta" style="margin-bottom:16px">${icon("info")}<p>
     <div class="campo"><label for="celular">Celular / WhatsApp *</label><input id="celular" type="tel" inputmode="tel" required maxlength="30" value="${esc(m.celular || "")}" autocomplete="tel"></div>
     <div class="campo"><label for="aniversario">Data de aniversário *</label><input id="aniversario" type="date" required value="${esc(m.aniversario || "")}"></div>
     <div class="campo"><label for="endereco">Endereço <span class="muted">(opcional)</span></label><input id="endereco" maxlength="200" value="${esc(m.endereco || "")}" autocomplete="street-address"></div>
-    <div class="campo"><label>E-mail</label><input value="${esc(m.email || user.email || "")}" disabled></div>
+    <div class="campo"><label for="p-email">E-mail</label><input id="p-email" type="email" value="${esc(m.email || user.email || "")}" disabled><small class="ajuda">O e-mail da conta não pode ser alterado aqui.</small></div>
   </section>
 
   <section class="card pilha">
