@@ -1,26 +1,8 @@
-import { preencherDadosIgreja, videoFachada } from "./comum.js";
-import { getMensagens, getEventosPublicos, getSeries, youtubeId } from "../core/dados-publicos.js";
-import { esc, fmtData, fmtDataLonga, paraData, MESES } from "../core/ui.js";
-import { icon } from "../core/icons.js";
+import { preencherDadosIgreja } from "./comum.js";
+import { getEventosPublicos } from "../core/dados-publicos.js";
+import { esc, fmtDataLonga, paraData, MESES } from "../core/ui.js";
 
 preencherDadosIgreja();
-
-(async () => {
-  const [msgs, series] = await Promise.all([getMensagens(1), getSeries()]);
-  const alvo = document.getElementById("ultima-mensagem");
-  const m = msgs[0];
-  if (!m) {
-    alvo.innerHTML = `${videoFachada("", "")}<div><h2 id="t-msg">Em breve, a mensagem mais recente aqui</h2><p class="muted">Enquanto isso, acompanhe nosso canal no YouTube.</p><a class="btn secundario" href="assistir.html">${icon("assistir")}Ver mensagens</a></div>`;
-    return;
-  }
-  const s = series.find((x) => x.id === m.serieId);
-  alvo.innerHTML = `${videoFachada(youtubeId(m.youtube || m.youtubeId), m.titulo)}
-    <div>${s ? `<span class="selo" style="background:${esc(s.cor || "#2b2925")};color:#fff;border:0">Série: ${esc(s.titulo)}</span>` : ""}
-      <h2 id="t-msg" style="margin-top:10px">${esc(m.titulo)}</h2>
-      <p class="muted">${esc(m.pregador || "")}${m.data ? " · " + esc(fmtData(m.data)) : ""}</p>
-      ${m.resumo ? `<p>${esc(m.resumo)}</p>` : ""}
-      <a class="btn secundario" href="assistir.html">${icon("assistir")}Mais mensagens</a></div>`;
-})();
 
 (async () => {
   const ev = await getEventosPublicos(6);
