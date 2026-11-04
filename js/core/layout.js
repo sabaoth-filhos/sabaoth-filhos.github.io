@@ -250,5 +250,15 @@ document.addEventListener("membro-carregado", (e) => {
 
 // PWA: registra o service worker (escopo = raiz do site).
 if ("serviceWorker" in navigator && location.protocol !== "file:") {
-  addEventListener("load", () => navigator.serviceWorker.register(rota("sw.js"), { scope: ROOT }).catch(() => {}));
+  // updateViaCache "none": o navegador sempre confere se há versão nova do sw.js e do site-config.js.
+  addEventListener("load", () => navigator.serviceWorker.register(rota("sw.js"), { scope: ROOT, updateViaCache: "none" }).then((r) => r.update()).catch(() => {}));
+  // Quando uma versão nova assume, recarrega a página uma vez para mostrar tudo atualizado.
+  if (navigator.serviceWorker.controller) {
+    let recarregou = false;
+    const digitando = () => { const a = document.activeElement; return !!a && (a.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)); };
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      // Nunca recarrega no meio da digitação (ex.: anotações): a versão nova vale na próxima página.
+      if (!recarregou && !digitando() && !document.querySelector("dialog[open]")) { recarregou = true; location.reload(); }
+    });
+  }
 }

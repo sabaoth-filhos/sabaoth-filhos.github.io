@@ -61,7 +61,7 @@ self.addEventListener("fetch", (e) => {
   if (req.mode === "navigate") {
     e.respondWith((async () => {
       try {
-        const n = await fetch(req);
+        const n = await fetch(req, { cache: "no-cache" });
         const c = await caches.open(CACHE); c.put(req, n.clone());
         return n;
       } catch {
@@ -71,10 +71,19 @@ self.addEventListener("fetch", (e) => {
     })());
     return;
   }
-  // Arquivos do site: entrega do cache e atualiza em segundo plano.
+  // Arquivos do site (CSS, JS, imagens): rede primeiro, para nunca mostrar versão antiga
+  // quando há internet. O cache só entra sem conexão ou se a rede demorar mais de 4 s.
   e.respondWith(caches.open(CACHE).then(async (c) => {
-    const emCache = await c.match(req, { ignoreSearch: true });
-    const rede = fetch(req).then((n) => { if (n.ok) c.put(req, n.clone()); return n; }).catch(() => emCache);
-    return emCache || rede;
+    const emCache = () => c.match(req, { ignoreSearch: true });
+    try {
+      const n = await Promise.race([
+        fetch(req, { cache: "no-cache" }),
+        new Promise((_, falha) => setTimeout(() => falha(new Error("lento")), 4000))
+      ]);
+      if (n.ok) c.put(req, n.clone());
+      return n;
+    } catch {
+      return (await emCache()) || fetch(req);
+    }
   }));
 });
