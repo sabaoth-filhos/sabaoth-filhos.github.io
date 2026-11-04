@@ -202,3 +202,15 @@ export function comDesfazer(msg, executar, ms = 6000) {
     t.querySelector(".btn-desfazer").focus({ preventScroll: true });
   });
 }
+
+/** Esqueleto de carregamento: tipo "cards" (padrão), "linhas", "tabela" ou "texto". */
+export function esqueleto(tipo = "cards", n = 3) {
+  const linhas = (k) => `<span class="esq-linha t"></span>${Array.from({ length: k }, (_, i) => `<span class="esq-linha ${["c", "m", "p"][i % 3]}"></span>`).join("")}`;
+  const corpo = {
+    cards: `<div class="esq-grid">${Array.from({ length: n }, () => `<div class="esq-bloco esq-card">${linhas(2)}</div>`).join("")}</div>`,
+    linhas: `<div class="esq">${linhas(n)}</div>`,
+    tabela: `<div class="esq"><span class="esq-linha" style="height:40px;width:min(360px,100%)"></span>${Array.from({ length: n }, () => `<span class="esq-linha" style="height:44px;width:100%"></span>`).join("")}</div>`,
+    texto: `<div class="esq">${Array.from({ length: n }, (_, i) => `<span class="esq-linha ${i % 4 === 3 ? "m" : ""}" style="height:1.1em${i % 4 === 3 ? "" : ";width:100%"}"></span>`).join("")}</div>`
+  }[tipo];
+  return `<div role="status" aria-busy="true"><span class="sr-only">Carregando…</span>${corpo}</div>`;
+}

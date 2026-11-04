@@ -2,7 +2,7 @@
 import {
   collection, getDocs, query, doc, setDoc, addDoc, deleteDoc, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
-import { esc, abrirDialogo, confirmar, toast, mensagemErro, normalizar, fmtData, comDesfazer } from "../core/ui.js";
+import { esc, abrirDialogo, confirmar, toast, mensagemErro, normalizar, fmtData, comDesfazer, esqueleto } from "../core/ui.js";
 import { icon } from "../core/icons.js";
 
 /** Formata valor para a tabela. */
@@ -67,7 +67,7 @@ export function montarCrud(alvo, cfg, ctx) {
   const { db } = ctx;
   let itens = [], termo = cfg.busca !== false ? (ctx.buscaInicial || "") : "";
   async function carregar() {
-    alvo.innerHTML = `<p class="muted"><span class="carregando"></span> Carregando…</p>`;
+    alvo.innerHTML = esqueleto("tabela", 5);
     try {
       const s = await getDocs(cfg.consulta ? cfg.consulta(db, ctx) : query(collection(db, cfg.colecao)));
       itens = s.docs.map((d) => ({ id: d.id, ...d.data() })).map((i) => (cfg.preparar ? cfg.preparar(i) : i));

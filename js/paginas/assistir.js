@@ -31,7 +31,7 @@ function lista() {
   const t = normalizar(termo);
   const r = msgs.filter((m) => (filtro === "todas" || m.serieId === filtro) &&
     (!t || normalizar([m.titulo, m.pregador, m.referencias, m.resumo, serieDe(m.serieId)?.titulo].join(" ")).includes(t)));
-  const el = document.getElementById("lista-mensagens");
+  const el = document.getElementById("lista-mensagens"); el.removeAttribute("aria-busy");
   if (!msgs.length) { el.innerHTML = `<div class="vazio" style="grid-column:1/-1">As mensagens aparecerão aqui assim que forem cadastradas no painel.</div>`; return; }
   if (!r.length) { el.innerHTML = `<div class="vazio" style="grid-column:1/-1">Nenhuma mensagem encontrada para "${esc(termo)}".</div>`; return; }
   el.innerHTML = r.map((m) => {

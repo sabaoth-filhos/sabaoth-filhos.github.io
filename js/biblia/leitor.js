@@ -1,7 +1,7 @@
 // Leitor da Bíblia (área do membro).
 import { exigirMembro, registrarAntesDeSair } from "../core/sessao.js";
 import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
-import { esc, toast, abrirDialogo, normalizar, linkWhatsApp, copiar } from "../core/ui.js";
+import { esc, toast, abrirDialogo, normalizar, linkWhatsApp, copiar, esqueleto } from "../core/ui.js";
 import { icon, hidratarIcones } from "../core/icons.js";
 import { LIVROS } from "./livros.js";
 import { livroPorId, interpretar, formatar, faixas, chaveCap, chaveVers } from "./referencias.js";
@@ -69,7 +69,7 @@ async function render() {
   document.title = `${L.nome} ${cap} (${versao}) — Bíblia`;
   history.replaceState(null, "", `?v=${versao}&l=${livro}&c=${cap}`);
   texto.classList.toggle("comparar", comparar);
-  texto.innerHTML = `<p class="muted"><span class="carregando"></span></p>`;
+  texto.innerHTML = esqueleto("texto", 12);
   $("#direitos").textContent = [versao, comparar ? versao2 : null].filter(Boolean).map((id) => `${id}: ${VERSOES.find((v) => v.id === id)?.aviso || ""}`).join(" · ");
 
   let vs = null, vs2 = null, erro = null;

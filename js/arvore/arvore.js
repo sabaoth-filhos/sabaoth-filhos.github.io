@@ -1,7 +1,7 @@
 // Árvore da Fé — visualização interativa (D3, layout hierárquico de cima para baixo).
 import { exigirMembro, temPapel } from "../core/sessao.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
-import { esc, carregarScript, CDN, abrirDialogo, normalizar, toast, iniciais, hojeISO } from "../core/ui.js";
+import { esc, carregarScript, CDN, abrirDialogo, normalizar, toast, iniciais, hojeISO, esqueleto } from "../core/ui.js";
 import { icon, hidratarIcones } from "../core/icons.js";
 import { MODOS, carregarArvore, montarGrafo, geracoes, ancestrais, nomeVisivel, fotoVisivel } from "./dados.js";
 
@@ -12,7 +12,7 @@ await carregarScript(CDN.d3);
 const d3 = self.d3;
 
 const app = document.getElementById("app");
-app.innerHTML = `<p class="muted"><span class="carregando"></span> Montando a árvore…</p>`;
+app.innerHTML = `<p class="muted pequeno">Montando a árvore…</p>${esqueleto("cards", 4)}`;
 const dados = await carregarArvore(db);
 const { nos, raizes } = montarGrafo(dados);
 if (!nos.has(user.uid)) nos.set(user.uid, { id: user.uid, nome: membro.nome, foto: membro.foto, filhos: [], paiId: null, frutos: 0, geracao: 0, visibilidade: "foto" });

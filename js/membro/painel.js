@@ -1,7 +1,7 @@
 // Painel "Hoje": o que importa agora (escala, leitura, avisos, evento, aniversários) + acesso rápido.
 import { exigirMembro, temPapel } from "../core/sessao.js";
 import { collection, query, where, getDocs, orderBy, limit, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
-import { esc, hojeISO, fmtData, fmtDataLonga, paraData, MESES, avatar, toast, mensagemErro } from "../core/ui.js";
+import { esc, hojeISO, fmtData, fmtDataLonga, paraData, MESES, avatar, toast, mensagemErro, esqueleto } from "../core/ui.js";
 import { icon } from "../core/icons.js";
 import { meusAvisos, avisosLidos } from "./comum.js";
 import { SECOES } from "./secoes.js";
@@ -16,7 +16,7 @@ document.querySelector(".barra-membro h1").textContent = `${saudacao}, ${primeir
 document.title = `${saudacao}, ${primeiro} — IDPB Jave Sabaoth`;
 
 const secoes = SECOES.filter((s) => !s.papel || s.papel.some((p) => temPapel(membro, p)));
-const carregando = `<p class="muted pequeno"><span class="carregando"></span> Carregando…</p>`;
+const carregando = esqueleto("linhas", 2);
 const bloco = (id, ic, titulo, href) => `
   <section class="card hoje-card aparecer" id="${id}" aria-labelledby="${id}-t">
     <div class="hoje-cabeca"><span class="hoje-ic" aria-hidden="true">${icon(ic)}</span><h2 id="${id}-t">${titulo}</h2>

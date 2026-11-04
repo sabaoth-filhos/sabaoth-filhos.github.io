@@ -3,7 +3,7 @@ import { exigirMembro, temPapel, ehAdmin } from "../core/sessao.js";
 import {
   collection, getDocs, query, where, doc, getDoc, setDoc, updateDoc, deleteDoc, runTransaction, serverTimestamp, writeBatch, orderBy, limit, addDoc
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
-import { esc, toast, confirmar, comDesfazer, normalizar, abrirDialogo, mensagemErro, fmtData, fmtMoeda, hojeISO, idAleatorio, baixarArquivo, copiar, avatar, linkWhatsApp, rota } from "../core/ui.js";
+import { esc, toast, confirmar, comDesfazer, normalizar, abrirDialogo, mensagemErro, fmtData, fmtMoeda, hojeISO, idAleatorio, baixarArquivo, copiar, avatar, linkWhatsApp, rota, esqueleto } from "../core/ui.js";
 import { icon, hidratarIcones } from "../core/icons.js";
 import { montarCrud } from "./crud.js";
 import { LIVROS } from "../biblia/livros.js";
@@ -129,7 +129,7 @@ async function listaBusca() {
 async function abaInicio(el) {
   const itens = [];
   const card = (id, ic, n, titulo, texto, aba, botao = "Resolver") => itens.push({ id, ic, n, titulo, texto, aba, botao });
-  el.innerHTML = `<p class="muted"><span class="carregando"></span> Verificando o que precisa da sua atenção…</p>`;
+  el.innerHTML = esqueleto("cards", 3);
   const contar = async (fn) => { try { return await fn(); } catch (e) { console.warn(e); return null; } };
   const hoje = hojeISO();
   const [semCartao, formsNovos, oracoesNovas, ausencias, ligacoes] = await Promise.all([
@@ -184,7 +184,7 @@ async function abaInicio(el) {
 const ESTADO_ROTULO = { aprovado: "Ativo", pendente: "Pendente", recusado: "Bloqueado", inativo: "Inativo" };
 const msCriado = (m) => (m.criadoEm && typeof m.criadoEm.toMillis === "function") ? m.criadoEm.toMillis() : 0;
 async function abaCadastros(el) {
-  el.innerHTML = `<span class="carregando"></span>`;
+  el.innerHTML = esqueleto("cards", 4);
   const s = await getDocs(collection(db, "members"));
   const todos = s.docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => msCriado(b) - msCriado(a));
   let filtro = "todos", busca = ctx.buscaInicial || "";
@@ -539,7 +539,7 @@ async function abaBiblia(el) {
 
 /* =================== Árvore da Fé =================== */
 async function abaArvore(el) {
-  el.innerHTML = `<span class="carregando"></span>`;
+  el.innerHTML = esqueleto("cards", 4);
   const [ls, ms] = await Promise.all([getDocs(collection(db, "spiritualLinks")), getDocs(query(collection(db, "members"), where("status", "==", "aprovado")))]);
   const ligacoes = new Map(ls.docs.map((d) => [d.id, { id: d.id, ...d.data() }]));
   const membros = ms.docs.map((d) => ({ id: d.id, ...d.data() }));

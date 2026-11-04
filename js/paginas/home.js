@@ -24,7 +24,7 @@ preencherDadosIgreja();
 
 (async () => {
   const ev = await getEventosPublicos(6);
-  const alvo = document.getElementById("eventos");
+  const alvo = document.getElementById("eventos"); alvo.removeAttribute("aria-busy");
   if (!ev.length) { alvo.innerHTML = `<div class="vazio" style="grid-column:1/-1">Nenhum evento agendado no momento. Fique de olho!</div>`; return; }
   alvo.innerHTML = ev.map((e) => {
     const d = paraData(e.data);

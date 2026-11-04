@@ -589,3 +589,18 @@ tr:last-child td { border-bottom: 0; }
 .toast-desfazer span { flex: 1; }
 .saindo { opacity: .45; pointer-events: none; transition: opacity .2s; }
 .tabs a.chip { text-decoration: none; }
+
+/* Esqueletos de carregamento */
+.esq { display: grid; gap: 12px; }
+.esq-bloco { position: relative; overflow: hidden; border-radius: var(--raio); background: var(--bg-suave); border: 1px solid var(--borda); }
+.esq-linha { position: relative; overflow: hidden; height: .9em; border-radius: 6px; background: var(--bg-suave); }
+.esq-linha.t { height: 1.3em; width: 55%; }
+.esq-linha.c { width: 80%; } .esq-linha.m { width: 62%; } .esq-linha.p { width: 38%; }
+.esq-bloco::after, .esq-linha::after { content: ""; position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--bg-elev) 70%, transparent), transparent); animation: esq-brilho 1.4s infinite; }
+@keyframes esq-brilho { to { transform: translateX(100%); } }
+.esq-card { padding: 16px; display: grid; gap: 10px; }
+.esq-grid { display: grid; gap: 14px; }
+@media (min-width: 760px) { .esq-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (prefers-reduced-motion: reduce) { .esq-bloco::after, .esq-linha::after { animation: none; } }
+.esq-bloco .esq-linha, .card .esq-linha { background: var(--borda); }
+.esq-bloco.esq-card { background: var(--bg-elev); }

@@ -65,8 +65,8 @@
     <div class="container">
       <p class="eyebrow">Última mensagem</p>
       <div class="destaque-mensagem" id="ultima-mensagem">
-        <div class="video"><div class="sem-video"><span class="carregando"></span></div></div>
-        <div><h2 id="t-msg">Carregando…</h2></div>
+        <div class="video esq-bloco" aria-hidden="true"></div>
+        <div role="status" aria-busy="true"><h2 id="t-msg" class="sr-only">Carregando a última mensagem…</h2><div class="esq"><span class="esq-linha t"></span><span class="esq-linha c"></span><span class="esq-linha m"></span></div></div>
       </div>
     </div>
   </section>
@@ -74,7 +74,7 @@
   <section class="secao" aria-labelledby="t-eventos">
     <div class="container">
       <div class="linha entre"><div><p class="eyebrow">Agenda</p><h2 id="t-eventos">Próximos eventos</h2></div></div>
-      <div class="grid grid-3" id="eventos" style="margin-top:12px"></div>
+      <div class="grid grid-3" id="eventos" style="margin-top:12px" aria-busy="true"><div class="esq-bloco esq-card" aria-hidden="true"><span class="esq-linha t"></span><span class="esq-linha c"></span><span class="esq-linha m"></span></div><div class="esq-bloco esq-card" aria-hidden="true"><span class="esq-linha t"></span><span class="esq-linha c"></span><span class="esq-linha m"></span></div><div class="esq-bloco esq-card" aria-hidden="true"><span class="esq-linha t"></span><span class="esq-linha c"></span><span class="esq-linha m"></span></div></div>
     </div>
   </section>
 
