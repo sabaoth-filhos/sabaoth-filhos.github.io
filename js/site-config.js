@@ -13,7 +13,7 @@ self.SITE_CONFIG = {
   BASE_URL: "https://sabaoth-filhos.github.io/",
 
   // Versão do cache do PWA. Aumente quando publicar mudanças grandes.
-  CACHE_VERSION: "v14",
+  CACHE_VERSION: "v15",
 
   // Dados padrão da igreja (usados enquanto o admin não preenche
   // "Conteúdo público" no painel, que fica em settings/public no Firestore).
@@ -21,8 +21,8 @@ self.SITE_CONFIG = {
     nome: "IDPB Jave Sabaoth",
     nomeCurto: "Jave Sabaoth",
     lema: "Proclamando a verdade da Bíblia no poder do Espírito Santo",
-    endereco: "[ENDEREÇO], Manaus – AM",
-    mapsQuery: "IDPB Jave Sabaoth Manaus AM", // texto usado no botão "Como chegar"
+    endereco: "Rua Quarenta B, 36 - Novo Aleixo, Manaus – AM, 69099-113",
+    mapsQuery: "Rua Quarenta B, 36, Novo Aleixo, Manaus - AM, 69099-113", // texto usado no botão "Como chegar"
     horarios: [
       { dia: "[DIA]", hora: "[HORÁRIO]", nome: "[NOME DO CULTO]" },
       { dia: "[DIA]", hora: "[HORÁRIO]", nome: "[NOME DO CULTO]" },
