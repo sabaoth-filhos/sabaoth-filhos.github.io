@@ -656,3 +656,7 @@ h1.titulo-h2 { font-size: clamp(1.6rem, 4.5vw, 2.4rem); }
 /* Link sem sublinhado (destacado pelo negrito; sublinha ao passar o mouse ou com foco) */
 a.link-sutil { text-decoration: none; font-weight: 700; color: var(--texto); }
 a.link-sutil:hover, a.link-sutil:focus-visible { text-decoration: underline; text-decoration-color: var(--ouro-escuro); }
+
+/* Rodapé sempre no fim da tela, mesmo em páginas curtas */
+body { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; }
+body > main { flex: 1 0 auto; }
