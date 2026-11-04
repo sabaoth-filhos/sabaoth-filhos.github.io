@@ -67,7 +67,7 @@ Procure por `[` nos arquivos (ex.: `[ENDEREÇO]`, `[CHAVE PIX]`) ou preencha pel
 |---|---|
 | Endereço, horários, redes, WhatsApp, Pix, titular | Painel → *Conteúdo público* (ou `js/site-config.js` → `IGREJA`) |
 | Avisos de direitos autorais **KJA / NTLH / ACF** (texto exato das editoras) | `js/site-config.js` → `BIBLIAS[].aviso` |
-| Foto do culto (home) | `assets/img/hero-culto.webp` (1600×1000, WebP, ~150 KB) |
+| Foto do culto (home) | Opcional. Hoje o topo da página inicial usa fundo escuro liso. Para usar uma foto, coloque `assets/img/hero-culto.webp` (1600×1000, WebP, ~150 KB) e o `<picture>` de volta no `.hero` do `index.html`. |
 | Foto da fachada | `assets/img/igreja-fachada.webp` |
 | Fotos de ministério infantil / células | `assets/img/ministerio-infantil.webp`, `assets/img/celulas.webp` |
 | Texto "Como é o culto", estacionamento, faixa etária do infantil | `primeira-visita.html` |
