@@ -132,32 +132,9 @@ function navInferior() {
   return n;
 }
 
-function footer() {
-  const f = document.createElement("footer");
-  f.className = "site-footer";
-  const wa = /^\d+$/.test(I.whatsapp) ? `https://wa.me/${I.whatsapp}` : "#";
-  f.innerHTML = `<div class="container">
-    <div class="rodape-grid">
-      <div>
-        <img src="${rota("assets/img/logo-idpb.png")}" alt="Logo da IDPB" width="64" height="77" style="width:64px;height:auto;margin-bottom:12px" loading="lazy">
-        <p class="lema">${esc(I.lema)}</p>
-        <p class="pequeno" style="color:#b9b3a6">${esc(I.nome)} · ${esc(I.endereco)}</p>
-        <div class="redes">
-          <a href="${esc(I.instagram.startsWith("http") ? I.instagram : "#")}" aria-label="Instagram" rel="noopener">${icon("instagram")}</a>
-          <a href="${esc(I.youtube.startsWith("http") ? I.youtube : "#")}" aria-label="YouTube" rel="noopener">${icon("youtube")}</a>
-          <a href="${esc(wa)}" aria-label="WhatsApp" rel="noopener">${icon("whatsapp")}</a>
-        </div>
-      </div>
-    </div>
-    <div class="base"><span>© ${new Date().getFullYear()} ${esc(I.nome)} · Igreja de Deus Pentecostal do Brasil</span></div>
-  </div>`;
-  return f;
-}
-
 function montar() {
   document.body.prepend(header());
   if (!areaMembro && pagina !== "entrar") document.querySelector(".site-header").after(barraVisita());
-  if (!document.body.dataset.semRodape) document.body.append(footer());
   document.body.append(navInferior());
   hidratarIcones();
   const bt = document.getElementById("btn-tema");

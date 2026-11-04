@@ -290,20 +290,7 @@ legend { font-weight: 700; margin-bottom: 8px; padding: 0; }
 .alerta.erro { background: var(--perigo-bg); border-color: var(--perigo); }
 .alerta p:last-child { margin: 0; }
 
-/* ---------- Rodapé ---------- */
-.site-footer { background: var(--preto); color: #e9e5dc; padding: 48px 0 28px; margin-top: 40px; }
-.site-footer a { color: #fff; text-decoration: none; }
-.site-footer a:hover, .site-footer a:focus-visible { color: var(--ouro); text-decoration: underline; text-decoration-color: var(--ouro); }
-.site-footer h4 { color: var(--ouro); font-size: .85rem; letter-spacing: .1em; text-transform: uppercase; }
-.site-footer ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
-.site-footer .rodape-grid { display: grid; gap: 28px; }
 
-.site-footer .lema { font-family: var(--fonte-titulo); font-weight: 700; color: #fff; }
-.site-footer .base { border-top: 1px solid #2f2c27; margin-top: 32px; padding-top: 18px; font-size: .85rem; color: #b9b3a6; display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; }
-.redes { display: flex; gap: 10px; }
-.redes a { width: 44px; height: 44px; border-radius: 999px; border: 1px solid #3a362f; display: grid; place-items: center; }
-.redes a:hover { background: #22201c; }
-.redes svg { width: 20px; height: 20px; }
 
 /* ---------- Diversos ---------- */
 .page-head { padding: 36px 0 12px; }
