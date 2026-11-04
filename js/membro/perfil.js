@@ -19,8 +19,8 @@ ${completar ? `<div class="alerta" style="margin-bottom:16px">${icon("info")}<p>
     <div class="linha" style="gap:16px">
       <div id="foto-prev">${avatar(m.nome, foto, "g")}</div>
       <div class="pilha" style="flex:1;min-width:180px">
-        <label class="btn secundario pequeno" style="width:max-content">${icon("pessoa")}Escolher foto<input type="file" accept="image/*" id="foto" class="sr-only"></label>
-        <button type="button" class="btn fantasma pequeno ${foto ? "" : "oculto"}" id="rem-foto" style="width:max-content">${icon("lixeira")}Remover foto</button>
+        <label class="btn secundario pequeno" style="align-self:flex-start">${icon("pessoa")}Escolher foto<input type="file" accept="image/*" id="foto" class="sr-only"></label>
+        <button type="button" class="btn fantasma pequeno ${foto ? "" : "oculto"}" id="rem-foto" style="align-self:flex-start">${icon("lixeira")}Remover foto</button>
         <small class="muted">A foto é reduzida no seu aparelho (256×256) antes de salvar.</small>
       </div>
     </div>

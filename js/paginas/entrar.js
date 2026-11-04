@@ -14,7 +14,7 @@ const CHAVE_EMAIL = "idpb_emailParaLogin";
 const msg = $("#msg");
 const mostrar = (texto, tipo = "") => {
   msg.innerHTML = `<div class="alerta ${tipo} aparecer">${icon(tipo === "erro" ? "alerta" : tipo === "ok" ? "check" : "info")}<p>${texto}</p></div>`;
-  msg.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  msg.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "nearest" });
 };
 const consent = $("#consentimento");
 try { consent.checked = localStorage.getItem("idpb_consentiu") === "1"; } catch {}

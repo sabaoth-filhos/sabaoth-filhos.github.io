@@ -69,6 +69,8 @@ function dadosHierarquia(modo) {
 
 // ---------- Desenho ----------
 const palco = document.getElementById("palco");
+// Respeita "reduzir movimento" do aparelho nas animações de zoom (d3 não passa pelo CSS).
+const DUR = matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 450;
 const svg = d3.select(palco).append("svg").attr("width", "100%").attr("height", "100%").attr("role", "group").attr("aria-label", "Árvore da Fé — use Tab para percorrer as pessoas");
 const g = svg.append("g");
 const zoom = d3.zoom().scaleExtent([0.15, 2.5]).on("zoom", (e) => g.attr("transform", e.transform));
@@ -161,7 +163,7 @@ function centralizar(id = null, escala = null, topo = false) {
   const alvo = id && raiz.descendants().find((d) => d.data.id === id);
   if (alvo) {
     const k = escala || 0.9;
-    svg.transition().duration(450).call(zoom.transform, d3.zoomIdentity.translate(W / 2 - alvo.x * k, (topo ? H * 0.16 : H / 2) - alvo.y * k).scale(k));
+    svg.transition().duration(DUR).call(zoom.transform, d3.zoomIdentity.translate(W / 2 - alvo.x * k, (topo ? H * 0.16 : H / 2) - alvo.y * k).scale(k));
     return;
   }
   const b = g.node().getBBox();
@@ -171,7 +173,7 @@ function centralizar(id = null, escala = null, topo = false) {
     const primeira = raiz.data.id === RAIZ_VIRTUAL ? raiz.children?.[0] : raiz;
     if (primeira) return centralizar(primeira.data.id, 0.75, true);
   }
-  svg.transition().duration(450).call(zoom.transform, d3.zoomIdentity.translate(W / 2 - (b.x + b.width / 2) * k, H / 2 - (b.y + b.height / 2) * k).scale(k));
+  svg.transition().duration(DUR).call(zoom.transform, d3.zoomIdentity.translate(W / 2 - (b.x + b.width / 2) * k, H / 2 - (b.y + b.height / 2) * k).scale(k));
 }
 
 // ---------- Painel da pessoa ----------
@@ -292,8 +294,8 @@ function mudarVisao(v, redesenhar = true) {
   if (ger) renderGeracoes(); else if (redesenhar) { destaqueId = null; construir(); } else construir();
 }
 document.querySelectorAll("[data-v]").forEach((b) => b.onclick = () => mudarVisao(b.dataset.v));
-document.getElementById("z-mais").onclick = () => svg.transition().call(zoom.scaleBy, 1.3);
-document.getElementById("z-menos").onclick = () => svg.transition().call(zoom.scaleBy, 1 / 1.3);
+document.getElementById("z-mais").onclick = () => svg.transition().duration(DUR ? 250 : 0).call(zoom.scaleBy, 1.3);
+document.getElementById("z-menos").onclick = () => svg.transition().duration(DUR ? 250 : 0).call(zoom.scaleBy, 1 / 1.3);
 document.getElementById("z-centro").onclick = () => centralizar(visao === "minha" ? user.uid : null);
 document.addEventListener("tema-alterado", () => desenhar());
 mudarVisao(["minha", "igreja", "geracoes"].includes(visao) ? visao : "minha");
