@@ -13,7 +13,7 @@ self.SITE_CONFIG = {
   BASE_URL: "https://sabaoth-filhos.github.io/",
 
   // Versão do cache do PWA. Aumente quando publicar mudanças grandes.
-  CACHE_VERSION: "v43",
+  CACHE_VERSION: "v44",
 
   // Páginas que podem ser ligadas/desligadas. Com false, o botão some do site e,
   // se alguém abrir o endereço direto, aparece "Página indisponível no momento".

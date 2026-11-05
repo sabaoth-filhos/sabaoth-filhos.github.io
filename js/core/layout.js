@@ -9,7 +9,7 @@ if (window.top !== window.self) {
   try { window.top.location.replace(window.location.href); } catch { /* navegador bloqueou: a página continua oculta */ }
 }
 import { icon, hidratarIcones } from "./icons.js";
-import { ROOT, rota, esc } from "./ui.js";
+import { ROOT, rota, esc, numeroWa } from "./ui.js";
 import { aoVivo } from "./agenda.js";
 import { SECOES } from "../membro/secoes.js";
 import "./como-chegar.js";
@@ -58,9 +58,9 @@ function menuConta() {
 
 const MENU = [
   { id: "inicio", nome: "Início", href: "index.html", ic: "casa" },
-  { id: "sobre", nome: "Sobre nós", href: "sobre.html", ic: "igreja" },
   { id: "chegar", nome: "Como chegar", maps: true, ic: "mapa" },   // abre o painel Como chegar (como-chegar.js)
   { id: "contribuir", nome: "Contribuir", href: "contribuir.html", ic: "presente" },
+  { id: "whatsapp", nome: "WhatsApp", wa: true, ic: "whatsapp" },   // abre a conversa no WhatsApp da igreja
   logado
     ? { id: "membro", nome: "Minha área", href: "membro/index.html", ic: "pessoa", cta: true }
     : { id: "entrar", nome: "Entrar", href: "entrar.html", ic: "entrar", cta: true }
@@ -68,8 +68,13 @@ const MENU = [
 
 const linkMapsDe = (X) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(X.mapsQuery || X.endereco || "")}`;
 // Atributos do link de um item do menu (o "Como chegar" aponta para o Maps e é interceptado pelo painel).
-const attrsMenu = (m) => m.maps ? `data-maps href="${esc(linkMapsDe(I))}" target="_blank" rel="noopener"` : `href="${rota(m.href)}"`;
-const linkWaDe = (X) => /^\d{10,15}$/.test(String(X.whatsapp || "")) ? `https://wa.me/${X.whatsapp}?text=${encodeURIComponent("Olá! Vim pelo site da IDPB Jave Sabaoth.")}` : "";
+// WhatsApp: usa os dados públicos já carregados nesta sessão (o número vem do painel → Conteúdo público).
+const Iatual = (() => { try { const c = JSON.parse(sessionStorage.getItem("pub_igreja") || "null"); return c && c.v ? { ...I, ...c.v } : I; } catch { return I; } })();
+const attrsMenu = (m) => m.maps ? `data-maps href="${esc(linkMapsDe(I))}" target="_blank" rel="noopener"`
+  : m.wa ? `data-wa href="${esc(linkWaDe(Iatual) || "#")}" target="_blank" rel="noopener" aria-label="WhatsApp (abre uma conversa com a igreja)"`
+  : `href="${rota(m.href)}"`;
+const liMenu = (m) => (m.wa && !linkWaDe(Iatual) ? "<li hidden>" : "<li>");
+const linkWaDe = (X) => numeroWa(X.whatsapp) ? `https://wa.me/${numeroWa(X.whatsapp)}?text=${encodeURIComponent("Olá! Vim pelo site da IDPB Jave Sabaoth.")}` : "";
 
 function aplicarTema(t) {
   if (t) document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme;
@@ -89,10 +94,10 @@ function header() {
       <span>${esc(I.nomeCurto)}<small>IDPB · Manaus</small></span>
     </a>
     <nav class="nav-principal" aria-label="Menu principal"><ul>
-      ${MENU.filter((m) => !m.cta).map((m) => `<li><a ${attrsMenu(m)} ${m.id === pagina ? 'aria-current="page"' : ""}>${icon(m.ic)}${m.nome}</a></li>`).join("")}
+      ${MENU.filter((m) => !m.cta).map((m) => `${liMenu(m)}<a ${attrsMenu(m)} ${m.id === pagina ? 'aria-current="page"' : ""}>${icon(m.ic)}${m.nome}</a></li>`).join("")}
       ${areaMembro ? "" : `${ativa("visita") ? `<li class="nav-visita"><a href="${rota("primeira-visita.html")}" ${pagina === "visita" ? 'aria-current="page"' : ""}>${icon("calendario")}Planejar minha visita</a></li>` : ""}
       ${ativa("oracao") ? `<li class="nav-visita"><a href="${rota("oracao.html")}" ${pagina === "oracao" ? 'aria-current="page"' : ""}>${icon("oracao")}Pedir oração</a></li>` : ""}
-      <li class="nav-visita" ${linkWaDe(I) ? "" : "hidden"}><a class="so-icone" data-wa href="${esc(linkWaDe(I) || "#")}" target="_blank" rel="noopener" aria-label="Falar no WhatsApp" title="Falar no WhatsApp">${icon("whatsapp")}</a></li>`}
+`}
       ${MENU.filter((m) => m.cta).map((m) => `<li><a href="${rota(m.href)}" class="cta" ${m.id === pagina ? 'aria-current="page"' : ""}>${icon(m.ic)}${m.nome}</a></li>`).join("")}
     </ul></nav>
     <div class="header-acoes">
@@ -110,7 +115,6 @@ function barraVisita() {
   b.innerHTML = `<div class="container"><nav class="barra-visita-acoes" aria-label="Visite a igreja">
     ${ativa("visita") ? `<a class="btn pequeno" href="${rota("primeira-visita.html")}" ${pagina === "visita" ? 'aria-current="page"' : ""}>${icon("calendario")}<span>Planejar minha visita</span></a>` : ""}
     ${ativa("oracao") ? `<a class="btn secundario pequeno" href="${rota("oracao.html")}" ${pagina === "oracao" ? 'aria-current="page"' : ""}>${icon("oracao")}<span>Pedir oração</span></a>` : ""}
-    <a class="btn secundario pequeno" data-wa href="${esc(linkWaDe(I) || "#")}" target="_blank" rel="noopener" ${linkWaDe(I) ? "" : "hidden"}>${icon("whatsapp")}<span>Falar no WhatsApp</span></a>
   </nav></div>`;
   return b;
 }
@@ -118,8 +122,7 @@ function barraVisita() {
 document.addEventListener("igreja-carregada", (e) => {
   const X = e.detail || {};
   document.querySelectorAll(".site-header [data-maps], .nav-inferior [data-maps], .barra-visita [data-maps]").forEach((a) => (a.href = linkMapsDe(X)));
-  document.querySelectorAll(".barra-visita [data-wa]").forEach((a) => { const l = linkWaDe(X); a.hidden = !l; if (l) a.href = l; });
-  document.querySelectorAll(".nav-visita [data-wa]").forEach((a) => { const l = linkWaDe(X); a.closest("li").hidden = !l; if (l) a.href = l; });
+  document.querySelectorAll(".site-header [data-wa], .nav-inferior [data-wa]").forEach((a) => { const l = linkWaDe(X); a.closest("li").hidden = !l; if (l) a.href = l; });
 });
 
 function navInferior() {
@@ -138,7 +141,7 @@ function navInferior() {
       <li><button type="button" id="btn-mais" aria-haspopup="dialog" ${noMais ? 'aria-current="page"' : ""}>${icon("menu")}<span>Mais</span></button></li></ul>`;
     return n;
   }
-  n.innerHTML = `<ul>${MENU.map((m) => `<li><a ${attrsMenu(m)} ${m.id === pagina ? 'aria-current="page"' : ""}>${icon(m.ic)}<span>${m.nome}</span></a></li>`).join("")}</ul>`;
+  n.innerHTML = `<ul>${MENU.map((m) => `${liMenu(m)}<a ${attrsMenu(m)} ${m.id === pagina ? 'aria-current="page"' : ""}>${icon(m.ic)}<span>${m.nome}</span></a></li>`).join("")}</ul>`;
   return n;
 }
 

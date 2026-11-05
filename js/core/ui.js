@@ -68,8 +68,16 @@ export async function copiar(texto, msg = "Copiado!") {
   toast(msg);
 }
 
+/** Número para o wa.me no formato internacional. Número brasileiro com DDD (10 ou 11 dígitos)
+ *  ganha o 55 automaticamente — sem ele, "92..." seria lido como código de país (Paquistão). */
+export function numeroWa(v) {
+  let n = String(v || "").replace(/\D/g, "");
+  if (n.length === 10 || n.length === 11) n = "55" + n;
+  return /^\d{12,15}$/.test(n) ? n : "";
+}
+
 export function linkWhatsApp(texto, numero = "") {
-  const n = String(numero || "").replace(/\D/g, "");
+  const n = numeroWa(numero) || String(numero || "").replace(/\D/g, "");
   return `https://wa.me/${n}?text=${encodeURIComponent(texto)}`;
 }
 

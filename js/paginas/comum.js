@@ -1,11 +1,11 @@
 // Preenche horários, endereço e links (Maps/WhatsApp) nas páginas públicas.
 import { getIgreja } from "../core/dados-publicos.js";
-import { esc } from "../core/ui.js";
+import { esc, numeroWa } from "../core/ui.js";
 import { icon } from "../core/icons.js";
 import { proximoCulto, aoVivo } from "../core/agenda.js";
 
 export const linkMaps = (I) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(I.mapsQuery || I.endereco)}`;
-export const linkWa = (I) => /^\d{10,}$/.test(String(I.whatsapp)) ? `https://wa.me/${I.whatsapp}?text=${encodeURIComponent("Olá! Vim pelo site da IDPB Jave Sabaoth.")}` : "#";
+export const linkWa = (I) => numeroWa(I.whatsapp) ? `https://wa.me/${numeroWa(I.whatsapp)}?text=${encodeURIComponent("Olá! Vim pelo site da IDPB Jave Sabaoth.")}` : "#";
 
 export async function preencherDadosIgreja() {
   const I = await getIgreja();

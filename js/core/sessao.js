@@ -4,7 +4,7 @@ import { signOut } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-aut
 import {
   doc, getDoc, setDoc, updateDoc, serverTimestamp, terminate, clearIndexedDbPersistence, waitForPendingWrites
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
-import { rota, esc, toast, confirmar } from "./ui.js";
+import { rota, esc, toast, confirmar, numeroWa } from "./ui.js";
 import { icon } from "./icons.js";
 
 export const PAPEIS = ["membro", "lider", "tesoureiro", "admin"];
@@ -137,8 +137,8 @@ const TIPOS_BLOQUEIO = {
 
 function telaBloqueio(tipo, titulo, texto) {
   const t = TIPOS_BLOQUEIO[tipo] || TIPOS_BLOQUEIO.offline;
-  const wa = String(SITE.IGREJA?.whatsapp || "");
-  const linkWa = /^\d{10,15}$/.test(wa)
+  const wa = numeroWa(SITE.IGREJA?.whatsapp);
+  const linkWa = wa
     ? `https://wa.me/${wa}?text=${encodeURIComponent("Olá! Preciso de ajuda com meu acesso à área do membro do site.")}`
     : "";
   const principal = {
