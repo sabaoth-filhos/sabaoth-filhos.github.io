@@ -16,6 +16,8 @@ import { SECOES } from "../membro/secoes.js";
 const SITE = self.SITE_CONFIG;
 const I = SITE.IGREJA;
 const pagina = document.body.dataset.pagina || "";
+// Páginas desativadas em site-config.js (PAGINAS_ATIVAS) não aparecem nos menus.
+const ativa = (id) => (SITE.PAGINAS_ATIVAS || {})[id] !== false;
 const logado = (() => { try { return localStorage.getItem("idpb_logado") === "1"; } catch { return false; } })();
 const areaMembro = document.body.dataset.area === "membro" || document.body.dataset.area === "admin";
 
@@ -85,9 +87,9 @@ function header() {
     </a>
     <nav class="nav-principal" aria-label="Menu principal"><ul>
       ${MENU.filter((m) => !m.cta).map((m) => `<li><a href="${rota(m.href)}" ${m.id === pagina ? 'aria-current="page"' : ""}>${icon(m.ic)}${m.nome}</a></li>`).join("")}
-      ${areaMembro ? "" : `<li class="nav-visita"><a href="${rota("primeira-visita.html")}" ${pagina === "visita" ? 'aria-current="page"' : ""}>${icon("calendario")}Planejar minha visita</a></li>
+      ${areaMembro ? "" : `${ativa("visita") ? `<li class="nav-visita"><a href="${rota("primeira-visita.html")}" ${pagina === "visita" ? 'aria-current="page"' : ""}>${icon("calendario")}Planejar minha visita</a></li>` : ""}
       <li class="nav-visita"><a data-maps href="${esc(linkMapsDe(I))}" target="_blank" rel="noopener">${icon("mapa")}Como chegar</a></li>
-      <li class="nav-visita"><a href="${rota("oracao.html")}" ${pagina === "oracao" ? 'aria-current="page"' : ""}>${icon("oracao")}Pedir oração</a></li>
+      ${ativa("oracao") ? `<li class="nav-visita"><a href="${rota("oracao.html")}" ${pagina === "oracao" ? 'aria-current="page"' : ""}>${icon("oracao")}Pedir oração</a></li>` : ""}
       <li class="nav-visita" ${linkWaDe(I) ? "" : "hidden"}><a class="so-icone" data-wa href="${esc(linkWaDe(I) || "#")}" target="_blank" rel="noopener" aria-label="Falar no WhatsApp" title="Falar no WhatsApp">${icon("whatsapp")}</a></li>`}
       ${MENU.filter((m) => m.cta).map((m) => `<li><a href="${rota(m.href)}" class="cta" ${m.id === pagina ? 'aria-current="page"' : ""}>${icon(m.ic)}${m.nome}</a></li>`).join("")}
     </ul></nav>
@@ -104,9 +106,9 @@ function barraVisita() {
   const b = document.createElement("div");
   b.className = "barra-visita";
   b.innerHTML = `<div class="container"><nav class="barra-visita-acoes" aria-label="Visite a igreja">
-    <a class="btn pequeno" href="${rota("primeira-visita.html")}" ${pagina === "visita" ? 'aria-current="page"' : ""}>${icon("calendario")}<span>Planejar minha visita</span></a>
-    <a class="btn secundario pequeno" data-maps href="${esc(linkMapsDe(I))}" target="_blank" rel="noopener">${icon("mapa")}<span>Como chegar</span></a>
-    <a class="btn secundario pequeno" href="${rota("oracao.html")}" ${pagina === "oracao" ? 'aria-current="page"' : ""}>${icon("oracao")}<span>Pedir oração</span></a>
+    ${ativa("visita") ? `<a class="btn pequeno" href="${rota("primeira-visita.html")}" ${pagina === "visita" ? 'aria-current="page"' : ""}>${icon("calendario")}<span>Planejar minha visita</span></a>` : ""}
+    <a class="btn ${ativa("visita") ? "secundario " : ""}pequeno" data-maps href="${esc(linkMapsDe(I))}" target="_blank" rel="noopener">${icon("mapa")}<span>Como chegar</span></a>
+    ${ativa("oracao") ? `<a class="btn secundario pequeno" href="${rota("oracao.html")}" ${pagina === "oracao" ? 'aria-current="page"' : ""}>${icon("oracao")}<span>Pedir oração</span></a>` : ""}
     <a class="btn secundario pequeno" data-wa href="${esc(linkWaDe(I) || "#")}" target="_blank" rel="noopener" ${linkWaDe(I) ? "" : "hidden"}>${icon("whatsapp")}<span>Falar no WhatsApp</span></a>
   </nav></div>`;
   return b;
@@ -140,6 +142,16 @@ function navInferior() {
 }
 
 function montar() {
+  // Endereço de uma página desativada aberto direto: mostra aviso no lugar do conteúdo.
+  if (["visita", "oracao"].includes(pagina) && !ativa(pagina)) {
+    const main = document.getElementById("conteudo");
+    if (main) main.innerHTML = `<section class="secao"><div class="container estreito" style="text-align:center">
+      <h1 style="font-size:1.8rem">Página indisponível no momento</h1>
+      <p class="muted">Esta seção do site ainda não está ativa.</p>
+      <p><a class="btn" href="${rota("index.html")}">${icon("casa")}Ir para a página inicial</a></p></div></section>`;
+    const r = document.querySelector('meta[name="robots"]') || document.head.appendChild(Object.assign(document.createElement("meta"), { name: "robots" }));
+    r.content = "noindex";
+  }
   document.body.prepend(header());
   if (!areaMembro && pagina !== "entrar") document.querySelector(".site-header").after(barraVisita());
   document.body.append(navInferior());

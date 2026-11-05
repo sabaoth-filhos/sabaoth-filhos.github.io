@@ -13,7 +13,15 @@ self.SITE_CONFIG = {
   BASE_URL: "https://sabaoth-filhos.github.io/",
 
   // Versão do cache do PWA. Aumente quando publicar mudanças grandes.
-  CACHE_VERSION: "v40",
+  CACHE_VERSION: "v41",
+
+  // Páginas que podem ser ligadas/desligadas. Com false, o botão some do site e,
+  // se alguém abrir o endereço direto, aparece "Página indisponível no momento".
+  // Para reativar no futuro, troque para true (e aumente CACHE_VERSION).
+  PAGINAS_ATIVAS: {
+    visita: false,   // primeira-visita.html — botão "Planejar minha visita"
+    oracao: false    // oracao.html — botão "Pedir oração"
+  },
 
   // Dados padrão da igreja (usados enquanto o admin não preenche
   // "Conteúdo público" no painel, que fica em settings/public no Firestore).

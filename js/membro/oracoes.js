@@ -8,7 +8,7 @@ const app = document.getElementById("app");
 try {
   const s = await getDocs(query(collection(db, "prayerRequests"), where("uid", "==", user.uid), orderBy("criadoEm", "desc")));
   const l = s.docs.map((d) => d.data());
-  app.innerHTML = `<a class="btn" href="../oracao.html">${icon("oracao")}Novo pedido de oração</a>
+  app.innerHTML = `${(self.SITE_CONFIG?.PAGINAS_ATIVAS || {}).oracao !== false ? `<a class="btn" href="../oracao.html">${icon("oracao")}Novo pedido de oração</a>` : ""}
     <p class="pequeno muted" style="margin-top:8px">Pedidos anônimos não aparecem aqui, porque não guardamos quem enviou.</p>
     <div class="pilha" style="margin-top:12px">${l.map((p) => `<article class="card"><div class="linha entre"><small class="muted">${esc(fmtData(p.criadoEm))}</small>
       <span class="selo ${p.status === "orado" ? "verde" : ""}">${p.status === "orado" ? "Estamos orando" : p.status === "respondido" ? "Respondido 🙌" : "Recebido"}</span></div>

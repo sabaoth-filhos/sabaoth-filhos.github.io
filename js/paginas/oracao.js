@@ -2,6 +2,7 @@
 import { enviarPedidoOracao } from "../core/forms.js";
 import { icon } from "../core/icons.js";
 import { esc, mensagemErro } from "../core/ui.js";
+if (document.getElementById("form-oracao")) {
 const f = document.getElementById("form-oracao");
 const anon = document.getElementById("anonimo");
 anon.addEventListener("change", () => document.getElementById("dados-pessoais").classList.toggle("oculto", anon.checked));
@@ -17,3 +18,4 @@ f.addEventListener("submit", async (e) => {
   } catch (err) { msg.innerHTML = `<div class="alerta erro">${icon("alerta")}<p>${esc(mensagemErro(err))}</p></div>`; }
   finally { b.removeAttribute("aria-busy"); }
 });
+}
