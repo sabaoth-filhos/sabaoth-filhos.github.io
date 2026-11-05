@@ -12,6 +12,7 @@ import { icon, hidratarIcones } from "./icons.js";
 import { ROOT, rota, esc } from "./ui.js";
 import { aoVivo } from "./agenda.js";
 import { SECOES } from "../membro/secoes.js";
+import "./como-chegar.js";
 
 const SITE = self.SITE_CONFIG;
 const I = SITE.IGREJA;
