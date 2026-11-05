@@ -64,6 +64,7 @@ export function montarFormulario(alvo, tipo) {
     ${f.campos.map(campoHtml).join("")}
     <div class="campo"><label for="f-msg">Quer contar algo? <span class="muted">(opcional)</span></label><textarea id="f-msg" name="mensagem" maxlength="2000"></textarea></div>
     <label class="check"><input type="checkbox" name="consentimento" required><span>Autorizo a igreja a usar estes dados para entrar em contato comigo, conforme a <a class="link-sutil" href="${rota("privacidade.html")}">política de privacidade</a>.</span></label>
+    <p class="aviso-recaptcha pequeno muted">Protegido pelo reCAPTCHA: valem a <a href="https://policies.google.com/privacy?hl=pt-BR" target="_blank" rel="noopener">Política de Privacidade</a> e os <a href="https://policies.google.com/terms?hl=pt-BR" target="_blank" rel="noopener">Termos de Serviço</a> do Google.</p>
     <div class="msg" role="alert" aria-live="assertive"></div>
     <button class="btn bloco" type="submit">${icon("seta")}Enviar</button>
   </form>`;

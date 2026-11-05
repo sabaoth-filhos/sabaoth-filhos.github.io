@@ -28,6 +28,17 @@ service cloud.firestore {
     function emailVerificado() { return request.auth.token.get('email_verified', false) == true; }
     // Pré-autorizado: e-mail confirmado E presente na lista allowlist/{email} mantida pelo admin.
     function preAutorizado() { return emailVerificado() && emailConta() != '' && exists(/databases/$(database)/documents/allowlist/$(emailConta())); }
+    // Data no formato AAAA-MM-DD (campo de data do navegador).
+    function dataValida(v) { return v is string && v.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$'); }
+    function dataOpc(campo) { return !(campo in dados()) || dados()[campo] == '' || dataValida(dados()[campo]); }
+    // Família: { conjuge: { nome }, filhos: [{ nome, nascimento }] } com tamanhos limitados.
+    function familiaValida() {
+      return !('familia' in dados()) || (dados().familia is map
+        && dados().familia.keys().hasOnly(['conjuge', 'filhos'])
+        && (!('conjuge' in dados().familia) || (dados().familia.conjuge is map && dados().familia.conjuge.keys().hasOnly(['nome'])
+              && (!('nome' in dados().familia.conjuge) || texto(dados().familia.conjuge.nome, 100))))
+        && (!('filhos' in dados().familia) || (dados().familia.filhos is list && dados().familia.filhos.size() <= 20)));
+    }
     function fotoValida() {
       return !('foto' in dados()) || dados().foto == '' ||
         (dados().foto is string && dados().foto.size() <= 60000 &&
@@ -117,6 +128,7 @@ service cloud.firestore {
         || (logado() && uid() == id && resource.data.status == 'aprovado'
           && mudou().hasOnly(['nome','celular','aniversario','foto','endereco','familia','arvoreVisibilidade','perfilCompleto','atualizadoEm'])
           && textoOpc('nome', 100) && textoOpc('celular', 30) && textoOpc('endereco', 200)
+          && dataOpc('aniversario') && familiaValida()
           && (!('arvoreVisibilidade' in dados()) || dados().arvoreVisibilidade in ['foto','nome','oculto'])
           && fotoValida())
         || (ehAdmin() && fotoValida());
@@ -130,6 +142,10 @@ service cloud.firestore {
       allow write: if (aprovado() && uid() == id
           && dados().keys().hasOnly(['nome','foto','aniversarioDia','aniversarioMes','arvore','atualizadoEm'])
           && texto(dados().nome, 100) && fotoValida()
+          // o nome mostrado aos outros é sempre o do cadastro (não dá para aparecer como "Pastor Fulano")
+          && dados().nome == eu().get('nome', '')
+          && (!('aniversarioDia' in dados()) || (dados().aniversarioDia is int && dados().aniversarioDia >= 1 && dados().aniversarioDia <= 31))
+          && (!('aniversarioMes' in dados()) || (dados().aniversarioMes is int && dados().aniversarioMes >= 1 && dados().aniversarioMes <= 12))
           && (!('arvore' in dados()) || dados().arvore in ['foto','nome','oculto']))
         || (ehAdmin() && fotoValida());
       allow delete: if ehAdmin();
@@ -151,7 +167,8 @@ service cloud.firestore {
     }
 
     match /ministries/{id} {
-      allow read: if aprovado();
+      // Só quem participa ou lidera o ministério (e o admin) vê o ministério, incluindo o WhatsApp do líder.
+      allow read: if aprovado() && (uid() in resource.data.get('membros', []) || uid() in resource.data.get('liderIds', []) || ehAdmin());
       allow create, delete: if ehAdmin();
       allow update: if ehAdmin() || (temPapel('lider') && uid() in resource.data.get('liderIds', [])
           && mudou().hasOnly(['membros','atualizadoEm']));
@@ -175,7 +192,7 @@ service cloud.firestore {
     match /registrations/{id} {
       allow read: if logado() && (resource.data.memberId == uid() || temPapel('lider') || ehAdmin());
       allow create: if aprovado() && dados().memberId == uid() && id == dados().eventId + '_' + uid()
-        && dados().keys().hasOnly(['eventId','memberId','nome','criadoEm']);
+        && dados().keys().hasOnly(['eventId','memberId','nome','criadoEm']) && textoOpc('nome', 100);
       allow delete: if (logado() && resource.data.memberId == uid()) || ehAdmin();
       allow update: if ehAdmin();
     }
@@ -212,18 +229,27 @@ service cloud.firestore {
     // ---------- Dados pessoais: anotações, destaques, progresso ----------
     // SOMENTE o dono. Nem líder nem admin.
     match /users/{dono}/{colecao}/{docId} {
-      allow read, write: if logado() && uid() == dono && colecao != 'notes';
+      allow read, delete: if logado() && uid() == dono && colecao != 'notes';
+      allow create, update: if logado() && uid() == dono && colecao != 'notes' && dados().keys().size() <= 20
+        && (colecao != 'highlights' || (
+              dados().keys().hasOnly(['livro','cap','v','cor','favorito','atualizadoEm'])
+              && texto(dados().livro, 10) && dados().cap is int && dados().v is int
+              && (dados().get('cor', null) == null || dados().cor in ['amarelo','verde','azul','rosa'])))
+        && (colecao != 'readingProgress' || (dados().keys().hasOnly(['versao','livro','cap','em']) && textoOpc('versao', 10) && textoOpc('livro', 10)))
+        && (colecao != 'state' || (!('lidos' in dados()) || (dados().lidos is list && dados().lidos.size() <= 3000)));
     }
     // Anotações: controle de versão contra perda entre aparelhos.
     // Uma atualização só é aceita se foi feita sobre a versão atual do servidor
     // (baseMs == atualizadoEm). Se não, o app guarda a outra como "versão anterior".
     match /users/{dono}/notes/{notaId} {
       allow read, delete: if logado() && uid() == dono;
-      allow create: if logado() && uid() == dono && dados().atualizadoEm is int && dados().texto is string;
-      allow update: if logado() && uid() == dono && dados().atualizadoEm is int && dados().texto is string
+      // ~100 mil caracteres por anotação (umas 40 páginas): sobra para qualquer uso normal.
+      allow create: if logado() && uid() == dono && dados().atualizadoEm is int && texto(dados().texto, 100000) && dados().keys().size() <= 30;
+      allow update: if logado() && uid() == dono && dados().atualizadoEm is int && texto(dados().texto, 100000) && dados().keys().size() <= 30
         && dados().get('baseMs', null) == resource.data.get('atualizadoEm', null);
       match /versoes/{versaoId} {
-        allow read, write: if logado() && uid() == dono;
+        allow read, delete: if logado() && uid() == dono;
+        allow create, update: if logado() && uid() == dono && (!('texto' in dados()) || texto(dados().texto, 100000)) && dados().keys().size() <= 40;
       }
     }
 

@@ -14,6 +14,19 @@ import {
 export const SITE = self.SITE_CONFIG;
 export const app = initializeApp(firebaseConfig);
 
+// App Check (reCAPTCHA v3, invisível): só aceita pedidos vindos do site de verdade e barra robôs
+// (formulários, cadastros, pedidos de oração). Fica desligado enquanto APP_CHECK_SITE_KEY estiver vazio,
+// e nunca roda em testes locais (localhost).
+const _local = ["localhost", "127.0.0.1"].includes(location.hostname);
+export const appCheckAtivo = !!(SITE.APP_CHECK_SITE_KEY && !_local);
+if (appCheckAtivo) {
+  try {
+    const { initializeAppCheck, ReCaptchaV3Provider } = await import("https://www.gstatic.com/firebasejs/12.19.0/firebase-app-check.js");
+    initializeAppCheck(app, { provider: new ReCaptchaV3Provider(SITE.APP_CHECK_SITE_KEY), isTokenAutoRefreshEnabled: true });
+    document.documentElement.classList.add("com-recaptcha");
+  } catch (e) { console.warn("App Check não iniciou:", e); }
+}
+
 // Mantém a pessoa conectada no celular (persistência local).
 export const auth = initializeAuth(app, {
   persistence: [indexedDBLocalPersistence, browserLocalPersistence],

@@ -135,11 +135,13 @@ export function carregarScript(src) {
   });
   return _scripts[src];
 }
+// Bibliotecas hospedadas no próprio site (assets/vendor/), copiadas do npm oficial.
+// Ficar no mesmo domínio dispensa SRI e permite uma CSP sem CDNs de terceiros.
 export const CDN = {
-  d3: "https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js",
-  qrcode: "https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js",
-  jspdf: "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js",
-  html2canvas: "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
+  d3: rota("assets/vendor/d3-7.9.0.min.js"),
+  qrcode: rota("assets/vendor/qrcode-generator-1.4.4.js"),
+  jspdf: rota("assets/vendor/jspdf-4.2.1.umd.min.js"),
+  html2canvas: rota("assets/vendor/html2canvas-1.4.1.min.js")
 };
 
 /** Gera SVG de QR code (biblioteca qrcode-generator). */

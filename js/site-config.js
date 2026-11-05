@@ -13,7 +13,7 @@ self.SITE_CONFIG = {
   BASE_URL: "https://sabaoth-filhos.github.io/",
 
   // Versão do cache do PWA. Aumente quando publicar mudanças grandes.
-  CACHE_VERSION: "v39",
+  CACHE_VERSION: "v40",
 
   // Dados padrão da igreja (usados enquanto o admin não preenche
   // "Conteúdo público" no painel, que fica em settings/public no Firestore).
@@ -43,6 +43,10 @@ self.SITE_CONFIG = {
     { id: "NTLH", nome: "Nova Tradução na Linguagem de Hoje", aviso: "[AVISO NTLH]" },
     { id: "ACF", nome: "Almeida Corrigida Fiel", aviso: "[AVISO ACF]" }
   ],
+
+  // Chave do site do reCAPTCHA v3 (pública) para o Firebase App Check (proteção contra robôs).
+  // Vazio = desligado. Como criar: README, seção "Proteção contra robôs (App Check)".
+  APP_CHECK_SITE_KEY: "",
 
   // Limite de versículos que podem ser copiados/compartilhados de uma vez.
   MAX_VERSICULOS_COPIA: 5

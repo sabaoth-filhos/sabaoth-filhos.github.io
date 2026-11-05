@@ -15,7 +15,7 @@ const ESQUELETO = [
   "css/style.css",
   "js/site-config.js", "js/firebase-config.js",
   "js/core/layout.js", "js/core/agenda.js", "js/membro/secoes.js", "js/core/ui.js", "js/core/icons.js", "js/core/firebase.js", "js/core/sessao.js", "js/core/dados-publicos.js", "js/core/forms.js", "js/core/pix.js", "js/core/imagem.js",
-  "js/paginas/comum.js", "js/paginas/home.js", "js/paginas/assistir.js", "js/paginas/entrar.js",
+  "js/paginas/comum.js", "js/paginas/home.js", "js/paginas/assistir.js", "js/paginas/entrar.js", "js/paginas/contribuir.js", "js/paginas/oracao.js", "js/paginas/primeira-visita.js", "js/paginas/verificar.js", "verificar.html",
   "membro/index.html", "membro/biblia.html", "membro/anotacoes.html", "membro/culto.html", "membro/carteirinha.html", "membro/perfil.html",
   "membro/avisos.html", "membro/escalas.html", "membro/eventos.html", "membro/celula.html", "membro/arvore.html", "membro/contribuicoes.html", "membro/oracoes.html",
   "js/membro/comum.js", "js/membro/painel.js", "js/membro/carteirinha.js", "js/membro/perfil.js", "js/membro/avisos.js", "js/membro/escalas.js", "js/membro/eventos.js", "js/membro/celula.js", "js/membro/contribuicoes.js", "js/membro/oracoes.js",

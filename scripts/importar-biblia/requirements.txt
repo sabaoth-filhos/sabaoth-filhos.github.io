@@ -1,2 +1,5 @@
-pdfplumber>=0.11
-firebase-admin>=6.5
+# Versões mínimas já sem falhas conhecidas (verificado com pip-audit em 05/11/2026).
+# pdfminer.six < 20251230 tem falhas ao abrir PDFs maliciosos (PYSEC-2026-1761/1762).
+pdfplumber>=0.11.10
+pdfminer.six>=20251230
+firebase-admin>=7.1

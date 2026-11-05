@@ -648,3 +648,8 @@ a.link-sutil:hover, a.link-sutil:focus-visible { text-decoration: underline; tex
 body { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; }
 body > main { flex: 1 0 auto; }
 #msg:not(:empty) { margin-bottom: 16px; }
+
+/* reCAPTCHA (App Check): selo escondido (ficaria sobre a barra do celular) e aviso exigido pelo Google nos formulários */
+.grecaptcha-badge { visibility: hidden !important; }
+.aviso-recaptcha { display: none; margin: 6px 0 0; }
+.com-recaptcha .aviso-recaptcha { display: block; }

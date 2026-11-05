@@ -1,6 +1,13 @@
 // Cabeçalho, menu inferior (celular), rodapé, tema e service worker.
 // Incluído em todas as páginas. Não carrega o Firebase (página pública rápida).
 import "../site-config.js";
+
+// Anti-clickjacking: o GitHub Pages não permite o cabeçalho X-Frame-Options/frame-ancestors,
+// então, se alguém abrir o site dentro de um <iframe> de outro site, a página some e tenta sair do quadro.
+if (window.top !== window.self) {
+  document.documentElement.style.display = "none";
+  try { window.top.location.replace(window.location.href); } catch { /* navegador bloqueou: a página continua oculta */ }
+}
 import { icon, hidratarIcones } from "./icons.js";
 import { ROOT, rota, esc } from "./ui.js";
 import { aoVivo } from "./agenda.js";

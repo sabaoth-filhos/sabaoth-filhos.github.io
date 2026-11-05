@@ -84,6 +84,19 @@ Painel admin → **Conteúdo público** → **Transmissão ao vivo**: cole o lin
 
 O destaque **“Próximo culto”** é calculado automaticamente a partir dos horários cadastrados (fuso de Manaus). Escreva o dia por extenso ou abreviado (“Domingo”, “Quarta-feira”, “Seg a Sex”) e a hora como “18h”, “19h30” ou “19:30”.
 
+### 9. Proteção contra robôs (App Check com reCAPTCHA v3)
+Impede que robôs enviem pedidos de oração, formulários e cadastros em massa (o que poderia esgotar a cota gratuita do Firebase). É invisível para quem usa o site.
+1. Em https://www.google.com/recaptcha/admin crie uma chave **reCAPTCHA v3** com o domínio `sabaoth-filhos.github.io`.
+2. Console do Firebase → **App Check** → app web → **reCAPTCHA v3** → cole a **chave secreta** (fica só no Firebase, nunca no site).
+3. Em `js/site-config.js`, preencha `APP_CHECK_SITE_KEY` com a **chave do site** (pública).
+4. Publique, confira por 1 ou 2 dias em App Check → *Métricas* que os pedidos aparecem como "verificados" e então clique em **Aplicar (Enforce)** para **Cloud Firestore** e **Authentication**.
+
+### 10. Segurança: ajustes no console (uma vez)
+- Firebase → Authentication → Configurações → **Domínios autorizados**: deixe só `sabaoth-filhos.github.io` e `idpb-jave-sabaoth.firebaseapp.com` (remova `localhost`).
+- Google Cloud Console → APIs e serviços → Credenciais → chave "Browser key": **Restrições de aplicativo** = referenciadores HTTP `https://sabaoth-filhos.github.io/*` e `https://idpb-jave-sabaoth.firebaseapp.com/*`.
+- GitHub → Settings → Pages → marque **Enforce HTTPS**.
+- Bibliotecas d3, jsPDF, html2canvas e QR code ficam em `assets/vendor/` (copiadas do npm, sem CDN). Toda página tem CSP em `<meta>`; se adicionar um serviço externo novo, inclua o domínio na CSP de todas as páginas.
+
 ## 🌐 Endereço do site e domínio próprio
 
 Todos os caminhos do site são **relativos**. A URL base fica num único arquivo, [`js/site-config.js`](js/site-config.js) (`BASE_URL`), usada no **link mágico** e no link de verificação da carteirinha. O `manifest.webmanifest` e o `sw.js` usam caminhos relativos ao local onde o site está, então não precisam ser alterados.
