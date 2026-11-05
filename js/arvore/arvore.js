@@ -251,7 +251,7 @@ async function paraPng() {
   clone.insertBefore(bg, clone.firstChild);
   const tit = document.createElementNS("http://www.w3.org/2000/svg", "text");
   Object.entries({ x: b.x, y: b.y - pad - 10, "font-family": "Montserrat, sans-serif", "font-weight": 800, "font-size": 22, fill: "#0F0E0D" }).forEach(([k, v]) => tit.setAttribute(k, v));
-  tit.textContent = `Árvore da Fé — IDPB Jave Sabaoth · ${new Date().toLocaleDateString("pt-BR")}`;
+  tit.textContent = `Árvore da Fé — IDPB Javé Sabaoth · ${new Date().toLocaleDateString("pt-BR")}`;
   clone.appendChild(tit);
   // exporta sempre em cores claras (para impressão)
   clone.querySelectorAll("rect[rx='14']").forEach((r) => r.setAttribute("fill", "#FFFFFF"));

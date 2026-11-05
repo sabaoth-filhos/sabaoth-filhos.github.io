@@ -5,7 +5,7 @@ import { icon } from "../core/icons.js";
 import { proximoCulto, aoVivo } from "../core/agenda.js";
 
 export const linkMaps = (I) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(I.mapsQuery || I.endereco)}`;
-export const linkWa = (I) => numeroWa(I.whatsapp) ? `https://wa.me/${numeroWa(I.whatsapp)}?text=${encodeURIComponent("Olá! Vim pelo site da IDPB Jave Sabaoth.")}` : "#";
+export const linkWa = (I) => numeroWa(I.whatsapp) ? `https://wa.me/${numeroWa(I.whatsapp)}?text=${encodeURIComponent("Olá! Vim pelo site da IDPB Javé Sabaoth.")}` : "#";
 
 export async function preencherDadosIgreja() {
   const I = await getIgreja();

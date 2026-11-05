@@ -1,4 +1,4 @@
-/* Service worker — IDPB Jave Sabaoth (PWA)
+/* Service worker — IDPB Javé Sabaoth (PWA)
    - Funciona em qualquer endereço: usa o escopo do registro (sem URL fixa).
    - Guarda o "esqueleto" do site (páginas, CSS, JS, ícones) para abrir sem internet.
    - NÃO guarda textos bíblicos: eles ficam só no cache do Firestore do usuário logado,

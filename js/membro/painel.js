@@ -13,7 +13,7 @@ const primeiro = (membro.nome || "irmão(ã)").split(" ")[0];
 const hora = Number(new Intl.DateTimeFormat("pt-BR", { hour: "numeric", hourCycle: "h23", timeZone: "America/Manaus" }).format(new Date()));
 const saudacao = hora < 12 ? "Bom dia" : hora < 18 ? "Boa tarde" : "Boa noite";
 document.querySelector(".barra-membro h1").textContent = `${saudacao}, ${primeiro}!`;
-document.title = `${saudacao}, ${primeiro} — IDPB Jave Sabaoth`;
+document.title = `${saudacao}, ${primeiro} — IDPB Javé Sabaoth`;
 
 const secoes = SECOES.filter((s) => !s.papel || s.papel.some((p) => temPapel(membro, p)));
 const carregando = esqueleto("linhas", 2);

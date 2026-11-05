@@ -1,6 +1,6 @@
-# IDPB Jave Sabaoth — site e área de membros
+# IDPB Javé Sabaoth — site e área de membros
 
-Site oficial da **IDPB Jave Sabaoth** (Igreja de Deus Pentecostal do Brasil, Manaus – AM):
+Site oficial da **IDPB Javé Sabaoth** (Igreja de Deus Pentecostal do Brasil, Manaus – AM):
 
 - **Parte pública**: início, primeira visita, assistir (mensagens por série), participar (células, voluntariado, batismo), oração, contribuir (Pix) e sobre.
 - **Área do membro** (com login): painel "Olá, nome", perfil e família, célula, escalas, eventos, contribuições, avisos, carteirinha digital com QR, **Bíblia com anotações** e **Árvore da Fé**.

@@ -121,7 +121,7 @@ async function exportarPdf(l) {
     const pdf = new jsPDF({ unit: "pt", format: "a4" });
     const M = 48, W = pdf.internal.pageSize.getWidth() - 2 * M, H = pdf.internal.pageSize.getHeight();
     let y = M;
-    pdf.setFont("helvetica", "bold"); pdf.setFontSize(16); pdf.text("Minhas anotações — IDPB Jave Sabaoth", M, y); y += 24;
+    pdf.setFont("helvetica", "bold"); pdf.setFontSize(16); pdf.text("Minhas anotações — IDPB Javé Sabaoth", M, y); y += 24;
     pdf.setFont("helvetica", "normal"); pdf.setFontSize(9); pdf.text(`Exportado em ${new Date().toLocaleString("pt-BR")} · ${l.length} anotação(ões)`, M, y); y += 20;
     for (const n of l) {
       const linhas = pdf.splitTextToSize(textoDaNota(n), W);

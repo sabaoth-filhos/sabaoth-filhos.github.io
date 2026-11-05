@@ -594,7 +594,7 @@ function abaFormularios(el) {
     campos: [
       { id: "tipo", rotulo: "Tipo", tipo: "select", opcoes: TIPOS, somenteTabela: true },
       { id: "nome", rotulo: "Nome", somenteTabela: true },
-      { id: "celular", rotulo: "Celular", somenteTabela: true, formatar: (v) => v ? `<a href="${linkWhatsApp("Olá, " + "tudo bem? Aqui é da IDPB Jave Sabaoth.", "55" + String(v).replace(/\D/g, "").replace(/^55/, ""))}" target="_blank" rel="noopener">${esc(v)}</a>` : "—" },
+      { id: "celular", rotulo: "Celular", somenteTabela: true, formatar: (v) => v ? `<a href="${linkWhatsApp("Olá, " + "tudo bem? Aqui é da IDPB Javé Sabaoth.", "55" + String(v).replace(/\D/g, "").replace(/^55/, ""))}" target="_blank" rel="noopener">${esc(v)}</a>` : "—" },
       { id: "extras", rotulo: "Detalhes", somenteTabela: true, formatar: (v, c) => esc([Object.entries(v || {}).map(([k, x]) => `${k}: ${[].concat(x).join(", ")}`).join(" · "), c.item.mensagem].filter(Boolean).join(" — ")) },
       { id: "criadoEm", rotulo: "Recebido", somenteTabela: true, tipo: "date" },
       { id: "status", rotulo: "Situação", tipo: "select", opcoes: [["novo", "Novo"], ["contato", "Em contato"], ["concluido", "Concluído"]] }

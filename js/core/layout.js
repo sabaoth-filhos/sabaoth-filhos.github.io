@@ -74,7 +74,7 @@ const attrsMenu = (m) => m.maps ? `data-maps href="${esc(linkMapsDe(I))}" target
   : m.wa ? `data-wa href="${esc(linkWaDe(Iatual) || "#")}" target="_blank" rel="noopener" aria-label="WhatsApp (abre uma conversa com a igreja)"`
   : `href="${rota(m.href)}"`;
 const liMenu = (m) => (m.wa && !linkWaDe(Iatual) ? "<li hidden>" : "<li>");
-const linkWaDe = (X) => numeroWa(X.whatsapp) ? `https://wa.me/${numeroWa(X.whatsapp)}?text=${encodeURIComponent("Olá! Vim pelo site da IDPB Jave Sabaoth.")}` : "";
+const linkWaDe = (X) => numeroWa(X.whatsapp) ? `https://wa.me/${numeroWa(X.whatsapp)}?text=${encodeURIComponent("Olá! Vim pelo site da IDPB Javé Sabaoth.")}` : "";
 
 function aplicarTema(t) {
   if (t) document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme;

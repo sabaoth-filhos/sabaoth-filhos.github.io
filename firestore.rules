@@ -1,7 +1,7 @@
 rules_version = '2';
 
 // =====================================================================
-//  Regras de segurança — IDPB Jave Sabaoth
+//  Regras de segurança — IDPB Javé Sabaoth
 //  Papéis ficam em members/{uid}.papeis (lista): "lider", "tesoureiro", "admin".
 //  Ninguém (nem admin) lê as anotações pessoais em users/{uid}/**.
 //  Publicar: Console Firebase > Firestore > Regras > colar este arquivo > Publicar.
