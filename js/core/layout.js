@@ -59,7 +59,7 @@ function menuConta() {
 const MENU = [
   { id: "inicio", nome: "Início", href: "index.html", ic: "casa" },
   { id: "sobre", nome: "Sobre nós", href: "sobre.html", ic: "igreja" },
-  { id: "participar", nome: "Participar", href: "participar.html", ic: "grupo" },
+  { id: "chegar", nome: "Como chegar", maps: true, ic: "mapa" },   // abre o painel Como chegar (como-chegar.js)
   { id: "contribuir", nome: "Contribuir", href: "contribuir.html", ic: "presente" },
   logado
     ? { id: "membro", nome: "Minha área", href: "membro/index.html", ic: "pessoa", cta: true }
@@ -67,6 +67,8 @@ const MENU = [
 ];
 
 const linkMapsDe = (X) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(X.mapsQuery || X.endereco || "")}`;
+// Atributos do link de um item do menu (o "Como chegar" aponta para o Maps e é interceptado pelo painel).
+const attrsMenu = (m) => m.maps ? `data-maps href="${esc(linkMapsDe(I))}" target="_blank" rel="noopener"` : `href="${rota(m.href)}"`;
 const linkWaDe = (X) => /^\d{10,15}$/.test(String(X.whatsapp || "")) ? `https://wa.me/${X.whatsapp}?text=${encodeURIComponent("Olá! Vim pelo site da IDPB Jave Sabaoth.")}` : "";
 
 function aplicarTema(t) {
@@ -87,9 +89,8 @@ function header() {
       <span>${esc(I.nomeCurto)}<small>IDPB · Manaus</small></span>
     </a>
     <nav class="nav-principal" aria-label="Menu principal"><ul>
-      ${MENU.filter((m) => !m.cta).map((m) => `<li><a href="${rota(m.href)}" ${m.id === pagina ? 'aria-current="page"' : ""}>${icon(m.ic)}${m.nome}</a></li>`).join("")}
+      ${MENU.filter((m) => !m.cta).map((m) => `<li><a ${attrsMenu(m)} ${m.id === pagina ? 'aria-current="page"' : ""}>${icon(m.ic)}${m.nome}</a></li>`).join("")}
       ${areaMembro ? "" : `${ativa("visita") ? `<li class="nav-visita"><a href="${rota("primeira-visita.html")}" ${pagina === "visita" ? 'aria-current="page"' : ""}>${icon("calendario")}Planejar minha visita</a></li>` : ""}
-      <li class="nav-visita"><a data-maps href="${esc(linkMapsDe(I))}" target="_blank" rel="noopener">${icon("mapa")}Como chegar</a></li>
       ${ativa("oracao") ? `<li class="nav-visita"><a href="${rota("oracao.html")}" ${pagina === "oracao" ? 'aria-current="page"' : ""}>${icon("oracao")}Pedir oração</a></li>` : ""}
       <li class="nav-visita" ${linkWaDe(I) ? "" : "hidden"}><a class="so-icone" data-wa href="${esc(linkWaDe(I) || "#")}" target="_blank" rel="noopener" aria-label="Falar no WhatsApp" title="Falar no WhatsApp">${icon("whatsapp")}</a></li>`}
       ${MENU.filter((m) => m.cta).map((m) => `<li><a href="${rota(m.href)}" class="cta" ${m.id === pagina ? 'aria-current="page"' : ""}>${icon(m.ic)}${m.nome}</a></li>`).join("")}
@@ -108,7 +109,6 @@ function barraVisita() {
   b.className = "barra-visita";
   b.innerHTML = `<div class="container"><nav class="barra-visita-acoes" aria-label="Visite a igreja">
     ${ativa("visita") ? `<a class="btn pequeno" href="${rota("primeira-visita.html")}" ${pagina === "visita" ? 'aria-current="page"' : ""}>${icon("calendario")}<span>Planejar minha visita</span></a>` : ""}
-    <a class="btn ${ativa("visita") ? "secundario " : ""}pequeno" data-maps href="${esc(linkMapsDe(I))}" target="_blank" rel="noopener">${icon("mapa")}<span>Como chegar</span></a>
     ${ativa("oracao") ? `<a class="btn secundario pequeno" href="${rota("oracao.html")}" ${pagina === "oracao" ? 'aria-current="page"' : ""}>${icon("oracao")}<span>Pedir oração</span></a>` : ""}
     <a class="btn secundario pequeno" data-wa href="${esc(linkWaDe(I) || "#")}" target="_blank" rel="noopener" ${linkWaDe(I) ? "" : "hidden"}>${icon("whatsapp")}<span>Falar no WhatsApp</span></a>
   </nav></div>`;
@@ -117,7 +117,7 @@ function barraVisita() {
 // Quando a página carrega os dados do painel (Conteúdo público), atualiza os links.
 document.addEventListener("igreja-carregada", (e) => {
   const X = e.detail || {};
-  document.querySelectorAll(".barra-visita [data-maps], .nav-visita [data-maps]").forEach((a) => (a.href = linkMapsDe(X)));
+  document.querySelectorAll(".site-header [data-maps], .nav-inferior [data-maps], .barra-visita [data-maps]").forEach((a) => (a.href = linkMapsDe(X)));
   document.querySelectorAll(".barra-visita [data-wa]").forEach((a) => { const l = linkWaDe(X); a.hidden = !l; if (l) a.href = l; });
   document.querySelectorAll(".nav-visita [data-wa]").forEach((a) => { const l = linkWaDe(X); a.closest("li").hidden = !l; if (l) a.href = l; });
 });
@@ -138,7 +138,7 @@ function navInferior() {
       <li><button type="button" id="btn-mais" aria-haspopup="dialog" ${noMais ? 'aria-current="page"' : ""}>${icon("menu")}<span>Mais</span></button></li></ul>`;
     return n;
   }
-  n.innerHTML = `<ul>${MENU.map((m) => `<li><a href="${rota(m.href)}" ${m.id === pagina ? 'aria-current="page"' : ""}>${icon(m.ic)}<span>${m.nome}</span></a></li>`).join("")}</ul>`;
+  n.innerHTML = `<ul>${MENU.map((m) => `<li><a ${attrsMenu(m)} ${m.id === pagina ? 'aria-current="page"' : ""}>${icon(m.ic)}<span>${m.nome}</span></a></li>`).join("")}</ul>`;
   return n;
 }
 
