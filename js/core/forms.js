@@ -1,4 +1,4 @@
-// Fluxo ÚNICO de formulário para: visita, células/grupos, voluntariado e batismo.
+// Fluxo ÚNICO de formulário para: visita, Mesas, voluntariado e batismo.
 // Todos gravam em visitorForms com o mesmo formato (o painel admin lê tudo num lugar só).
 import { esc, $, toast, mensagemErro, rota } from "./ui.js";
 import { icon, hidratarIcones } from "./icons.js";
@@ -15,9 +15,9 @@ export const FORMULARIOS = {
     ]
   },
   grupo: {
-    titulo: "Quero participar de uma célula",
-    sub: "Células são encontros na semana, em casas, para conversar, orar e fazer amigos.",
-    ok: "Recebemos! Um líder de célula vai falar com você em breve.",
+    titulo: "Quero participar de uma Mesa",
+    sub: "Mesas são encontros na semana, em casas, para conversar, orar e fazer amigos.",
+    ok: "Recebemos! Um líder de Mesa vai falar com você em breve.",
     campos: [
       { id: "bairro", rotulo: "Bairro onde você mora", tipo: "text" },
       { id: "melhorDia", rotulo: "Melhores dias", tipo: "chips", multi: true, opcoes: ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"] }

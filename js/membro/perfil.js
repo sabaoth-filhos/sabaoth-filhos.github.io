@@ -54,7 +54,7 @@ ${completar ? `<div class="alerta" style="margin-bottom:16px">${icon("info")}<p>
       ${[["foto", "Aparecer com foto"], ["nome", "Aparecer só com nome"], ["oculto", "Não aparecer (mostrar como \"Membro\")"]].map(([v, t]) =>
         `<label class="check"><input type="radio" name="arv" value="${v}" ${m.arvoreVisibilidade === v ? "checked" : ""}><span>${t}</span></label>`).join("")}
     </fieldset>
-    <small class="muted">Também vale para a lista da sua célula. Os ramos continuam ligados em qualquer opção.</small>
+    <small class="muted">Também vale para a lista da sua Mesa. Os ramos continuam ligados em qualquer opção.</small>
   </section>
 
   <div class="msg" role="alert"></div>

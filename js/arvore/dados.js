@@ -13,7 +13,7 @@ export const MODOS = {
   comunhao: { nome: "Comunhão", ic: "comunhao", cor: "#C47F2C" },
   evangelismo: { nome: "Evangelismo pessoal", ic: "evangelismo", cor: "#6B665D" },
   convite: { nome: "Convite para o culto", ic: "convite", cor: "#B08A2E" },
-  celula: { nome: "Célula/grupo", ic: "grupo", cor: "#7FA05C" },
+  celula: { nome: "Mesa", ic: "grupo", cor: "#7FA05C" },
   familia: { nome: "Família", ic: "familia", cor: "#A39D90" },
   outro: { nome: "Outro", ic: "outro", cor: "#BDB6A6" }
 };

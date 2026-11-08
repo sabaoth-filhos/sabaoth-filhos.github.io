@@ -2,7 +2,7 @@
 // `href` é relativo à pasta membro/. `papel`: só aparece para quem tem um desses papéis.
 export const SECOES = [
   { id: "perfil", href: "perfil.html", ic: "pessoa", t: "Perfil e família", s: "Seus dados, foto e família" },
-  { id: "celula", href: "celula.html", ic: "grupo", t: "Minha célula", s: "Encontro e participantes" },
+  { id: "celula", href: "celula.html", ic: "grupo", t: "Minha Mesa", s: "Encontro e participantes" },
   { id: "escalas", href: "escalas.html", ic: "escala", t: "Minhas escalas", s: "Confirme sua presença" },
   { id: "eventos", href: "eventos.html", ic: "ingresso", t: "Meus eventos", s: "Inscrições" },
   { id: "avisos", href: "avisos.html", ic: "sino", t: "Avisos", s: "Mural da igreja" },

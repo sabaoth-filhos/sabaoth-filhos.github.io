@@ -33,8 +33,8 @@ const ABAS = [
   admin && { id: "cadastros", nome: "Controle de cadastros", ic: "usuarios", fn: abaCadastros },
   admin && { id: "autorizados", nome: "E-mails autorizados", ic: "escudo", fn: abaAutorizados },
   admin && { id: "membros", nome: "Membros", ic: "usuarios", fn: abaMembros },
-  admin && { id: "grupos", nome: "Grupos", ic: "grupo", fn: abaGrupos },
-  !admin && lider && { id: "meugrupo", nome: "Meu grupo", ic: "grupo", fn: abaMeuGrupo },
+  admin && { id: "grupos", nome: "Mesas", ic: "grupo", fn: abaGrupos },
+  !admin && lider && { id: "meugrupo", nome: "Minha Mesa", ic: "grupo", fn: abaMeuGrupo },
   admin && { id: "ministerios", nome: "Ministérios", ic: "maoAmiga", fn: abaMinisterios },
   (admin || lider) && { id: "escalas", nome: "Escalas", ic: "escala", fn: abaEscalas },
   admin && { id: "eventos", nome: "Eventos", ic: "ingresso", fn: abaEventos },
@@ -150,7 +150,7 @@ async function abaInicio(el) {
   if (emAnalise) card("p-analise", "relogio", emAnalise, "Cadastros em análise", "Pessoas que entraram com e-mail fora da lista de autorizados e esperam você liberar o acesso.", "cadastros", "Liberar acesso");
   if (aRevisar) card("p-revisar", "alerta", aRevisar, "Cadastros antigos a revisar", "Entraram pela aprovação automática antiga e veem o conteúdo de membros sem terem sido conferidos.", "cadastros", "Revisar");
   if (semCartao) card("p-cad", "cartao", semCartao, "Cadastros sem carteirinha", "Membros liberados esperando número e carteirinha.", "cadastros");
-  if (formsNovos) card("p-forms", "convite", formsNovos, "Formulários novos", "Visitantes, células, voluntariado e batismo aguardando contato.", "formularios", "Entrar em contato");
+  if (formsNovos) card("p-forms", "convite", formsNovos, "Formulários novos", "Visitantes, Mesas, voluntariado e batismo aguardando contato.", "formularios", "Entrar em contato");
   if (oracoesNovas) card("p-ora", "oracao", oracoesNovas, "Pedidos de oração novos", "Pedidos que ainda não foram marcados como “Estamos orando”.", "oracao", "Ver pedidos");
   if (ausencias?.length) card("p-esc", "escala", ausencias.length, "Escalas com “Não posso”", ausencias.slice(0, 3).map((e) => `${nomeDe(e.memberId)} · ${e.ministerioNome || ""} · ${fmtData(e.data, { day: "2-digit", month: "short" })}`).join(" | ") + (ausencias.length > 3 ? " …" : ""), "escalas", "Ajustar escala");
   if (ligacoes) card("p-arv", "arvore", ligacoes, "Ligações da Árvore da Fé", "Histórias enviadas pelos membros aguardando confirmação.", "arvore", "Revisar");
@@ -431,9 +431,9 @@ function abaMembros(el) {
   }, ctx);
 }
 
-/* =================== Grupos / Meu grupo =================== */
+/* =================== Mesas / Minha Mesa (coleção groups) =================== */
 const CAMPOS_GRUPO = [
-  { id: "nome", rotulo: "Nome do grupo", obrigatorio: true, max: 80 },
+  { id: "nome", rotulo: "Nome da Mesa", obrigatorio: true, max: 80 },
   { id: "liderId", rotulo: "Líder", tipo: "membro", obrigatorio: true },
   { id: "liderWhatsapp", rotulo: "WhatsApp do líder", ajuda: "Só números com DDI e DDD, ex.: 5592999999999" },
   { id: "dia", rotulo: "Dia do encontro", tipo: "select", opcoes: ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"].map((d) => [d, d]) },
@@ -443,14 +443,14 @@ const CAMPOS_GRUPO = [
 ];
 function abaGrupos(el) {
   montarCrud(el, {
-    colecao: "groups", titulo: "Grupo", campos: CAMPOS_GRUPO, colunas: ["nome", "liderId", "dia", "horario", "membros"],
+    colecao: "groups", titulo: "Mesa", campos: CAMPOS_GRUPO, colunas: ["nome", "liderId", "dia", "horario", "membros"],
     ordenar: (a, b) => a.nome.localeCompare(b.nome),
     antesDeSalvar: (d) => { d.liderNome = nomeDe(d.liderId); if (!d.membros.includes(d.liderId)) d.membros.push(d.liderId); return d; }
   }, ctx);
 }
 function abaMeuGrupo(el) {
   montarCrud(el, {
-    colecao: "groups", titulo: "Grupo", podeCriar: false, podeExcluir: false,
+    colecao: "groups", titulo: "Mesa", podeCriar: false, podeExcluir: false,
     consulta: (db) => query(collection(db, "groups"), where("liderId", "==", user.uid)),
     campos: CAMPOS_GRUPO.filter((c) => ["dia", "horario", "local", "membros"].includes(c.id)).concat([{ id: "nome", rotulo: "Nome", somenteTabela: true }]),
     colunas: ["nome", "dia", "horario", "membros"],
@@ -563,7 +563,7 @@ async function abaAvisos(el) {
   ]);
   const alvos = [
     ...(admin ? [["geral|", "Todos os membros (geral)"]] : []),
-    ...gs.docs.map((d) => [`grupo|${d.id}`, "Grupo: " + d.data().nome]),
+    ...gs.docs.map((d) => [`grupo|${d.id}`, "Mesa: " + d.data().nome]),
     ...ms.docs.map((d) => [`ministerio|${d.id}`, "Ministério: " + d.data().nome])
   ];
   montarCrud(el, {
@@ -587,7 +587,7 @@ async function abaAvisos(el) {
 
 /* =================== Formulários e oração =================== */
 function abaFormularios(el) {
-  const TIPOS = [["visita", "Avise que você vem"], ["grupo", "Célula/grupo"], ["voluntariado", "Voluntariado"], ["batismo", "Batismo"]];
+  const TIPOS = [["visita", "Avise que você vem"], ["grupo", "Mesa"], ["voluntariado", "Voluntariado"], ["batismo", "Batismo"]];
   montarCrud(el, {
     colecao: "visitorForms", titulo: "Formulário", podeCriar: false,
     consulta: (db) => query(collection(db, "visitorForms"), orderBy("criadoEm", "desc"), limit(300)),
@@ -787,7 +787,7 @@ async function abaConteudo(el) {
 function abaFerramentas(el) {
   el.innerHTML = `<div class="card pilha" style="max-width:720px">
     <h3>Dados de exemplo (fictícios)</h3>
-    <p class="muted">Carrega 15 membros fictícios, grupos, ministérios, escalas, eventos, séries, mensagens, avisos e uma Árvore da Fé com 4 gerações. Tudo marcado como fictício (IDs "exemplo-…"), sem nenhum texto bíblico. Você é incluído(a) na "Célula Esperança" de exemplo.</p>
+    <p class="muted">Carrega 15 membros fictícios, Mesas, ministérios, escalas, eventos, séries, mensagens, avisos e uma Árvore da Fé com 4 gerações. Tudo marcado como fictício (IDs "exemplo-…"), sem nenhum texto bíblico. Você é incluído(a) na "Célula Esperança" de exemplo.</p>
     <div class="linha"><button class="btn" id="seed">${icon("mais")}Carregar dados de exemplo</button><button class="btn perigo" id="unseed">${icon("lixeira")}Remover dados de exemplo</button></div>
     <p id="seed-msg" class="pequeno" aria-live="polite"></p></div>`;
   const msg = el.querySelector("#seed-msg");

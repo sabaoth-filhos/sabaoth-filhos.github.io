@@ -2,8 +2,8 @@
 
 Site oficial da **IDPB Javé Sabaoth** (Igreja de Deus Pentecostal do Brasil, Manaus – AM):
 
-- **Parte pública**: início, primeira visita, assistir (mensagens por série), participar (células, voluntariado, batismo), oração, contribuir (Pix) e sobre.
-- **Área do membro** (com login): painel "Olá, nome", perfil e família, célula, escalas, eventos, contribuições, avisos, carteirinha digital com QR, **Bíblia com anotações** e **Árvore da Fé**.
+- **Parte pública**: início, primeira visita, assistir (mensagens por série), participar (Mesas, voluntariado, batismo), oração, contribuir (Pix) e sobre.
+- **Área do membro** (com login): painel "Olá, nome", perfil e família, Mesa, escalas, eventos, contribuições, avisos, carteirinha digital com QR, **Bíblia com anotações** e **Árvore da Fé**.
 - **Painel da liderança**: aprovação de cadastros e gestão de tudo (por papel: admin, líder, tesoureiro).
 
 Tecnologia: HTML, CSS e JavaScript puros (ES modules), **sem build**, hospedado no **GitHub Pages**; login e banco de dados no **Firebase** (Authentication + Cloud Firestore, plano gratuito Spark, sem Cloud Storage). É um **PWA**: pode ser instalado na tela inicial do celular e funciona offline nas partes já abertas.
@@ -69,7 +69,7 @@ Procure por `[` nos arquivos (ex.: `[ENDEREÇO]`, `[CHAVE PIX]`) ou preencha pel
 | Endereço, horários, redes, WhatsApp, Pix, titular | Painel → *Conteúdo público* (ou `js/site-config.js` → `IGREJA`) |
 | Avisos de direitos autorais **KJA / NTLH / ACF** (texto exato das editoras) | `js/site-config.js` → `BIBLIAS[].aviso` |
 | Foto do culto (home) | Opcional. Hoje o topo da página inicial usa fundo escuro liso. Para usar uma foto, coloque `assets/img/hero-culto.webp` (1600×1000, WebP, ~150 KB) e o `<picture>` de volta no `.hero` do `index.html`. |
-| Fotos de ministério infantil / células | `assets/img/ministerio-infantil.webp`, `assets/img/celulas.webp` |
+| Fotos de ministério infantil / Mesas | `assets/img/ministerio-infantil.webp`, `assets/img/celulas.webp` |
 | Texto "Como é o culto", estacionamento, faixa etária do infantil | `primeira-visita.html` |
 | História, vínculo com a IDPB, crenças | `sobre.html` |
 | Política de privacidade (data, e-mail do encarregado) | `privacidade.html` |
@@ -144,12 +144,12 @@ firestore.rules, firestore.indexes.json, firebase.json, manifest.webmanifest, sw
 | `settings/public` | dados públicos da igreja (endereço, horários, Pix, liderança) | todos leem · admin |
 | `series`, `sermons` | séries ("campanhas") e mensagens (YouTube) | todos leem · admin |
 | `events` | eventos (`publico`, `inscricoes`) | públicos: todos · demais: membros · admin |
-| `visitorForms` | "Avise que você vem", células, voluntariado, batismo (mesmo formato) | qualquer um cria · admin |
+| `visitorForms` | "Avise que você vem", Mesas, voluntariado, batismo (mesmo formato) | qualquer um cria · admin |
 | `prayerRequests` | pedidos de oração (anônimo = sem `uid`, nome ou contato) | qualquer um cria · autor e admin leem |
 | `members/{uid}` | cadastro completo; `status` (pendente/aprovado/recusado/inativo), `papeis[]`, `cargo`, `dataBatismo`, `dataMembresia`, `numeroMembro`, `cartaoToken`, `foto` (data URL), `familia{conjuge, filhos[]}` | o próprio (só dados pessoais) · admin |
 | `directory/{uid}` | o que outros membros podem ver: nome, foto (se permitido), dia/mês do aniversário | membros aprovados · o próprio |
 | `cards/{token}` | verificação pública da carteirinha (QR) — só por código, sem listar | todos (get) · admin |
-| `groups` | células: líder, dia, horário, local, `membros[]` | participantes e líder · admin; líder edita o próprio |
+| `groups` | Mesas (antes chamadas de células): líder, dia, horário, local, `membros[]` | participantes e líder · admin; líder edita o próprio |
 | `ministries` | ministérios: `liderIds[]`, `membros[]`, WhatsApp do líder | membros · admin |
 | `schedules` | escalas: ministério, pessoa, data, função, `status`, `motivo` | a pessoa e os líderes · admin/líder; a pessoa marca "Não poderei ir" |
 | `registrations/{evento_uid}` | inscrições em eventos | o próprio, líderes e admin |
@@ -184,7 +184,7 @@ Mudanças em relação à sugestão do briefing: `families` virou o campo `famil
 **Textos bíblicos licenciados**: nunca vão para o Git (`/biblias-pdf/`, `/biblias-json/` e `*.pdf` estão no `.gitignore`); ficam no Firestore com leitura só para aprovados; o cache offline só existe para quem está logado e é apagado ao sair; cópia e compartilhamento limitados a 5 versículos por vez (configurável em `MAX_VERSICULOS_COPIA`), sempre com referência e versão. Como em qualquer site, isso dificulta, mas não impede totalmente, a cópia por alguém determinado (ex.: captura de tela).
 
 **Limitações conhecidas** (escolhas conscientes para o plano gratuito, sem Cloud Functions):
-- Quem escolhe "não aparecer" na Árvore aparece como "Membro" para não líderes, mas o nome continua no `directory` (usado em aniversariantes e listas de célula).
+- Quem escolhe "não aparecer" na Árvore aparece como "Membro" para não líderes, mas o nome continua no `directory` (usado em aniversariantes e listas da Mesa).
 - A prevenção de ciclos na Árvore é completa no app e no painel; nas regras, o servidor bloqueia o ciclo direto (A↔B) e o auto-vínculo.
 - A busca por palavra em "Toda a Bíblia" baixa o livro inteiro de cada livro importado (uma vez; depois fica no cache do aparelho).
 - Cota do plano Spark: 50 mil leituras e 20 mil gravações por dia, o que sobra para cerca de 70 membros.
@@ -236,7 +236,7 @@ Chave de serviço: Console → ⚙ Configurações do projeto → **Contas de se
 
 ## 🧪 Dados de exemplo (fictícios)
 
-Painel → **Ferramentas → Carregar dados de exemplo**: 15 membros fictícios, 2 células, 2 ministérios, escalas, 3 eventos, 2 séries com 4 mensagens, avisos, contribuições e uma **Árvore da Fé com 4 gerações** (Maria → Márcia → Paulo → Lucas), com pessoa sem cadastro, "também contribuíram", privacidade e uma ligação pendente. Tudo tem "(fictício)" no nome, ID `exemplo-…` e `ficticio: true`. **Remover dados de exemplo** apaga tudo isso com um clique. Não há texto bíblico nos dados de exemplo.
+Painel → **Ferramentas → Carregar dados de exemplo**: 15 membros fictícios, 2 Mesas, 2 ministérios, escalas, 3 eventos, 2 séries com 4 mensagens, avisos, contribuições e uma **Árvore da Fé com 4 gerações** (Maria → Márcia → Paulo → Lucas), com pessoa sem cadastro, "também contribuíram", privacidade e uma ligação pendente. Tudo tem "(fictício)" no nome, ID `exemplo-…` e `ficticio: true`. **Remover dados de exemplo** apaga tudo isso com um clique. Não há texto bíblico nos dados de exemplo.
 
 ---
 

@@ -399,7 +399,7 @@
  "groups": [
   {
    "id": "exemplo-g1",
-   "nome": "Célula Esperança (fictícia)",
+   "nome": "Mesa Esperança (fictícia)",
    "liderId": "exemplo-m02",
    "liderNome": "Márcia Exemplo (fictícia)",
    "dia": "Quarta-feira",
@@ -414,7 +414,7 @@
   },
   {
    "id": "exemplo-g2",
-   "nome": "Célula Vida Nova (fictícia)",
+   "nome": "Mesa Vida Nova (fictícia)",
    "liderId": "exemplo-m12",
    "liderNome": "Débora Exemplo (fictícia)",
    "dia": "Sexta-feira",
@@ -579,8 +579,8 @@
   },
   {
    "id": "exemplo-n2",
-   "titulo": "Célula Esperança (exemplo)",
-   "texto": "Aviso fictício só para a Célula Esperança.",
+   "titulo": "Mesa Esperança (exemplo)",
+   "texto": "Aviso fictício só para a Mesa Esperança.",
    "alvoTipo": "grupo",
    "alvoId": "exemplo-g1",
    "criadoEm": "-2d"

@@ -48,7 +48,7 @@ export async function carregarExemplo(db, meuUid, aoProgresso = () => {}) {
     await b.commit();
     aoProgresso(Math.min(i + 400, ops.length), ops.length);
   }
-  // inclui você na célula de exemplo, para ver "Minha célula" funcionando
+  // inclui você na Mesa de exemplo, para ver "Minha Mesa" funcionando
   const b = writeBatch(db);
   b.update(doc(db, "groups", "exemplo-g1"), { membros: arrayUnion(meuUid) });
   await b.commit();
